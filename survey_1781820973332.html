@@ -1,0 +1,170 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>test</title><style>:root{--c-primary:#185FA5;--c-primary-light:#E8F1FB;--border:#E2E8F0;--text-muted:#6B7280;--c-success:#3B6D11;--c-success-light:#EAF3DE;}*{box-sizing:border-box;}body{font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;background:#F7F9FC;margin:0;padding:24px 16px;color:#1F2937;}.container{max-width:640px;margin:0 auto;}.header{background:#fff;border-radius:12px;padding:24px;margin-bottom:16px;border:1px solid var(--border);}.header h1{font-size:18px;margin:0 0 8px;color:var(--c-primary);}.header p{font-size:13px;color:var(--text-muted);line-height:1.7;white-space:pre-wrap;margin:0;}.form-card{background:#fff;border-radius:12px;padding:24px;border:1px solid var(--border);}.q-block{margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border);}.q-block:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}.q-label{display:block;font-size:14px;font-weight:600;margin-bottom:10px;}.q-input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;resize:vertical;}.opt-group,.rating-group{display:flex;flex-direction:column;gap:8px;}.rating-group{flex-direction:row;justify-content:space-between;}.opt-item,.rating-opt{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;}.rating-opt{flex-direction:column;flex:1;text-align:center;padding:12px 4px;}.opt-item:hover,.rating-opt:hover{background:var(--c-primary-light);}.opt-item input,.rating-opt input{margin:0;}.rating-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-top:4px;}.submit-btn{width:100%;padding:14px;background:var(--c-primary);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;margin-top:20px;}.submit-btn:disabled{background:#A0AEC0;cursor:not-allowed;}.submit-btn:hover:not(:disabled){background:#0C447C;}.status-msg{text-align:center;padding:40px 20px;}.status-msg.success{color:var(--c-success);}.status-msg.error{color:#D14343;}.status-msg.info{color:var(--c-primary);}.login-btn{display:block;width:100%;padding:14px;background:var(--c-primary);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none;}</style></head><body><div class="container"><div class="header"><h1>test</h1><p></p></div><div class="form-card" id="form-card"><div id="login-section"><p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">回答にはMicrosoft 365アカウントでのログインが必要です。</p><button class="login-btn" id="login-btn">Microsoft 365でログインして回答する</button></div><div id="form-section" style="display:none;"><div class="q-block"><label class="q-label">Q1. test</label><textarea class="q-input" data-qid="q_1781820962012_ht6a" data-qtype="text" rows="3" placeholder="回答を入力してください"></textarea></div><button class="submit-btn" id="submit-btn">回答を送信する</button></div><div id="status-section" style="display:none;"></div></div></div><script>const SURVEY_ID = "survey_1781820973332";
+const SP_CONFIG = {"clientId":"313ac5f9-2f4d-4e4d-ac06-f0948e6efd1a","tenantId":"d627f39c-6dbe-4d90-b1d2-f90f9af49f7d","siteUrl":"https://alcgp.sharepoint.com/sites/test629","listName":"人事情報管理ツール"};
+const QUESTIONS = [{"id":"q_1781820962012_ht6a","type":"text","text":"test","options":[]}];
+const AUTH_PAGE_URL = "https://koichi-1201.github.io/survey-forms/auth.html";
+
+let accessToken = null;
+let currentUserInfo = null;
+
+function getSelfUrl() {
+  const loc = window.location;
+  return loc.protocol + '//' + loc.host + loc.pathname;
+}
+
+function startLogin() {
+  sessionStorage.setItem('auth_cfg', JSON.stringify({ clientId: SP_CONFIG.clientId, tenantId: SP_CONFIG.tenantId }));
+  sessionStorage.setItem('auth_return_url', getSelfUrl());
+  window.location.href = AUTH_PAGE_URL;
+}
+
+function getTokenFromHash() {
+  const hash = window.location.hash;
+  if (!hash) return null;
+  const params = new URLSearchParams(hash.substring(1));
+  return params.get('access_token');
+}
+
+async function init() {
+  if (!SP_CONFIG.clientId) {
+    showStatus('error', 'このフォームは正しく設定されていません。管理者にお問い合わせください。');
+    return;
+  }
+
+  const hashToken = getTokenFromHash();
+  if (hashToken) {
+    accessToken = hashToken;
+    sessionStorage.setItem('survey_access_token', accessToken);
+    window.history.replaceState({}, '', window.location.pathname);
+  } else {
+    accessToken = sessionStorage.getItem('survey_access_token');
+  }
+
+  if (accessToken) {
+    try {
+      const userRes = await fetch('https://graph.microsoft.com/v1.0/me', {
+        headers: { Authorization: 'Bearer ' + accessToken }
+      });
+      if (!userRes.ok) throw new Error('認証期限切れ');
+      currentUserInfo = await userRes.json();
+      showForm();
+    } catch(e) {
+      sessionStorage.removeItem('survey_access_token');
+      accessToken = null;
+      document.getElementById('login-btn').addEventListener('click', startLogin);
+    }
+  } else {
+    document.getElementById('login-btn').addEventListener('click', startLogin);
+  }
+}
+
+function showForm() {
+  document.getElementById('login-section').style.display = 'none';
+  document.getElementById('form-section').style.display = 'block';
+  document.getElementById('submit-btn').addEventListener('click', submitSurvey);
+}
+
+function showStatus(type, message) {
+  document.getElementById('login-section').style.display = 'none';
+  document.getElementById('form-section').style.display = 'none';
+  const el = document.getElementById('status-section');
+  el.style.display = 'block';
+  el.className = 'status-msg ' + type;
+  el.textContent = message;
+}
+
+function collectAnswers() {
+  const answers = {};
+  QUESTIONS.forEach(function(q) {
+    if (q.type === 'text') {
+      const el = document.querySelector('textarea[data-qid="' + q.id + '"]');
+      answers[q.id] = { question: q.text, answer: el ? el.value.trim() : '' };
+    } else if (q.type === 'rating' || q.type === 'single') {
+      const checked = document.querySelector('input[name="' + q.id + '"]:checked');
+      answers[q.id] = { question: q.text, answer: checked ? checked.value : '' };
+    } else if (q.type === 'multi') {
+      const checkedEls = document.querySelectorAll('input[name="' + q.id + '"]:checked');
+      const checked = [];
+      checkedEls.forEach(function(c) { checked.push(c.value); });
+      answers[q.id] = { question: q.text, answer: checked.join('、') };
+    }
+  });
+  return answers;
+}
+
+function buildListsUrl(siteId, displayName) {
+  return 'https://graph.microsoft.com/v1.0/sites/' + siteId + '/lists?' + '$filter=displayName eq ' + encodeURIComponent("'" + displayName + "'");
+}
+
+async function submitSurvey() {
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = '送信中...';
+
+  const answers = collectAnswers();
+
+  try {
+    const siteUrlObj = new URL(SP_CONFIG.siteUrl);
+    const siteHostname = siteUrlObj.hostname;
+    const sitePath = siteUrlObj.pathname;
+    const siteRes = await fetch('https://graph.microsoft.com/v1.0/sites/' + siteHostname + ':' + sitePath, {
+      headers: { Authorization: 'Bearer ' + accessToken }
+    });
+    const siteData = await siteRes.json();
+    const siteId = siteData.id;
+
+    const responseListName = SP_CONFIG.listName + '_アンケート回答';
+    const listsRes = await fetch(buildListsUrl(siteId, responseListName), {
+      headers: { Authorization: 'Bearer ' + accessToken }
+    });
+    const listsData = await listsRes.json();
+    if (!listsData.value.length) throw new Error('回答リストが見つかりません');
+    const listId = listsData.value[0].id;
+
+    const userEmail = (currentUserInfo.mail || currentUserInfo.userPrincipalName || '').toLowerCase();
+    const empListRes = await fetch(buildListsUrl(siteId, SP_CONFIG.listName), {
+      headers: { Authorization: 'Bearer ' + accessToken }
+    });
+    const empListData = await empListRes.json();
+    let empId = '';
+    let empName = currentUserInfo.displayName || '';
+
+    if (empListData.value.length) {
+      const empListId = empListData.value[0].id;
+      const empItemsRes = await fetch('https://graph.microsoft.com/v1.0/sites/' + siteId + '/lists/' + empListId + '/items?expand=fields(select=EmpID,NameKanji,Email)&' + '$top=999', {
+        headers: { Authorization: 'Bearer ' + accessToken }
+      });
+      const empItemsData = await empItemsRes.json();
+      const matched = empItemsData.value.find(function(item) {
+        return (item.fields.Email || '').toLowerCase() === userEmail;
+      });
+      if (matched) {
+        empId = matched.fields.EmpID || '';
+        empName = matched.fields.NameKanji || empName;
+      }
+    }
+
+    const fields = {
+      SurveyId: SURVEY_ID,
+      EmpID: empId,
+      EmpName: empName,
+      AnswersJson: JSON.stringify(answers),
+      SubmittedAt: new Date().toISOString()
+    };
+
+    const postRes = await fetch('https://graph.microsoft.com/v1.0/sites/' + siteId + '/lists/' + listId + '/items', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fields: fields })
+    });
+    if (!postRes.ok) throw new Error(await postRes.text());
+
+    showStatus('success', '回答ありがとうございました。送信が完了しました。');
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = '回答を送信する';
+    showStatus('error', '送信エラー: ' + e.message);
+  }
+}
+
+init();
+</script></body></html>
