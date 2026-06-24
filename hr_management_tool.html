@@ -254,8 +254,6 @@
 .skeleton-row { display: flex; gap: 12px; padding: 12px; border-bottom: 1px solid var(--border); }
 .skeleton-cell { height: 16px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: skeleton-loading 1.4s ease-in-out infinite; border-radius: 4px; }
 @keyframes skeleton-loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-.progress-container { width: 100%; background: var(--c-gray-50); border-radius: 8px; overflow: hidden; height: 24px; margin: 8px 0; position: relative; }
-.progress-bar-fill { background: linear-gradient(90deg, var(--c-primary), var(--c-primary-mid)); height: 100%; transition: width 0.3s; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 600; }
 .btn:disabled, .btn[disabled] { opacity: 0.6; cursor: not-allowed; }
 .btn.btn-loading { color: transparent !important; pointer-events: none; position: relative; }
 .btn.btn-loading::after { content: ''; position: absolute; top: 50%; left: 50%; margin: -8px 0 0 -8px; width: 16px; height: 16px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: spin 0.6s linear infinite; }
@@ -1511,12 +1509,11 @@
     <div class="modal-body">
       <div class="config-form">
         <div class="config-note">
-          <strong>設定方法：</strong><br>
-          1. Azure Portal で <strong>アプリの登録</strong> を行い、Client ID を取得してください。<br>
-          2. 権限に <code>Sites.ReadWrite.All</code>（または <code>Sites.Manage.All</code>）を付与します。<br>
-          3. Redirect URI に このファイルを配置したSharePointページのURLを設定します。<br>
-          4. 対象の SharePoint サイトの URL と、データを保存する List 名を入力してください。<br>
-          ※ M365 Business Standard では Azure AD アプリ登録は無料で利用できます。
+          <strong>📌 設定について（Pattern C）：</strong><br>
+          ・<strong>Azure AD・SharePoint・GitHub接続情報</strong>はHTMLファイル内に組み込み済みです（読み取り専用）<br>
+          ・<strong>GitHub PAT・PAT有効期限・マイナンバー閲覧権限</strong>は管理者がここで設定すると、SharePoint経由で全利用者に同期されます<br>
+          ・利用者は<strong>Microsoft 365ログインのみで利用開始</strong>できます<br>
+          ※ 静的設定を変更する場合は HTML ファイルの FIXED_CONFIG を直接編集し、再デプロイしてください。
         </div>
         <div class="form-grid" style="display:grid;grid-template-columns:1fr;gap:14px;">
           <div class="form-group">
@@ -1569,7 +1566,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('config-modal')">キャンセル</button>
-      <button class="btn btn-primary" onclick="saveConfig()">保存して接続</button>
+      <button class="btn btn-primary" onclick="saveConfig()">設定を保存</button>
     </div>
   </div>
 </div>
@@ -2203,6 +2200,16 @@
 <div class="toast-container" id="toast-container"></div>
 
 <script>
+// ===== Pattern C: ハードコード設定 (Microsoft 365ログインのみで使える化) =====
+const FIXED_CONFIG = {
+  clientId: '313ac5f9-2f4d-4e4d-ac06-f0948e6efd1a',
+  tenantId: 'd627f39c-6dbe-4d90-b1d2-f90f9af49f7d',
+  siteUrl: 'https://alcgp.sharepoint.com/sites/test629',
+  listName: '人事情報管理ツール',
+  githubOwner: 'koichi-1201',
+  githubRepo: 'survey-forms',
+};
+
 // ===== Sprint 1: モバイル対応 + ローディング統一 =====
 function toggleSidebar() {
   const sidebar = document.querySelector('.sidebar');
@@ -2311,56 +2318,96 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
     return;
   }
-  // codeパラメータがない場合：保存済みrefresh_tokenでの自動ログインを試みる（リロード時のログイン維持）
+  // codeパラメータがない場合：保存済みrefresh_tokenでの自動ログインを試みる
   if (appConfig.clientId && appConfig.tenantId && localStorage.getItem('hr_tool_refresh_token')) {
     try {
       const token = await refreshAccessToken();
       if (token) {
         await handleAuthToken(token);
+        return;
       }
     } catch(e) {
-      console.warn('自動ログインに失敗しました。再度ログインしてください:', e.message);
+      console.warn('自動ログインに失敗:', e.message);
     }
+  }
+  // [Pattern C] 初回起動時に自動でMicrosoft 365ログインを開始
+  if (appConfig.clientId && appConfig.tenantId && appConfig.siteUrl && appConfig.listName) {
+    showLoading('Microsoft 365にログインします...', '画面が切り替わります');
+    setTimeout(() => startAuth(), 1500);
   }
 });
 
 // ===== CONFIG =====
 function loadConfig() {
+  // [Pattern C] FIXED_CONFIGを最優先で適用
+  appConfig = { ...appConfig, ...FIXED_CONFIG };
   try {
     const saved = localStorage.getItem('hr_tool_config');
     if (saved) {
-      appConfig = { ...appConfig, ...JSON.parse(saved) };
-      document.getElementById('cfg-client-id').value = appConfig.clientId || '';
-      document.getElementById('cfg-tenant-id').value = appConfig.tenantId || '';
-      document.getElementById('cfg-site-url').value = appConfig.siteUrl || '';
-      document.getElementById('cfg-list-name').value = appConfig.listName || '';
-      document.getElementById('cfg-mynumber-access').value = (appConfig.mynumberAccess || []).join(', ');
-      document.getElementById('cfg-github-owner').value = appConfig.githubOwner || '';
-      document.getElementById('cfg-github-repo').value = appConfig.githubRepo || '';
-      document.getElementById('cfg-github-token').value = appConfig.githubToken || '';
-      document.getElementById('cfg-github-token-expiry').value = appConfig.githubTokenExpiry || '';
+      const localCfg = JSON.parse(saved);
+      if (localCfg.githubToken) appConfig.githubToken = localCfg.githubToken;
+      if (localCfg.githubTokenExpiry) appConfig.githubTokenExpiry = localCfg.githubTokenExpiry;
+      if (localCfg.mynumberAccess) appConfig.mynumberAccess = localCfg.mynumberAccess;
+      if (localCfg.roles) appConfig.roles = localCfg.roles;
     }
+    const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+    setVal('cfg-client-id', appConfig.clientId);
+    setVal('cfg-tenant-id', appConfig.tenantId);
+    setVal('cfg-site-url', appConfig.siteUrl);
+    setVal('cfg-list-name', appConfig.listName);
+    setVal('cfg-mynumber-access', (appConfig.mynumberAccess || []).join(', '));
+    setVal('cfg-github-owner', appConfig.githubOwner);
+    setVal('cfg-github-repo', appConfig.githubRepo);
+    setVal('cfg-github-token', appConfig.githubToken);
+    setVal('cfg-github-token-expiry', appConfig.githubTokenExpiry);
+    // [Pattern C] ハードコード項目を読み取り専用化
+    ['cfg-client-id','cfg-tenant-id','cfg-site-url','cfg-list-name','cfg-github-owner','cfg-github-repo'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.readOnly = true;
+        el.style.background = 'var(--c-gray-50)';
+        el.style.color = 'var(--text-muted)';
+        el.title = '管理者が変更する場合は HTML ファイルの FIXED_CONFIG を直接編集してください';
+      }
+    });
   } catch(e) {}
 }
 
-function saveConfig() {
-  appConfig.clientId = document.getElementById('cfg-client-id').value.trim();
-  appConfig.tenantId = document.getElementById('cfg-tenant-id').value.trim();
-  appConfig.siteUrl = document.getElementById('cfg-site-url').value.trim();
-  appConfig.listName = document.getElementById('cfg-list-name').value.trim();
+async function saveConfig() {
+  // [Pattern C] 動的設定のみ更新可能
   appConfig.mynumberAccess = document.getElementById('cfg-mynumber-access').value.split(',').map(s => s.trim()).filter(Boolean);
-  appConfig.githubOwner = document.getElementById('cfg-github-owner').value.trim();
-  appConfig.githubRepo = document.getElementById('cfg-github-repo').value.trim();
   appConfig.githubToken = document.getElementById('cfg-github-token').value.trim();
   appConfig.githubTokenExpiry = document.getElementById('cfg-github-token-expiry').value.trim();
-  // rolesはpermission modalで管理するため維持
-  if (!appConfig.clientId || !appConfig.tenantId || !appConfig.siteUrl || !appConfig.listName) {
-    showToast('必須項目を入力してください', 'error'); return;
+  appConfig.clientId = FIXED_CONFIG.clientId;
+  appConfig.tenantId = FIXED_CONFIG.tenantId;
+  appConfig.siteUrl = FIXED_CONFIG.siteUrl;
+  appConfig.listName = FIXED_CONFIG.listName;
+  appConfig.githubOwner = FIXED_CONFIG.githubOwner;
+  appConfig.githubRepo = FIXED_CONFIG.githubRepo;
+  localStorage.setItem('hr_tool_config', JSON.stringify({
+    githubToken: appConfig.githubToken,
+    githubTokenExpiry: appConfig.githubTokenExpiry,
+    mynumberAccess: appConfig.mynumberAccess,
+    roles: appConfig.roles,
+  }));
+  if (accessToken && masterListId) {
+    try {
+      await saveMasterToSP('systemConfig', {
+        githubToken: appConfig.githubToken,
+        githubTokenExpiry: appConfig.githubTokenExpiry,
+        mynumberAccess: appConfig.mynumberAccess,
+      });
+      showToast('設定をSharePointに保存しました。全利用者に同期されます。', 'success');
+    } catch(e) {
+      showToast('SharePoint保存エラー: ' + e.message, 'error');
+    }
+  } else {
+    showToast('設定を保存しました', 'success');
   }
-  localStorage.setItem('hr_tool_config', JSON.stringify(appConfig));
   closeModal('config-modal');
-  showToast('設定を保存しました。Microsoftアカウントでログインします...', 'info');
-  setTimeout(() => startAuth(), 800);
+  if (!accessToken) {
+    setTimeout(() => startAuth(), 800);
+  }
 }
 
 // ===== AUTH: PKCE Authorization Code Flow =====
@@ -2475,7 +2522,6 @@ async function handleAuthToken(token) {
     appConfig.roles.admins  = Array.isArray(appConfig.roles.admins)  ? appConfig.roles.admins  : [];
     appConfig.roles.editors = Array.isArray(appConfig.roles.editors) ? appConfig.roles.editors : [];
     appConfig.roles.viewers = Array.isArray(appConfig.roles.viewers) ? appConfig.roles.viewers : [];
-    // ロール判定
     const em = email.toLowerCase();
     if (appConfig.roles.admins.some(a => a.toLowerCase() === em)) {
       currentRole = 'admin';
@@ -2894,6 +2940,17 @@ async function loadAllMastersFromSP() {
       appConfig.roles = map['roles'];
       localStorage.setItem('hr_tool_config', JSON.stringify(appConfig));
     }
+    // [Pattern C] systemConfig読込
+    if (map['systemConfig']) {
+      const sc = map['systemConfig'];
+      if (sc.githubToken) appConfig.githubToken = sc.githubToken;
+      if (sc.githubTokenExpiry) appConfig.githubTokenExpiry = sc.githubTokenExpiry;
+      if (sc.mynumberAccess) appConfig.mynumberAccess = sc.mynumberAccess;
+      if (currentUser) {
+        const email = (currentUser.mail || currentUser.userPrincipalName || '').toLowerCase();
+        canViewMynumber = (appConfig.mynumberAccess || []).some(a => a.toLowerCase() === email);
+      }
+    }
 
     // UIを更新
     updateCompanySelects();
@@ -3065,7 +3122,7 @@ async function loadEmployees() {
   showLoading('社員データを読み込み中...');
   renderSkeletonRows('employee-tbody', 5, 11);
   try {
-    // [修正1-1] $select省略で全フィールド取得
+    // [修正1-1] $select省略
     const data = await graphGet(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${listId}/items?expand=fields&$top=999`);
     employees = data.value.map(item => ({ id: item.id, ...item.fields }));
     renderEmployeeTable(employees);
@@ -3301,7 +3358,7 @@ async function saveEmployee() {
       const diff = calcDiff(before, cleanFields);
       addHistory('更新', cleanFields.EmpID, cleanFields.NameKanji, diff);
       addOpLog('社員更新', `${cleanFields.EmpID} ${cleanFields.NameKanji}を更新`, cleanFields.EmpID);
-      // [修正1-3] 異動記録（バリデーション済み）
+      // [修正1-3] 異動記録
       if (recordTransfer) {
         const transferType = document.getElementById('f-transfer-type')?.value ||
           detectTransferType(before, cleanFields) || 'その他';
