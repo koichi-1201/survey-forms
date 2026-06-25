@@ -204,47 +204,12 @@
     .form-grid { grid-template-columns: 1fr; }
   }
 
-/* ===== Sprint 1+3+4+Release1 統合 ===== */
 .hamburger-btn { display: none; background: none; border: none; cursor: pointer; padding: 8px; color: var(--text); align-items: center; justify-content: center; }
 .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 99; }
 .sidebar-overlay.open { display: block; }
-@media (max-width: 900px) {
-  .hamburger-btn { display: flex; }
-  .sidebar { width: 240px !important; min-width: 240px !important; transform: translateX(-240px); transition: transform 0.25s ease; box-shadow: 2px 0 8px rgba(0,0,0,0.1); }
-  .sidebar.open { transform: translateX(0); }
-  .nav-item span, .sidebar-logo p, .sidebar-logo h1, .nav-section, .sidebar-footer { display: block !important; }
-  .nav-section { padding: 12px 16px 4px; }
-  .main-content { margin-left: 0 !important; }
-  .btn { min-height: 40px; padding: 8px 14px; }
-  .btn-sm { min-height: 34px; padding: 6px 10px; }
-  table .btn-sm { min-height: 32px; padding: 5px 8px; }
-  input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; }
-  .form-control { min-height: 40px; font-size: 16px; }
-}
-@media (max-width: 640px) {
-  #employee-table thead { display: none; }
-  #employee-table tbody tr { display: block; border: 1px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 12px; padding: 12px; background: var(--surface); }
-  #employee-table tbody tr:hover td { background: transparent; }
-  #employee-table tbody td { display: flex; justify-content: space-between; align-items: center; border: none; padding: 6px 0; font-size: 13px; border-bottom: 1px dashed var(--border); }
-  #employee-table tbody td:last-child { border-bottom: none; }
-  #employee-table tbody td::before { content: attr(data-label); font-weight: 600; color: var(--text-muted); font-size: 11px; margin-right: 8px; flex-shrink: 0; }
-  #employee-table tbody td:first-child::before { content: ''; }
-  .stats-row { grid-template-columns: 1fr 1fr !important; }
-  .card-header { flex-direction: column; align-items: stretch !important; gap: 8px; }
-}
-@media (max-width: 600px) {
-  .modal-overlay { padding: 0; }
-  .modal { width: 100% !important; max-width: 100% !important; height: 100vh; height: -webkit-fill-available; margin: 0 !important; border-radius: 0 !important; display: flex; flex-direction: column; }
-  .modal-body { flex: 1; max-height: none !important; overflow-y: auto; }
-  .modal-header, .modal-footer { flex-shrink: 0; }
-  .modal-footer { background: var(--surface); flex-wrap: wrap; }
-  .form-grid, .form-grid-3 { grid-template-columns: 1fr !important; gap: 10px !important; }
-  .form-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; }
-  .form-tab { white-space: nowrap; flex-shrink: 0; }
-  .topbar { padding: 0 12px; }
-  .topbar h2 { font-size: 14px; }
-  body.modal-open { position: fixed; width: 100%; overflow: hidden; }
-}
+@media (max-width: 900px) { .hamburger-btn { display: flex; } .sidebar { width: 240px !important; min-width: 240px !important; transform: translateX(-240px); transition: transform 0.25s ease; box-shadow: 2px 0 8px rgba(0,0,0,0.1); } .sidebar.open { transform: translateX(0); } .nav-item span, .sidebar-logo p, .sidebar-logo h1, .nav-section, .sidebar-footer { display: block !important; } .nav-section { padding: 12px 16px 4px; } .main-content { margin-left: 0 !important; } .btn { min-height: 40px; padding: 8px 14px; } .btn-sm { min-height: 34px; padding: 6px 10px; } table .btn-sm { min-height: 32px; padding: 5px 8px; } input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; } .form-control { min-height: 40px; font-size: 16px; } }
+@media (max-width: 640px) { #employee-table thead { display: none; } #employee-table tbody tr { display: block; border: 1px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 12px; padding: 12px; background: var(--surface); } #employee-table tbody tr:hover td { background: transparent; } #employee-table tbody td { display: flex; justify-content: space-between; align-items: center; border: none; padding: 6px 0; font-size: 13px; border-bottom: 1px dashed var(--border); } #employee-table tbody td:last-child { border-bottom: none; } #employee-table tbody td::before { content: attr(data-label); font-weight: 600; color: var(--text-muted); font-size: 11px; margin-right: 8px; flex-shrink: 0; } #employee-table tbody td:first-child::before { content: ''; } .stats-row { grid-template-columns: 1fr 1fr !important; } .card-header { flex-direction: column; align-items: stretch !important; gap: 8px; } }
+@media (max-width: 600px) { .modal-overlay { padding: 0; } .modal { width: 100% !important; max-width: 100% !important; height: 100vh; height: -webkit-fill-available; margin: 0 !important; border-radius: 0 !important; display: flex; flex-direction: column; } .modal-body { flex: 1; max-height: none !important; overflow-y: auto; } .modal-header, .modal-footer { flex-shrink: 0; } .modal-footer { background: var(--surface); flex-wrap: wrap; } .form-grid, .form-grid-3 { grid-template-columns: 1fr !important; gap: 10px !important; } .form-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; } .form-tab { white-space: nowrap; flex-shrink: 0; } .topbar { padding: 0 12px; } .topbar h2 { font-size: 14px; } body.modal-open { position: fixed; width: 100%; overflow: hidden; } }
 .global-loading { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
 .global-loading.show { display: flex; }
 .loading-card { background: #fff; border-radius: 12px; padding: 24px 32px; display: flex; flex-direction: column; align-items: center; gap: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); min-width: 240px; max-width: 90vw; }
@@ -258,7 +223,7 @@
 .btn.btn-loading { color: transparent !important; pointer-events: none; position: relative; }
 .btn.btn-loading::after { content: ''; position: absolute; top: 50%; left: 50%; margin: -8px 0 0 -8px; width: 16px; height: 16px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: spin 0.6s linear infinite; }
 .quick-filters { display: flex; gap: 6px; flex-wrap: wrap; padding: 10px 16px; background: var(--c-primary-light); border-radius: var(--radius); border: 1px solid #B5D4F4; margin: 14px 20px 0; }
-.quick-filter-btn { padding: 5px 12px; background: #fff; border: 1px solid var(--border); border-radius: 16px; font-size: 12px; cursor: pointer; transition: all 0.15s; color: var(--text); }
+.quick-filter-btn { padding: 5px 12px; background: #fff; border: 1px solid var(--border); border-radius: 16px; font-size: 12px; cursor: pointer; color: var(--text); }
 .quick-filter-btn:hover { border-color: var(--c-primary); color: var(--c-primary); }
 .quick-filter-btn.active { background: var(--c-primary); color: #fff; border-color: var(--c-primary); }
 .bulk-action-bar { display: none; padding: 10px 16px; background: var(--c-success-light); border: 1px solid var(--c-success); border-radius: var(--radius); align-items: center; gap: 12px; flex-wrap: wrap; margin: 10px 20px 0; }
@@ -282,12 +247,8 @@
 .chart-type-btn:hover { background: var(--c-primary-light); }
 .chart-canvas-container { position: relative; height: 280px; }
 .chart-summary { font-size: 12px; color: var(--text-muted); margin-top: 6px; padding: 6px 10px; background: var(--c-primary-light); border-radius: 4px; }
-/* Release 1: Dark Mode */
-[data-theme="dark"] {
-  --bg: #1a1a1a; --surface: #2a2a2a; --border: #404040; --text: #e0e0e0; --text-muted: #999999;
-  --c-gray-50: #333333; --c-gray-100: #404040; --c-gray-200: #555555; --c-gray-600: #b0b0b0; --c-gray-800: #d0d0d0; --c-gray-900: #1a1a1a;
-  --c-primary-light: #1a3a5c; --c-success-light: #1a3a1a; --c-warning-light: #3a2a1a; --c-danger-light: #3a1a1a; --c-secondary-light: #1a3a3a;
-}
+:root { --chart-headcount-text: #185FA5; --chart-join-text: #3B6D11; --chart-retire-text: #A32D2D; }
+[data-theme="dark"] { --bg: #1a1a1a; --surface: #2a2a2a; --border: #404040; --text: #e0e0e0; --text-muted: #999999; --c-gray-50: #333333; --c-gray-100: #404040; --c-gray-200: #555555; --c-gray-600: #b0b0b0; --c-gray-800: #d0d0d0; --c-gray-900: #1a1a1a; --c-primary-light: #1a3a5c; --c-success-light: #1a3a1a; --c-warning-light: #3a2a1a; --c-danger-light: #3a1a1a; --c-secondary-light: #1a3a3a; --chart-headcount-text: #5BA3E0; --chart-join-text: #8FCF3F; --chart-retire-text: #FF7A7A; }
 [data-theme="dark"] body { background: var(--bg); color: var(--text); }
 [data-theme="dark"] .card, [data-theme="dark"] .modal, [data-theme="dark"] .topbar, [data-theme="dark"] .stat-card, [data-theme="dark"] .form-control, [data-theme="dark"] .loading-card, [data-theme="dark"] .chart-wrap { background: var(--surface) !important; color: var(--text); }
 [data-theme="dark"] .skeleton-cell { background: linear-gradient(90deg,#333 25%,#444 50%,#333 75%); background-size:200% 100%; }
@@ -297,12 +258,30 @@
 [data-theme="dark"] .quick-filter-btn { background: var(--surface); color: var(--text); }
 .theme-toggle { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 4px 8px; color: rgba(255,255,255,0.7); cursor: pointer; font-size: 11px; margin-top: 6px; width: 100%; justify-content: center; }
 .theme-toggle:hover { background: rgba(255,255,255,0.15); color: #fff; }
-/* Release 1: Accessibility */
-button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--c-primary-mid); outline-offset: 2px; }
-/* SVG fallback chart */
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--c-primary-mid); outline-offset: 2px; }
 .svg-chart { width: 100%; height: 280px; display: block; }
 .svg-chart-label { fill: var(--text-muted); font-size: 11px; }
 .svg-chart-value { fill: var(--text); font-size: 10px; font-weight: 600; }
+.svg-chart-num-headcount { fill: var(--chart-headcount-text); font-size: 10px; font-weight: 600; }
+.svg-chart-num-join { fill: var(--chart-join-text); font-size: 9px; font-weight: 600; }
+.svg-chart-num-retire { fill: var(--chart-retire-text); font-size: 9px; font-weight: 600; }
+[data-theme="dark"] .svg-chart path[stroke="#185FA5"] { stroke: #5BA3E0; }
+[data-theme="dark"] .svg-chart circle[fill="#185FA5"] { fill: #5BA3E0; }
+[data-theme="dark"] .svg-chart rect[fill="#3B6D11"] { fill: #8FCF3F; }
+[data-theme="dark"] .svg-chart rect[fill="#A32D2D"] { fill: #FF7A7A; }
+.dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 16px; padding: 8px; }
+.dashboard-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; box-shadow: var(--shadow); }
+.dashboard-card h4 { font-size: 13px; font-weight: 600; margin-bottom: 12px; color: var(--c-primary); display: flex; align-items: center; gap: 6px; }
+.dashboard-card .svg-chart { height: 240px; }
+.dashboard-stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+.dashboard-stat { text-align: center; padding: 8px; background: var(--c-gray-50); border-radius: 6px; }
+.dashboard-stat-value { font-size: 20px; font-weight: 700; color: var(--c-primary); }
+.dashboard-stat-label { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
+.comparison-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; margin-left: 8px; }
+.comparison-up { background: var(--c-success-light); color: var(--c-success); }
+.comparison-down { background: var(--c-danger-light); color: var(--c-danger); }
+.comparison-same { background: var(--c-gray-50); color: var(--c-gray-600); }
+.dashboard-filter-bar { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); margin: 8px 8px 16px; box-shadow: var(--shadow); flex-wrap: wrap; }
 </style>
 </head>
 <body>
@@ -316,6 +295,10 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
     </div>
     <div class="sidebar-nav">
       <div class="nav-section">メイン</div>
+      <div class="nav-item" onclick="showDashboard()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+        <span>ダッシュボード</span>
+      </div>
       <div class="nav-item active" onclick="showPage('list')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
         <span>社員一覧</span>
@@ -394,10 +377,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
       <button onclick="logoutUser()" title="ログアウト" style="background:none;border:none;cursor:pointer;color:var(--text-muted);padding:4px;margin-left:6px;display:inline-flex;align-items:center;" id="logout-btn">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       </button>
-      <button class="theme-toggle" onclick="toggleTheme()" aria-label="ダークモード切替" title="ダークモード切替">
-        <span id="theme-icon">🌙</span>
-        <span id="theme-label">ダークモード</span>
-      </button>
+      <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" title="テーマ切替 (Ctrl+Shift+D)">🌙 ダーク</button>
     </div>
   </nav>
 
@@ -423,6 +403,24 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
         <p>SharePoint Listsに接続されていません。まずSharePoint設定を行い、Microsoft 365アカウントでログインしてください。</p>
         <button onclick="openConfig()">設定を開く</button>
+      </div>
+
+      <!-- Dashboard Page -->
+      <div id="dashboard-page" style="display:none;">
+        <div class="dashboard-filter-bar">
+          <label style="font-size:12px;font-weight:600;color:var(--text-muted);">会社で絞り込み:</label>
+          <select class="filter-select" id="dash-company-filter" onchange="onDashCompanyChange()">
+            <option value="">全会社</option>
+          </select>
+          <div class="dashboard-stat-grid" id="dash-summary" style="flex:1;margin:0;"></div>
+        </div>
+        <div class="dashboard-grid">
+          <div class="dashboard-card"><h4>📈 在籍数推移（過去12ヶ月）</h4><div id="chart-headcount-trend" class="svg-chart"></div></div>
+          <div class="dashboard-card"><h4>🏢 部署別構成</h4><div id="chart-dept-composition" class="svg-chart"></div></div>
+          <div class="dashboard-card"><h4>🔄 月別入退社数</h4><div id="chart-monthly-transition" class="svg-chart"></div></div>
+          <div class="dashboard-card"><h4>👥 年齢層構成</h4><div id="chart-age-composition" class="svg-chart"></div></div>
+          <div class="dashboard-card"><h4>⏱ 勤続年数構成</h4><div id="chart-tenure-composition" class="svg-chart"></div></div>
+        </div>
       </div>
 
       <!-- Stats -->
@@ -822,7 +820,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
           <div class="table-container">
             <table>
               <thead><tr>
-                <th>発令日</th><th>異動種別</th><th onclick="sortEmployeesByColumn('EmpID')">社員ID<span class="sort-indicator" id="sort-EmpID"></span></th><th onclick="sortEmployeesByColumn('NameKanji')">氏名<span class="sort-indicator" id="sort-NameKanji"></span></th>
+                <th>発令日</th><th>異動種別</th><th data-sort-col="EmpID" onclick="sortEmployeesByColumn('EmpID')">社員ID</th><th data-sort-col="NameKanji" onclick="sortEmployeesByColumn('NameKanji')">氏名</th>
                 <th>異動前</th><th>異動後</th><th>事由</th><th>記録者</th>
               </tr></thead>
               <tbody id="transfer-tbody"></tbody>
@@ -880,7 +878,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
           <div class="table-container">
             <table>
               <thead><tr>
-                <th>社員ID</th><th>氏名</th><th onclick="sortEmployeesByColumn('Company1')">所属会社<span class="sort-indicator" id="sort-Company1"></span></th><th onclick="sortEmployeesByColumn('Department')">部署<span class="sort-indicator" id="sort-Department"></span></th><th onclick="sortEmployeesByColumn('JoinDate')">入社日<span class="sort-indicator" id="sort-JoinDate"></span></th><th>入社まで / 経過</th><th></th>
+                <th>社員ID</th><th>氏名</th><th data-sort-col="Company1" onclick="sortEmployeesByColumn('Company1')">所属会社</th><th data-sort-col="Department" onclick="sortEmployeesByColumn('Department')">部署</th><th data-sort-col="JoinDate" onclick="sortEmployeesByColumn('JoinDate')">入社日</th><th>入社まで / 経過</th><th></th>
               </tr></thead>
               <tbody id="alert-join-tbody"></tbody>
             </table>
@@ -916,7 +914,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
           <div class="table-container">
             <table>
               <thead><tr>
-                <th>社員ID</th><th>氏名</th><th>所属会社</th><th>契約種別</th><th>契約期間</th><th onclick="sortEmployeesByColumn('Status')">ステータス<span class="sort-indicator" id="sort-Status"></span></th><th></th>
+                <th>社員ID</th><th>氏名</th><th>所属会社</th><th>契約種別</th><th>契約期間</th><th data-sort-col="Status" onclick="sortEmployeesByColumn('Status')">ステータス</th><th></th>
               </tr></thead>
               <tbody id="alert-contract-tbody"></tbody>
             </table>
@@ -934,7 +932,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
           <div class="table-container">
             <table>
               <thead><tr>
-                <th>社員ID</th><th>氏名</th><th>所属会社</th><th>部署</th><th onclick="sortEmployeesByColumn('Position')">役職<span class="sort-indicator" id="sort-Position"></span></th><th>ステータス</th><th></th>
+                <th>社員ID</th><th>氏名</th><th>所属会社</th><th>部署</th><th data-sort-col="Position" onclick="sortEmployeesByColumn('Position')">役職</th><th>ステータス</th><th></th>
               </tr></thead>
               <tbody id="alert-leave-tbody"></tbody>
             </table>
@@ -1049,20 +1047,21 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
           </div>
         </div>
         <div class="quick-filters">
-            <button class="quick-filter-btn active" onclick="applyQuickFilter('all', this)">📋 全件</button>
-            <button class="quick-filter-btn" onclick="applyQuickFilter('active', this)">🟢 在籍のみ</button>
-            <button class="quick-filter-btn" onclick="applyQuickFilter('newThisMonth', this)">🆕 今月入社</button>
-            <button class="quick-filter-btn" onclick="applyQuickFilter('retireThisMonth', this)">📅 今月退職</button>
-            <button class="quick-filter-btn" onclick="applyQuickFilter('leave', this)">🟡 休職中</button>
-            <button class="quick-filter-btn" onclick="applyQuickFilter('contract', this)">📋 有期契約</button>
-          </div>
-          <div class="bulk-action-bar" id="bulk-action-bar">
-            <span class="bulk-action-count" id="bulk-action-count">0名選択中</span>
-            <button class="btn btn-secondary btn-sm" onclick="bulkChangeStatus()">🔄 ステータス変更</button>
-            <button class="btn btn-secondary btn-sm" onclick="exportSelectedPdf()">🖨 PDF出力</button>
-            <button class="btn btn-secondary btn-sm" onclick="bulkClearSelection()" style="margin-left:auto;">✖ 解除</button>
-          </div>
-          <div class="table-container" id="employee-table-wrap">
+  <button class="quick-filter-btn active" data-filter="all" onclick="applyQuickFilter('all')">すべて</button>
+  <button class="quick-filter-btn" data-filter="active" onclick="applyQuickFilter('active')">在職</button>
+  <button class="quick-filter-btn" data-filter="leave" onclick="applyQuickFilter('leave')">休職</button>
+  <button class="quick-filter-btn" data-filter="retired" onclick="applyQuickFilter('retired')">退職</button>
+  <button class="quick-filter-btn" data-filter="new" onclick="applyQuickFilter('new')">今月入社</button>
+  <button class="quick-filter-btn" data-filter="soon-retire" onclick="applyQuickFilter('soon-retire')">退職予定30日以内</button>
+</div>
+<div class="bulk-action-bar" id="bulk-action-bar">
+  <span class="bulk-action-count" id="bulk-action-count">0名選択中</span>
+  <button class="btn btn-secondary btn-sm" onclick="bulkChangeStatus('在職')">在職に変更</button>
+  <button class="btn btn-secondary btn-sm" onclick="bulkChangeStatus('休職')">休職に変更</button>
+  <button class="btn btn-secondary btn-sm" onclick="bulkChangeStatus('退職')">退職に変更</button>
+  <button class="btn btn-secondary btn-sm" onclick="bulkClearSelection()" style="margin-left:auto;">選択解除</button>
+</div>
+<div class="table-container" id="employee-table-wrap">
           <table id="employee-table">
             <thead>
               <tr>
@@ -1072,7 +1071,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
                 <th>所属会社</th>
                 <th>部署</th>
                 <th>役職</th>
-                <th onclick="sortEmployeesByColumn('EmploymentType')">雇用形態<span class="sort-indicator" id="sort-EmploymentType"></span></th>
+                <th data-sort-col="EmploymentType" onclick="sortEmployeesByColumn('EmploymentType')">雇用形態</th>
                 <th>入社日</th>
                 <th>勤続年数</th>
                 <th>ステータス</th>
@@ -1084,7 +1083,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
             </tbody>
           </table>
         </div>
-        <div class="pagination-bar" id="s3-pagination"></div>
+        <div class="pagination-bar" id="emp-pagination-bar"></div>
       </div>
     </div>
   </div>
@@ -1574,11 +1573,10 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
     <div class="modal-body">
       <div class="config-form">
         <div class="config-note">
-          <strong>📌 設定について（Pattern C）：</strong><br>
-          ・<strong>Azure AD・SharePoint・GitHub接続情報</strong>はHTMLファイル内に組み込み済みです（読み取り専用）<br>
-          ・<strong>GitHub PAT・PAT有効期限・マイナンバー閲覧権限</strong>は管理者がここで設定すると、SharePoint経由で全利用者に同期されます<br>
-          ・利用者は<strong>Microsoft 365ログインのみで利用開始</strong>できます<br>
-          ※ 静的設定を変更する場合は HTML ファイルの FIXED_CONFIG を直接編集し、再デプロイしてください。
+          <strong>設定について：</strong><br>
+          このシステムでは Azure AD クライアントID・テナントID・SharePoint サイト URL・リスト名は管理者により固定されています。<br>
+          個別設定可能項目：マイナンバー閲覧許可アカウント / GitHub Pages 連携設定<br>
+          ※ 設定は SharePoint に保存され、全ユーザーで共有されます。
         </div>
         <div class="form-grid" style="display:grid;grid-template-columns:1fr;gap:14px;">
           <div class="form-group">
@@ -2265,380 +2263,61 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 <div class="toast-container" id="toast-container"></div>
 
 <script>
-// ===== Pattern C =====
-const FIXED_CONFIG = {
-  clientId: '313ac5f9-2f4d-4e4d-ac06-f0948e6efd1a',
-  tenantId: 'd627f39c-6dbe-4d90-b1d2-f90f9af49f7d',
-  siteUrl: 'https://alcgp.sharepoint.com/sites/test629',
-  listName: '人事情報管理ツール',
-  githubOwner: 'koichi-1201',
-  githubRepo: 'survey-forms',
-};
-
+// ===== FIXED CONFIG =====
+const FIXED_CONFIG = { clientId:'', tenantId:'', siteUrl:'', listName:'人事情報管理ツール' };
 // ===== Sprint 1 =====
-function toggleSidebar() {
-  const s = document.querySelector('.sidebar');
-  const o = document.getElementById('sidebar-overlay');
-  s.classList.toggle('open'); o.classList.toggle('open');
-}
-function closeSidebar() {
-  document.querySelector('.sidebar').classList.remove('open');
-  document.getElementById('sidebar-overlay').classList.remove('open');
-}
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.sidebar .nav-item').forEach(el => {
-    el.addEventListener('click', () => { if (window.innerWidth <= 900) closeSidebar(); });
-  });
-});
-let _loadingCount = 0;
-function showLoading(m, sm) { _loadingCount++; const el = document.getElementById('global-loading'); if (!el) return; el.querySelector('.loading-message').textContent = m || '処理中...'; el.querySelector('.loading-sub').textContent = sm || ''; el.classList.add('show'); }
-function hideLoading() { _loadingCount = Math.max(0, _loadingCount - 1); if (_loadingCount === 0) { const el = document.getElementById('global-loading'); if (el) el.classList.remove('show'); } }
-function updateLoadingMessage(m, sm) { const el = document.getElementById('global-loading'); if (el && el.classList.contains('show')) { el.querySelector('.loading-message').textContent = m || '処理中...'; el.querySelector('.loading-sub').textContent = sm || ''; } }
-function setBtnLoading(btn, l) { if (!btn) return; if (l) { btn.classList.add('btn-loading'); btn.disabled = true; } else { btn.classList.remove('btn-loading'); btn.disabled = false; } }
-function renderSkeletonRows(tbodyId, rc, cc) {
-  const tbody = document.getElementById(tbodyId);
-  if (!tbody) return;
-  rc = rc || 5; cc = cc || 8;
-  const cells = Array(cc).fill().map(() => '<div class="skeleton-cell" style="flex:1;"></div>').join('');
-  tbody.innerHTML = Array(rc).fill().map(() => `<tr><td colspan="${cc}" style="padding:0;border:none;"><div class="skeleton-row">${cells}</div></td></tr>`).join('');
-}
-
+function toggleSidebar(){var s=document.querySelector('.sidebar');var o=document.getElementById('sidebar-overlay');if(!s)return;s.classList.toggle('open');if(o)o.classList.toggle('open');}
+function closeSidebar(){var s=document.querySelector('.sidebar');var o=document.getElementById('sidebar-overlay');if(s)s.classList.remove('open');if(o)o.classList.remove('open');}
+function showLoading(m,s){var e=document.getElementById('global-loading');if(!e)return;var mm=e.querySelector('.loading-message');var ss=e.querySelector('.loading-sub');if(mm)mm.textContent=m||'処理中...';if(ss)ss.textContent=s||'';e.classList.add('show');}
+function hideLoading(){var e=document.getElementById('global-loading');if(e)e.classList.remove('show');}
+function updateLoadingMessage(m,s){var e=document.getElementById('global-loading');if(!e)return;var mm=e.querySelector('.loading-message');var ss=e.querySelector('.loading-sub');if(mm)mm.textContent=m||'';if(ss&&s!==undefined)ss.textContent=s||'';}
+function setBtnLoading(b,l){if(!b)return;if(typeof b==='string')b=document.getElementById(b);if(!b)return;if(l){b.classList.add('btn-loading');b.disabled=true;}else{b.classList.remove('btn-loading');b.disabled=false;}}
+function renderSkeletonRows(id,r,c){var t=document.getElementById(id);if(!t)return;var sk=[];for(var i=0;i<(r||5);i++){var cs='';for(var j=0;j<(c||8);j++){cs+='<td><div class="skeleton-cell" style="width:'+(50+Math.random()*40)+'%;"></div></td>';}sk.push('<tr>'+cs+'</tr>');}t.innerHTML=sk.join('');}
+window.addEventListener('DOMContentLoaded',function(){document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeSidebar();document.querySelectorAll('.modal-overlay.open').forEach(function(m){m.classList.remove('open');});}});});
 // ===== Sprint 3 =====
-let s3Sort = { key: null, order: 'asc' };
-let s3CurrentPage = 1;
-const S3_PAGE_SIZE = 50;
-let s3FilteredList = null;
-let s3CurrentFilter = 'all';
-
-function applyQuickFilter(type, btn) {
-  document.querySelectorAll('.quick-filter-btn').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  s3CurrentFilter = type;
-  const today = new Date();
-  let list = [...employees];
-  switch(type) {
-    case 'active': list = list.filter(e => e.Status === '在職'); break;
-    case 'newThisMonth': list = list.filter(e => { if (!e.JoinDate) return false; const d = safeDate(e.JoinDate); return d.getFullYear() === today.getFullYear() && d.getMonth() === today.getMonth(); }); break;
-    case 'retireThisMonth': list = list.filter(e => { if (!e.RetireDate) return false; const d = safeDate(e.RetireDate); return d.getFullYear() === today.getFullYear() && d.getMonth() === today.getMonth(); }); break;
-    case 'leave': list = list.filter(e => e.Status === '休職'); break;
-    case 'contract': list = list.filter(e => e.ContractType === '有期'); break;
-  }
-  s3FilteredList = list;
-  s3CurrentPage = 1;
-  renderPaginatedEmployees();
-}
-
-function renderPaginatedEmployees() {
-  const list = s3FilteredList || employees;
-  const totalPages = Math.max(1, Math.ceil(list.length / S3_PAGE_SIZE));
-  if (s3CurrentPage > totalPages) s3CurrentPage = totalPages;
-  const start = (s3CurrentPage - 1) * S3_PAGE_SIZE;
-  renderEmployeeTable(list.slice(start, start + S3_PAGE_SIZE));
-  renderPaginationBar(list.length, totalPages);
-  updateSortIndicators();
-}
-
-function renderPaginationBar(total, totalPages) {
-  const c = document.getElementById('s3-pagination');
-  if (!c) return;
-  if (total === 0) { c.innerHTML = ''; return; }
-  const start = (s3CurrentPage - 1) * S3_PAGE_SIZE + 1;
-  const end = Math.min(start + S3_PAGE_SIZE - 1, total);
-  let buttons = `<button class="page-btn" onclick="s3GotoPage(${s3CurrentPage-1})" ${s3CurrentPage===1?'disabled':''}>‹</button>`;
-  let sp = Math.max(1, s3CurrentPage - 2);
-  let ep = Math.min(totalPages, sp + 4);
-  if (ep - sp < 4) sp = Math.max(1, ep - 4);
-  for (let p = sp; p <= ep; p++) {
-    buttons += `<button class="page-btn ${p===s3CurrentPage?'active':''}" onclick="s3GotoPage(${p})">${p}</button>`;
-  }
-  buttons += `<button class="page-btn" onclick="s3GotoPage(${s3CurrentPage+1})" ${s3CurrentPage===totalPages?'disabled':''}>›</button>`;
-  c.innerHTML = `<span class="pagination-info">${start}-${end} / 全${total}件</span>${buttons}`;
-}
-
-function s3GotoPage(p) { s3CurrentPage = p; renderPaginatedEmployees(); }
-
-function sortEmployeesByColumn(key) {
-  if (s3Sort.key === key) s3Sort.order = s3Sort.order === 'asc' ? 'desc' : 'asc';
-  else { s3Sort.key = key; s3Sort.order = 'asc'; }
-  const base = s3FilteredList || employees;
-  s3FilteredList = [...base].sort((a, b) => {
-    const av = (a[key] || '').toString();
-    const bv = (b[key] || '').toString();
-    return s3Sort.order === 'asc' ? av.localeCompare(bv, 'ja') : bv.localeCompare(av, 'ja');
-  });
-  renderPaginatedEmployees();
-}
-
-function updateSortIndicators() {
-  document.querySelectorAll('.sort-indicator').forEach(el => el.textContent = '');
-  if (s3Sort.key) {
-    const el = document.getElementById('sort-' + s3Sort.key);
-    if (el) el.textContent = s3Sort.order === 'asc' ? '▲' : '▼';
-  }
-}
-
-function updateBulkActionBar() {
-  const count = document.querySelectorAll('.emp-select-cb:checked').length;
-  const bar = document.getElementById('bulk-action-bar');
-  const ce = document.getElementById('bulk-action-count');
-  if (bar) bar.classList.toggle('show', count > 0);
-  if (ce) ce.textContent = `${count}名選択中`;
-}
-
-async function bulkChangeStatus() {
-  const selected = getSelectedEmployees();
-  if (!selected.length) { showToast('社員を選択してください', 'error'); return; }
-  const newStatus = prompt(`${selected.length}名のステータスを一括変更します。\n変更後ステータス: 在職 / 休職 / 退職`, '在職');
-  if (!newStatus || !['在職','休職','退職'].includes(newStatus)) return;
-  if (!confirm(`${selected.length}名を「${newStatus}」に変更します。よろしいですか？`)) return;
-  showLoading('一括更新中...', `0 / ${selected.length}`);
-  let ok = 0, err = 0;
-  for (let i = 0; i < selected.length; i++) {
-    try { await graphPatch(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${listId}/items/${selected[i].id}/fields`, { Status: newStatus }); ok++; } catch(e) { err++; }
-    updateLoadingMessage('一括更新中...', `${i+1} / ${selected.length}`);
-  }
-  hideLoading();
-  showToast(`${ok}名を更新しました${err ? `（${err}件失敗）` : ''}`, err ? 'error' : 'success');
-  await loadEmployees();
-}
-
-function bulkClearSelection() {
-  document.querySelectorAll('.emp-select-cb').forEach(cb => cb.checked = false);
-  const sa = document.getElementById('select-all-emp');
-  if (sa) sa.checked = false;
-  updateBulkActionBar();
-}
-
-// ===== Sprint 4: Chart.js + SVGフォールバック =====
-const s4Charts = new Map();
-
-function s4CreateChart(canvasId, type, labels, values, label) {
-  if (typeof Chart === 'undefined') return s4CreateSVGChart(canvasId, type, labels, values, label);
-  const ctx = document.getElementById(canvasId);
-  if (!ctx) return null;
-  const colors = ['#185FA5','#378ADD','#0F6E56','#3B6D11','#BA7517','#A32D2D','#5B21B6','#92400E'];
-  const bgColors = labels.map((_, i) => colors[i % colors.length]);
-  return new Chart(ctx, {
-    type: type,
-    data: { labels, datasets: [{ label: label || '回答数', data: values, backgroundColor: (type === 'doughnut' || type === 'pie') ? bgColors : '#185FA5', borderColor: '#fff', borderWidth: (type === 'doughnut' || type === 'pie') ? 2 : 0 }] },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { display: (type === 'doughnut' || type === 'pie'), position: 'right', labels: { font: { size: 11 } } },
-        tooltip: { callbacks: { label: function(ctx) { const total = ctx.dataset.data.reduce((a,b)=>a+b,0); const v = ctx.parsed.y !== undefined ? ctx.parsed.y : ctx.parsed; const pct = total ? Math.round(v / total * 100) : 0; return `${ctx.label}: ${v}件 (${pct}%)`; } } }
-      },
-      scales: (type === 'doughnut' || type === 'pie') ? {} : { y: { beginAtZero: true, ticks: { precision: 0 } } }
-    }
-  });
-}
-
-function s4CreateSVGChart(canvasId, type, labels, values, label) {
-  const canvas = document.getElementById(canvasId);
-  if (!canvas) return null;
-  const parent = canvas.parentElement;
-  if (!parent) return null;
-  const colors = ['#185FA5','#378ADD','#0F6E56','#3B6D11','#BA7517','#A32D2D','#5B21B6','#92400E'];
-  const total = values.reduce((a,b) => a + b, 0) || 1;
-  let svg = '';
-  if (type === 'bar') {
-    const W = 400, H = 280, M = 30;
-    const slotW = (W - M*2) / values.length;
-    const barW = slotW * 0.7;
-    const maxV = Math.max(...values, 1);
-    svg = `<svg viewBox="0 0 ${W} ${H}" class="svg-chart" preserveAspectRatio="xMidYMid meet">`;
-    values.forEach((v, i) => {
-      const x = M + slotW * i + (slotW - barW)/2;
-      const h = (v / maxV) * (H - M*2);
-      const y = H - M - h;
-      svg += `<rect x="${x}" y="${y}" width="${barW}" height="${h}" fill="${colors[i % colors.length]}" rx="3"><title>${esc(labels[i])}: ${v}件 (${Math.round(v/total*100)}%)</title></rect>`;
-      svg += `<text x="${x + barW/2}" y="${H - 10}" text-anchor="middle" class="svg-chart-label">${esc(labels[i]).substring(0,8)}</text>`;
-      svg += `<text x="${x + barW/2}" y="${y - 4}" text-anchor="middle" class="svg-chart-value">${v}</text>`;
-    });
-    svg += '</svg>';
-  } else if (type === 'doughnut' || type === 'pie') {
-    const cx = 140, cy = 140, r = 100, ir = type === 'doughnut' ? 50 : 0;
-    let startAngle = -Math.PI / 2;
-    svg = '<svg viewBox="0 0 400 280" class="svg-chart" preserveAspectRatio="xMidYMid meet">';
-    values.forEach((v, i) => {
-      if (v === 0) return;
-      const angle = (v / total) * Math.PI * 2;
-      const endAngle = startAngle + angle;
-      const x1 = cx + r * Math.cos(startAngle), y1 = cy + r * Math.sin(startAngle);
-      const x2 = cx + r * Math.cos(endAngle), y2 = cy + r * Math.sin(endAngle);
-      const largeArc = angle > Math.PI ? 1 : 0;
-      let path;
-      if (ir > 0) {
-        const ix1 = cx + ir * Math.cos(startAngle), iy1 = cy + ir * Math.sin(startAngle);
-        const ix2 = cx + ir * Math.cos(endAngle), iy2 = cy + ir * Math.sin(endAngle);
-        path = `M ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2} L ${ix2} ${iy2} A ${ir} ${ir} 0 ${largeArc} 0 ${ix1} ${iy1} Z`;
-      } else {
-        path = `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2} Z`;
-      }
-      svg += `<path d="${path}" fill="${colors[i % colors.length]}" stroke="#fff" stroke-width="2"><title>${esc(labels[i])}: ${v}件 (${Math.round(v/total*100)}%)</title></path>`;
-      startAngle = endAngle;
-    });
-    labels.forEach((l, i) => {
-      const ly = 30 + i * 20;
-      svg += `<rect x="280" y="${ly-8}" width="12" height="12" fill="${colors[i % colors.length]}"/>`;
-      svg += `<text x="298" y="${ly+2}" class="svg-chart-label">${esc(l).substring(0,12)} (${values[i]})</text>`;
-    });
-    svg += '</svg>';
-  }
-  parent.innerHTML = svg;
-  return { destroy: () => { parent.innerHTML = '<canvas id="' + canvasId + '"></canvas>'; } };
-}
-
-function s4SwitchChartType(qid, newType, btn) {
-  const stored = s4Charts.get(qid);
-  if (!stored) return;
-  btn.parentElement.querySelectorAll('.chart-type-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  if (stored.chart && stored.chart.destroy) stored.chart.destroy();
-  const newChart = s4CreateChart(stored.canvasId, newType, stored.labels, stored.values, stored.label);
-  s4Charts.set(qid, { ...stored, chart: newChart, currentType: newType });
-}
-
-function s4ExportChartPNG(qid, title) {
-  const stored = s4Charts.get(qid);
-  if (!stored) return;
-  const canvas = document.getElementById(stored.canvasId);
-  if (!canvas || !canvas.toDataURL) { showToast('Chart.js使用時のみPNG保存できます', 'error'); return; }
-  const link = document.createElement('a');
-  link.download = (typeof safeFilename === 'function' ? safeFilename(title) : title) + '.png';
-  link.href = canvas.toDataURL('image/png', 1.0);
-  link.click();
-}
-
-function s4RenderChartForQuestion(question, responses, qi) {
-  const qid = question.id;
-  const canvasId = `s4-chart-${qid}`;
-  return {
-    html: `<div class="chart-wrap"><div class="chart-header"><div class="chart-title">Q${qi+1}. ${esc(question.text)}</div><div class="chart-actions"><button class="chart-type-btn active" onclick="s4SwitchChartType('${qid}','bar',this)">📊 棒</button><button class="chart-type-btn" onclick="s4SwitchChartType('${qid}','doughnut',this)">🍩 ドーナツ</button><button class="chart-type-btn" onclick="s4SwitchChartType('${qid}','pie',this)">🥧 円</button><button class="chart-type-btn" onclick="s4ExportChartPNG('${qid}','Q${qi+1}_${question.text}')" title="PNG保存">📥 PNG</button></div></div><div class="chart-canvas-container"><canvas id="${canvasId}"></canvas></div><div class="chart-summary" id="${canvasId}-summary"></div></div>`,
-    canvasId
-  };
-}
-
-function s4InitChartsAfterRender(questions, responses) {
-  s4Charts.clear();
-  questions.forEach((q, qi) => {
-    if (q.type === 'text') return;
-    const answers = responses.map(r => { try { return JSON.parse(r.AnswersJson||'{}')[q.id]; } catch(e) { return null; } }).filter(Boolean);
-    let labels = [], values = [], summary = '';
-    if (q.type === 'rating') {
-      labels = ['1','2','3','4','5'];
-      values = [1,2,3,4,5].map(n => answers.filter(a => a.answer === String(n)).length);
-      const total = answers.length;
-      const avg = total ? (answers.reduce((s,a)=>s+(parseInt(a.answer)||0),0) / total).toFixed(2) : 0;
-      summary = `回答数: ${total} / 平均: ${avg} / 5`;
-    } else if (q.type === 'single' || q.type === 'multi') {
-      const counts = {};
-      (q.options||[]).forEach(o => counts[o] = 0);
-      answers.forEach(a => {
-        const vals = q.type === 'multi' ? (a.answer||'').split('、') : [a.answer];
-        vals.forEach(v => { if (v && counts.hasOwnProperty(v)) counts[v]++; });
-      });
-      labels = Object.keys(counts);
-      values = Object.values(counts);
-      summary = `回答数: ${answers.length}`;
-    }
-    if (!labels.length) return;
-    const canvasId = `s4-chart-${q.id}`;
-    const chart = s4CreateChart(canvasId, 'bar', labels, values, '回答数');
-    s4Charts.set(q.id, { chart, canvasId, labels, values, label: '回答数', currentType: 'bar' });
-    const sumEl = document.getElementById(`${canvasId}-summary`);
-    if (sumEl) sumEl.textContent = summary;
-  });
-}
-
-// ===== Release 1: Dark Mode =====
-function initTheme() {
-  const saved = localStorage.getItem('hr_tool_theme');
-  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const theme = saved || (prefersDark ? 'dark' : 'light');
-  document.documentElement.setAttribute('data-theme', theme);
-  updateThemeIcon(theme);
-}
-function toggleTheme() {
-  const current = document.documentElement.getAttribute('data-theme') || 'light';
-  const newTheme = current === 'dark' ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', newTheme);
-  localStorage.setItem('hr_tool_theme', newTheme);
-  updateThemeIcon(newTheme);
-}
-function updateThemeIcon(theme) {
-  const icon = document.getElementById('theme-icon');
-  const label = document.getElementById('theme-label');
-  if (icon) icon.textContent = theme === 'dark' ? '☀️' : '🌙';
-  if (label) label.textContent = theme === 'dark' ? 'ライトモード' : 'ダークモード';
-}
-document.addEventListener('DOMContentLoaded', initTheme);
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    const om = document.querySelector('.modal-overlay.open');
-    if (om) closeModal(om.id);
-  }
-});
-
-// ===== Release 1: クロス集計 =====
-window._s5CrossContext = null;
-function s5RenderCrossTab(survey, questions, responses) {
-  const attrOptions = [{key:'Department',label:'部署'},{key:'Company1',label:'所属会社'},{key:'EmploymentType',label:'雇用形態'},{key:'Gender',label:'性別'}];
-  let html = '<div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;flex-wrap:wrap;">';
-  html += '<label style="font-size:12px;">X軸(属性):</label>';
-  html += '<select id="s5-cross-attr" class="form-control" style="width:auto;" onchange="s5UpdateCrossTab()">';
-  attrOptions.forEach(a => { html += `<option value="${a.key}">${a.label}</option>`; });
-  html += '</select>';
-  html += '<label style="font-size:12px;">質問:</label>';
-  html += '<select id="s5-cross-question" class="form-control" style="width:auto;" onchange="s5UpdateCrossTab()">';
-  questions.forEach((q, qi) => { if (q.type === 'text') return; html += `<option value="${qi}">Q${qi+1}. ${esc(q.text).substring(0, 30)}</option>`; });
-  html += '</select></div><div id="s5-cross-result"></div>';
-  return html;
-}
-function s5InitCrossTab(survey, questions, responses) {
-  _s5CrossContext = { survey, questions, responses };
-  setTimeout(() => s5UpdateCrossTab(), 100);
-}
-function s5UpdateCrossTab() {
-  if (!_s5CrossContext) return;
-  const { questions, responses } = _s5CrossContext;
-  const attr = document.getElementById('s5-cross-attr')?.value || 'Department';
-  const qi = parseInt(document.getElementById('s5-cross-question')?.value || '0');
-  const q = questions[qi];
-  if (!q) return;
-  const empMap = {};
-  employees.forEach(e => { empMap[e.EmpID] = e; });
-  const cross = {};
-  responses.forEach(r => {
-    const emp = empMap[r.EmpID];
-    if (!emp) return;
-    const attrVal = emp[attr] || '(未設定)';
-    if (!cross[attrVal]) cross[attrVal] = {};
-    let answers = {};
-    try { answers = JSON.parse(r.AnswersJson || '{}'); } catch(e) {}
-    const a = answers[q.id];
-    if (!a) return;
-    const vals = q.type === 'multi' ? (a.answer||'').split('、') : [a.answer];
-    vals.forEach(v => { if (!v) return; cross[attrVal][v] = (cross[attrVal][v] || 0) + 1; });
-  });
-  const attrValues = Object.keys(cross).sort();
-  const answerValues = q.type === 'rating' ? ['1','2','3','4','5'] : (q.options || []);
-  let html = '<table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr><th style="padding:8px;background:var(--c-gray-50);border:1px solid var(--border);">属性\\回答</th>';
-  answerValues.forEach(av => { html += `<th style="padding:8px;background:var(--c-gray-50);border:1px solid var(--border);">${esc(av)}</th>`; });
-  html += '<th style="padding:8px;background:var(--c-gray-50);border:1px solid var(--border);">合計</th></tr></thead><tbody>';
-  attrValues.forEach(av => {
-    let rowTotal = 0;
-    html += `<tr><td style="padding:8px;border:1px solid var(--border);font-weight:600;">${esc(av)}</td>`;
-    answerValues.forEach(ans => {
-      const c = cross[av][ans] || 0;
-      rowTotal += c;
-      const bi = c > 0 ? Math.min(c / 5, 1) : 0;
-      html += `<td style="padding:8px;border:1px solid var(--border);text-align:center;background:rgba(24,95,165,${bi*0.3});">${c}</td>`;
-    });
-    html += `<td style="padding:8px;border:1px solid var(--border);text-align:center;font-weight:600;">${rowTotal}</td></tr>`;
-  });
-  html += '</tbody></table><p style="font-size:11px;color:var(--text-muted);margin-top:8px;">※ 数値は回答数。色の濃さで件数を可視化。</p>';
-  document.getElementById('s5-cross-result').innerHTML = html;
-}
+var s3Sort={col:null,dir:'asc'};var s3CurrentPage=1;var S3_PAGE_SIZE=30;var s3FilteredList=[];var s3CurrentFilter='all';
+function applyQuickFilter(f){s3CurrentFilter=f||'all';s3CurrentPage=1;document.querySelectorAll('.quick-filter-btn').forEach(function(b){b.classList.toggle('active',b.dataset.filter===s3CurrentFilter);});var q=((document.getElementById('search-input')||{}).value||'').toLowerCase();var st=(document.getElementById('status-filter')||{}).value||'';var dp=(document.getElementById('dept-filter')||{}).value||'';var co=(document.getElementById('company-filter')||{}).value||'';var list=(employees||[]).filter(function(e){var tx=[e.EmpID,e.NameKanji,e.NameKana,e.NameRoman,e.Department,e.Position,e.Company1,e.Company2,e.Company3].join(' ').toLowerCase();var cm=!co||e.Company1===co||e.Company2===co||e.Company3===co;return (!q||tx.includes(q))&&(!st||e.Status===st)&&(!dp||e.Department===dp)&&cm;});var today=new Date();var td=function(d){try{return safeDate(d);}catch(e){return null;}};if(s3CurrentFilter==='active')list=list.filter(function(e){return e.Status==='在職';});else if(s3CurrentFilter==='leave')list=list.filter(function(e){return e.Status==='休職';});else if(s3CurrentFilter==='retired')list=list.filter(function(e){return e.Status==='退職';});else if(s3CurrentFilter==='new'){list=list.filter(function(e){if(!e.JoinDate)return false;var d=td(e.JoinDate);return d&&d.getFullYear()===today.getFullYear()&&d.getMonth()===today.getMonth();});}else if(s3CurrentFilter==='soon-retire'){list=list.filter(function(e){if(!e.RetireDate)return false;var d=td(e.RetireDate);if(!d)return false;var df=Math.round((d-today)/86400000);return df>=-7&&df<=30;});}s3FilteredList=sortEmployeesList(list);renderPaginatedEmployees();}
+function sortEmployeesList(list){if(!s3Sort.col)return list;var sorted=list.slice();sorted.sort(function(a,b){var av=String(a[s3Sort.col]||'').toLowerCase();var bv=String(b[s3Sort.col]||'').toLowerCase();if(av<bv)return s3Sort.dir==='asc'?-1:1;if(av>bv)return s3Sort.dir==='asc'?1:-1;return 0;});return sorted;}
+function renderPaginatedEmployees(){var total=s3FilteredList.length;var totalPages=Math.max(1,Math.ceil(total/S3_PAGE_SIZE));if(s3CurrentPage>totalPages)s3CurrentPage=totalPages;var start=(s3CurrentPage-1)*S3_PAGE_SIZE;var page=s3FilteredList.slice(start,start+S3_PAGE_SIZE);renderEmployeeTable(page);renderPaginationBar(total,totalPages);updateSortIndicators();}
+function renderPaginationBar(total,totalPages){var bar=document.getElementById('emp-pagination-bar');if(!bar)return;if(!total){bar.innerHTML='';return;}var from=(s3CurrentPage-1)*S3_PAGE_SIZE+1;var to=Math.min(s3CurrentPage*S3_PAGE_SIZE,total);var pageBtns='';var mb=7;var sp=Math.max(1,s3CurrentPage-3);var ep=Math.min(totalPages,sp+mb-1);if(ep-sp<mb-1)sp=Math.max(1,ep-mb+1);for(var p=sp;p<=ep;p++){pageBtns+='<button class="page-btn '+(p===s3CurrentPage?'active':'')+'" onclick="s3GotoPage('+p+')">'+p+'</button>';}bar.innerHTML='<span class="pagination-info">'+from+'-'+to+' / '+total+'件</span>'+'<button class="page-btn" onclick="s3GotoPage(1)" '+(s3CurrentPage===1?'disabled':'')+'>«</button>'+'<button class="page-btn" onclick="s3GotoPage('+(s3CurrentPage-1)+')" '+(s3CurrentPage===1?'disabled':'')+'>‹</button>'+pageBtns+'<button class="page-btn" onclick="s3GotoPage('+(s3CurrentPage+1)+')" '+(s3CurrentPage>=totalPages?'disabled':'')+'>›</button>'+'<button class="page-btn" onclick="s3GotoPage('+totalPages+')" '+(s3CurrentPage>=totalPages?'disabled':'')+'>»</button>';}
+function s3GotoPage(p){s3CurrentPage=Math.max(1,p);renderPaginatedEmployees();}
+function sortEmployeesByColumn(col){if(s3Sort.col===col){s3Sort.dir=s3Sort.dir==='asc'?'desc':'asc';}else{s3Sort.col=col;s3Sort.dir='asc';}s3FilteredList=sortEmployeesList(s3FilteredList);s3CurrentPage=1;renderPaginatedEmployees();}
+function updateSortIndicators(){document.querySelectorAll('#employee-table th[data-sort-col]').forEach(function(th){var col=th.dataset.sortCol;var ind=th.querySelector('.sort-indicator');if(!ind){ind=document.createElement('span');ind.className='sort-indicator';th.appendChild(ind);}if(s3Sort.col===col){ind.textContent=s3Sort.dir==='asc'?' ▲':' ▼';}else{ind.textContent='';}});}
+function updateBulkActionBar(){var c=document.querySelectorAll('.emp-select-cb:checked').length;var bar=document.getElementById('bulk-action-bar');var cnt=document.getElementById('bulk-action-count');if(!bar)return;if(c>0){bar.classList.add('show');if(cnt)cnt.textContent=c+'名選択中';}else{bar.classList.remove('show');}}
+async function bulkChangeStatus(ns){var sel=getSelectedEmployees();if(!sel.length){showToast('社員を選択してください','error');return;}if(!confirm(sel.length+'名のステータスを「'+ns+'」に変更しますか？'))return;showLoading('ステータス変更中...','0 / '+sel.length);var done=0;for(var i=0;i<sel.length;i++){try{await graphPatch('https://graph.microsoft.com/v1.0/sites/'+siteId+'/lists/'+listId+'/items/'+sel[i].id+'/fields',{Status:ns});done++;updateLoadingMessage('ステータス変更中...',done+' / '+sel.length);}catch(e){console.warn(e);}}hideLoading();showToast(done+'名のステータスを変更しました','success');await loadEmployees();}
+function bulkClearSelection(){document.querySelectorAll('.emp-select-cb').forEach(function(el){el.checked=false;});var a=document.getElementById('select-all-emp');if(a)a.checked=false;updateBulkActionBar();}
+// ===== Sprint 4 =====
+var s4Charts=new Map();
+function s4CreateChart(id,type,data,options){if(typeof Chart==='undefined')return null;var ctx=document.getElementById(id);if(!ctx)return null;if(s4Charts.has(id)){try{s4Charts.get(id).destroy();}catch(e){}}var isDark=document.documentElement.getAttribute('data-theme')==='dark';var tc=isDark?'#e0e0e0':'#2C2C2A';var gc=isDark?'#404040':'#e2e1d9';var defOpts={responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:tc,font:{size:11}}}},scales:type==='pie'||type==='doughnut'?{}:{x:{ticks:{color:tc,font:{size:10}},grid:{color:gc}},y:{ticks:{color:tc,font:{size:10}},grid:{color:gc},beginAtZero:true}}};var chart=new Chart(ctx,{type:type,data:data,options:Object.assign({},defOpts,options||{})});s4Charts.set(id,chart);return chart;}
+function s4CreateSVGChart(id,svg){var el=document.getElementById(id);if(el)el.innerHTML=svg;}
+function s4SwitchChartType(id,nt){if(!s4Charts.has(id))return;var c=s4Charts.get(id);var d=c.data;c.destroy();s4CreateChart(id,nt,d,{});document.querySelectorAll('[data-chart-target="'+id+'"]').forEach(function(b){b.classList.toggle('active',b.dataset.chartType===nt);});}
+function s4ExportChartPNG(id,fn){if(!s4Charts.has(id))return;var c=s4Charts.get(id);var u=c.toBase64Image();var a=document.createElement('a');a.href=u;a.download=(fn||id)+'.png';a.click();}
+function s4RenderChartForQuestion(q,ans,id){if(!q||!ans||!ans.length)return;if(q.type==='rating'){var cs=[1,2,3,4,5].map(function(n){return ans.filter(function(a){return String(a.answer)===String(n);}).length;});s4CreateChart(id,'bar',{labels:['1','2','3','4','5'],datasets:[{label:'回答数',data:cs,backgroundColor:'#185FA5'}]});}else if(q.type==='single'||q.type==='multi'){var oc={};(q.options||[]).forEach(function(o){oc[o]=0;});ans.forEach(function(a){var vs=q.type==='multi'?(a.answer||'').split('、'):[a.answer];vs.forEach(function(v){if(oc.hasOwnProperty(v))oc[v]++;});});var labs=Object.keys(oc);var dat=Object.values(oc);var pal=['#185FA5','#0F6E56','#A32D2D','#BA7517','#3B6D11','#5B89BE','#888780'];s4CreateChart(id,'bar',{labels:labs,datasets:[{label:'回答数',data:dat,backgroundColor:labs.map(function(_,i){return pal[i%pal.length];})}]});}}
+function s4InitChartsAfterRender(sid,qs,rs){setTimeout(function(){(qs||[]).forEach(function(q,qi){if(q.type==='text')return;var ans=rs.map(function(r){try{return JSON.parse(r.AnswersJson||'{}')[q.id];}catch(e){return null;}}).filter(Boolean);var cid='s4chart-'+qi;if(document.getElementById(cid))s4RenderChartForQuestion(q,ans,cid);});},100);}
+// ===== Release 1 =====
+function initTheme(){var t='light';try{t=localStorage.getItem('hr_theme')||'light';}catch(e){}document.documentElement.setAttribute('data-theme',t);updateThemeIcon(t);}
+function toggleTheme(){var c=document.documentElement.getAttribute('data-theme')||'light';var n=c==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);try{localStorage.setItem('hr_theme',n);}catch(e){}updateThemeIcon(n);s4Charts.forEach(function(ch,id){var t=ch.config.type;var d=ch.data;ch.destroy();s4CreateChart(id,t,d,{});});}
+function updateThemeIcon(t){var b=document.getElementById('theme-toggle-btn');if(!b)return;b.innerHTML=t==='dark'?'<span style="font-size:13px;">☀️</span> ライト':'<span style="font-size:13px;">🌙</span> ダーク';}
+window.addEventListener('DOMContentLoaded',initTheme);
+document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.shiftKey&&e.key==='D'){e.preventDefault();toggleTheme();}});
+var _s5CrossContext=null;
+function s5InitCrossTab(sid,qs,rs){_s5CrossContext={surveyId:sid,questions:qs,responses:rs};var xs=document.getElementById('cross-x-question');var ys=document.getElementById('cross-y-question');if(!xs||!ys)return;var opts=(qs||[]).map(function(q,i){return '<option value="'+i+'">Q'+(i+1)+'. '+esc(q.text||'')+'</option>';}).join('');xs.innerHTML='<option value="">選択してください</option>'+opts;ys.innerHTML='<option value="">選択してください</option>'+opts;}
+function s5UpdateCrossTab(){if(!_s5CrossContext)return;var xi=(document.getElementById('cross-x-question')||{}).value;var yi=(document.getElementById('cross-y-question')||{}).value;var body=document.getElementById('cross-result-body');if(!body)return;if(xi===''||yi===''||xi===undefined||yi===undefined){body.innerHTML='<p style="text-align:center;color:var(--text-muted);padding:24px;">X軸とY軸の質問を選択してください</p>';return;}s5RenderCrossTab(parseInt(xi),parseInt(yi));}
+function s5RenderCrossTab(xi,yi){if(!_s5CrossContext)return;var qs=_s5CrossContext.questions;var rs=_s5CrossContext.responses;var qx=qs[xi];var qy=qs[yi];if(!qx||!qy)return;var xo=qx.type==='rating'?['1','2','3','4','5']:(qx.options||[]);var yo=qy.type==='rating'?['1','2','3','4','5']:(qy.options||[]);var m={};xo.forEach(function(x){m[x]={};yo.forEach(function(y){m[x][y]=0;});});rs.forEach(function(r){var a={};try{a=JSON.parse(r.AnswersJson||'{}');}catch(e){}var xv=(a[qx.id]||{}).answer||'';var yv=(a[qy.id]||{}).answer||'';var xl=qx.type==='multi'?xv.split('、'):[xv];var yl=qy.type==='multi'?yv.split('、'):[yv];xl.forEach(function(x){yl.forEach(function(y){if(m[x]&&m[x][y]!==undefined)m[x][y]++;});});});var html='<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr><th style="padding:6px 10px;background:var(--c-gray-50);border:1px solid var(--border);">'+esc(qx.text)+' \\ '+esc(qy.text)+'</th>';yo.forEach(function(y){html+='<th style="padding:6px 10px;background:var(--c-gray-50);border:1px solid var(--border);">'+esc(y)+'</th>';});html+='<th style="padding:6px 10px;background:var(--c-primary-light);border:1px solid var(--border);">計</th></tr></thead><tbody>';xo.forEach(function(x){html+='<tr><th style="padding:6px 10px;background:var(--c-gray-50);border:1px solid var(--border);text-align:left;">'+esc(x)+'</th>';var rs2=0;yo.forEach(function(y){var v=m[x][y];rs2+=v;html+='<td style="padding:6px 10px;border:1px solid var(--border);text-align:center;">'+v+'</td>';});html+='<td style="padding:6px 10px;border:1px solid var(--border);text-align:center;background:var(--c-primary-light);font-weight:600;">'+rs2+'</td></tr>';});html+='</tbody></table></div>';body.innerHTML=html;}
+// ===== Release 2 =====
+var dashCompanyFilter='';
+function getDashFilteredEmployees(){if(!dashCompanyFilter)return employees||[];return (employees||[]).filter(function(e){return e.Company1===dashCompanyFilter||e.Company2===dashCompanyFilter||e.Company3===dashCompanyFilter;});}
+function onDashCompanyChange(){var s=document.getElementById('dash-company-filter');dashCompanyFilter=s?s.value:'';renderDashboard();}
+function showDashboard(){document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});if(event&&event.currentTarget)event.currentTarget.classList.add('active');hideAllPages();var p=document.getElementById('dashboard-page');if(p)p.style.display='block';var pt=document.getElementById('page-title');if(pt)pt.textContent='ダッシュボード';var nb=document.querySelector('.topbar-right .btn-primary');if(nb)nb.style.display='none';var s=document.getElementById('dash-company-filter');if(s){var cs=[].concat.apply([],(employees||[]).map(function(e){return [e.Company1,e.Company2,e.Company3];})).filter(Boolean);var us=Array.from(new Set(cs)).sort();var cur=s.value;s.innerHTML='<option value="">全会社</option>'+us.map(function(c){return '<option value="'+esc(c)+'" '+(cur===c?'selected':'')+'>'+esc(c)+'</option>';}).join('');}renderDashboard();}
+function renderDashboard(){var list=getDashFilteredEmployees();renderDashSummary(list);renderHeadcountTrend(list);renderDeptComposition(list);renderMonthlyTransition(list);renderAgeComposition(list);renderTenureComposition(list);}
+function renderDashSummary(list){var act=list.filter(function(e){return e.Status==='在職';}).length;var lv=list.filter(function(e){return e.Status==='休職';}).length;var rt=list.filter(function(e){return e.Status==='退職';}).length;var tot=act+lv;var el=document.getElementById('dash-summary');if(!el)return;el.innerHTML='<div class="dashboard-stat"><div class="dashboard-stat-value">'+tot+'</div><div class="dashboard-stat-label">在籍者数</div></div>'+'<div class="dashboard-stat"><div class="dashboard-stat-value">'+act+'</div><div class="dashboard-stat-label">在職</div></div>'+'<div class="dashboard-stat"><div class="dashboard-stat-value">'+lv+'</div><div class="dashboard-stat-label">休職</div></div>'+'<div class="dashboard-stat"><div class="dashboard-stat-value">'+rt+'</div><div class="dashboard-stat-label">退職累計</div></div>';}
+function renderHeadcountTrend(list){var today=new Date();var months=[];for(var i=11;i>=0;i--){months.push(new Date(today.getFullYear(),today.getMonth()-i,1));}var counts=months.map(function(m){var me=new Date(m.getFullYear(),m.getMonth()+1,0);return list.filter(function(e){if(!e.JoinDate)return false;var jo=safeDate(e.JoinDate);if(jo>me)return false;if(e.RetireDate){var re=safeDate(e.RetireDate);if(re<m)return false;}return true;}).length;});var labs=months.map(function(m){return (m.getMonth()+1)+'月';});var mv=Math.max.apply(null,counts.concat([1]));var w=600,h=240,pad=40;var cw=w-pad*2;var ch=h-pad*2;var pth='';var pts='';var lh='';var yl='';counts.forEach(function(c,i){var x=pad+(i/(counts.length-1))*cw;var y=pad+ch-(c/mv)*ch;pth+=(i===0?'M':'L')+x+','+y+' ';pts+='<circle cx="'+x+'" cy="'+y+'" r="4" fill="#185FA5"/>';pts+='<text x="'+x+'" y="'+(y-8)+'" text-anchor="middle" class="svg-chart-num-headcount">'+c+'</text>';lh+='<text x="'+x+'" y="'+(h-10)+'" text-anchor="middle" class="svg-chart-label">'+labs[i]+'</text>';});for(var i2=0;i2<=4;i2++){var y2=pad+ch-(i2/4)*ch;var v=Math.round((i2/4)*mv);yl+='<text x="'+(pad-8)+'" y="'+(y2+3)+'" text-anchor="end" class="svg-chart-label">'+v+'</text>';yl+='<line x1="'+pad+'" y1="'+y2+'" x2="'+(w-pad)+'" y2="'+y2+'" stroke="#e2e1d9" stroke-width="0.5"/>';}var svg='<svg class="svg-chart" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="xMidYMid meet">'+yl+'<path d="'+pth+'" fill="none" stroke="#185FA5" stroke-width="2"/>'+pts+lh+'</svg>';s4CreateSVGChart('chart-headcount-trend',svg);}
+function renderDeptComposition(list){var act=list.filter(function(e){return e.Status==='在職'||e.Status==='休職';});var dc={};act.forEach(function(e){var d=e.Department||'(未設定)';dc[d]=(dc[d]||0)+1;});var ent=Object.entries(dc).sort(function(a,b){return b[1]-a[1];}).slice(0,10);var tot=ent.reduce(function(s,e){return s+e[1];},0);if(!tot){s4CreateSVGChart('chart-dept-composition','<div style="text-align:center;padding:40px;color:var(--text-muted);">データなし</div>');return;}var pal=['#185FA5','#0F6E56','#A32D2D','#BA7517','#3B6D11','#5B89BE','#8B5CF6','#EC4899','#06B6D4','#F59E0B'];var w=600,h=240,cx=130,cy=h/2,r=80,ir=45;var ang=-Math.PI/2;var ps='';var lg='';ent.forEach(function(e,i){var name=e[0];var c=e[1];var pct=c/tot;var end=ang+pct*Math.PI*2;var x1=cx+r*Math.cos(ang),y1=cy+r*Math.sin(ang);var x2=cx+r*Math.cos(end),y2=cy+r*Math.sin(end);var x3=cx+ir*Math.cos(end),y3=cy+ir*Math.sin(end);var x4=cx+ir*Math.cos(ang),y4=cy+ir*Math.sin(ang);var lg2=pct>0.5?1:0;var col=pal[i%pal.length];ps+='<path d="M'+x1+','+y1+' A'+r+','+r+' 0 '+lg2+' 1 '+x2+','+y2+' L'+x3+','+y3+' A'+ir+','+ir+' 0 '+lg2+' 0 '+x4+','+y4+' Z" fill="'+col+'"/>';var ly=20+i*20;lg+='<rect x="270" y="'+ly+'" width="12" height="12" fill="'+col+'"/>';lg+='<text x="290" y="'+(ly+10)+'" class="svg-chart-label">'+esc(name)+' ('+c+'名 / '+Math.round(pct*100)+'%)</text>';ang=end;});var svg='<svg class="svg-chart" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="xMidYMid meet">'+ps+lg+'<text x="'+cx+'" y="'+(cy+5)+'" text-anchor="middle" class="svg-chart-value" style="font-size:14px;">'+tot+'名</text></svg>';s4CreateSVGChart('chart-dept-composition',svg);}
+function renderMonthlyTransition(list){var today=new Date();var months=[];for(var i=11;i>=0;i--){months.push(new Date(today.getFullYear(),today.getMonth()-i,1));}var jc=months.map(function(m){var end=new Date(m.getFullYear(),m.getMonth()+1,0);return list.filter(function(e){if(!e.JoinDate)return false;var d=safeDate(e.JoinDate);return d>=m&&d<=end;}).length;});var rc=months.map(function(m){var end=new Date(m.getFullYear(),m.getMonth()+1,0);return list.filter(function(e){if(!e.RetireDate)return false;var d=safeDate(e.RetireDate);return d>=m&&d<=end;}).length;});var mv=Math.max.apply(null,jc.concat(rc).concat([1]));var w=600,h=240,pad=40;var cw=w-pad*2;var ch=h-pad*2;var bw=(cw/months.length)*0.35;var bs='';var lbs='';months.forEach(function(m,i){var cx=pad+(i+0.5)*(cw/months.length);var jh=(jc[i]/mv)*ch;var rh=(rc[i]/mv)*ch;bs+='<rect x="'+(cx-bw-2)+'" y="'+(pad+ch-jh)+'" width="'+bw+'" height="'+jh+'" fill="#3B6D11"/>';bs+='<rect x="'+(cx+2)+'" y="'+(pad+ch-rh)+'" width="'+bw+'" height="'+rh+'" fill="#A32D2D"/>';if(jc[i]>0)bs+='<text x="'+(cx-bw/2-2)+'" y="'+(pad+ch-jh-3)+'" text-anchor="middle" class="svg-chart-num-join">'+jc[i]+'</text>';if(rc[i]>0)bs+='<text x="'+(cx+bw/2+2)+'" y="'+(pad+ch-rh-3)+'" text-anchor="middle" class="svg-chart-num-retire">'+rc[i]+'</text>';lbs+='<text x="'+cx+'" y="'+(h-10)+'" text-anchor="middle" class="svg-chart-label">'+(m.getMonth()+1)+'月</text>';});var leg='<rect x="'+pad+'" y="10" width="10" height="10" fill="#3B6D11"/><text x="'+(pad+14)+'" y="19" class="svg-chart-label">入社</text><rect x="'+(pad+60)+'" y="10" width="10" height="10" fill="#A32D2D"/><text x="'+(pad+74)+'" y="19" class="svg-chart-label">退社</text>';var svg='<svg class="svg-chart" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="xMidYMid meet">'+leg+bs+lbs+'</svg>';s4CreateSVGChart('chart-monthly-transition',svg);}
+function renderAgeComposition(list){var act=list.filter(function(e){return e.Status==='在職'||e.Status==='休職';});var bk={'20代':0,'30代':0,'40代':0,'50代':0,'60代以上':0,'不明':0};var today=new Date();act.forEach(function(e){if(!e.Birthdate){bk['不明']++;return;}var d=safeDate(e.Birthdate);var age=calcYearsDiff(d,today);if(age<30)bk['20代']++;else if(age<40)bk['30代']++;else if(age<50)bk['40代']++;else if(age<60)bk['50代']++;else bk['60代以上']++;});var w=600,h=240,pad=40;var labs=Object.keys(bk);var cnts=Object.values(bk);var mv=Math.max.apply(null,cnts.concat([1]));var cw=w-pad*2;var ch=h-pad*2;var bw=(cw/labs.length)*0.6;var bs='';var lh='';labs.forEach(function(lb,i){var cx=pad+(i+0.5)*(cw/labs.length);var bh=(cnts[i]/mv)*ch;bs+='<rect x="'+(cx-bw/2)+'" y="'+(pad+ch-bh)+'" width="'+bw+'" height="'+bh+'" fill="#185FA5"/>';if(cnts[i]>0)bs+='<text x="'+cx+'" y="'+(pad+ch-bh-3)+'" text-anchor="middle" class="svg-chart-num-headcount">'+cnts[i]+'</text>';lh+='<text x="'+cx+'" y="'+(h-10)+'" text-anchor="middle" class="svg-chart-label">'+lb+'</text>';});var svg='<svg class="svg-chart" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="xMidYMid meet">'+bs+lh+'</svg>';s4CreateSVGChart('chart-age-composition',svg);}
+function renderTenureComposition(list){var act=list.filter(function(e){return e.Status==='在職'||e.Status==='休職';});var bk={'〜1年':0,'1-3年':0,'3-5年':0,'5-10年':0,'10-20年':0,'20年〜':0};var today=new Date();act.forEach(function(e){if(!e.JoinDate)return;var d=safeDate(e.JoinDate);var y=calcYearsDiff(d,today);if(y<1)bk['〜1年']++;else if(y<3)bk['1-3年']++;else if(y<5)bk['3-5年']++;else if(y<10)bk['5-10年']++;else if(y<20)bk['10-20年']++;else bk['20年〜']++;});var w=600,h=240,pad=40;var labs=Object.keys(bk);var cnts=Object.values(bk);var mv=Math.max.apply(null,cnts.concat([1]));var cw=w-pad*2;var ch=h-pad*2;var bw=(cw/labs.length)*0.6;var bs='';var lh='';labs.forEach(function(lb,i){var cx=pad+(i+0.5)*(cw/labs.length);var bh=(cnts[i]/mv)*ch;bs+='<rect x="'+(cx-bw/2)+'" y="'+(pad+ch-bh)+'" width="'+bw+'" height="'+bh+'" fill="#0F6E56"/>';if(cnts[i]>0)bs+='<text x="'+cx+'" y="'+(pad+ch-bh-3)+'" text-anchor="middle" class="svg-chart-num-headcount">'+cnts[i]+'</text>';lh+='<text x="'+cx+'" y="'+(h-10)+'" text-anchor="middle" class="svg-chart-label">'+lb+'</text>';});var svg='<svg class="svg-chart" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="xMidYMid meet">'+bs+lh+'</svg>';s4CreateSVGChart('chart-tenure-composition',svg);}
+function s6FindPreviousSurvey(cid){if(typeof surveyList==='undefined')return null;var c=surveyList.find(function(s){return s.SurveyId===cid;});if(!c)return null;var p=surveyList.filter(function(s){return s.SurveyId!==cid;}).sort(function(a,b){return (b.CreatedAt||'').localeCompare(a.CreatedAt||'');})[0];return p||null;}
+async function s6RenderComparison(cid,qs,rs){var prev=s6FindPreviousSurvey(cid);var cont=document.getElementById('s6-comparison-container');if(!cont)return;if(!prev){cont.innerHTML='<h4 style="font-size:13px;margin-bottom:8px;">🔄 前回アンケートとの比較</h4><p style="color:var(--text-muted);font-size:12px;padding:8px;">前回比較対象のアンケートがありません</p>';return;}var pr=[];try{pr=await loadSurveyResponses(prev.SurveyId);}catch(e){pr=[];}var html='<h4 style="font-size:13px;margin-bottom:8px;">🔄 前回アンケートとの比較（評価質問のみ）</h4><div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">前回: '+esc(prev.Title||'')+' ('+(typeof formatDate==='function'?formatDate(prev.CreatedAt):'')+')</div>';(qs||[]).forEach(function(q,qi){if(q.type!=='rating')return;var cur=rs.map(function(r){try{return JSON.parse(r.AnswersJson||'{}')[q.id];}catch(e){return null;}}).filter(Boolean);var prv=pr.map(function(r){try{return JSON.parse(r.AnswersJson||'{}')[q.id];}catch(e){return null;}}).filter(Boolean);var ca=cur.length?cur.reduce(function(s,a){return s+(parseInt(a.answer)||0);},0)/cur.length:0;var pa=prv.length?prv.reduce(function(s,a){return s+(parseInt(a.answer)||0);},0)/prv.length:0;var df=ca-pa;var bd=df>0.1?'<span class="comparison-badge comparison-up">▲ +'+df.toFixed(1)+'</span>':df<-0.1?'<span class="comparison-badge comparison-down">▼ '+df.toFixed(1)+'</span>':'<span class="comparison-badge comparison-same">± '+df.toFixed(1)+'</span>';html+='<div style="display:flex;justify-content:space-between;padding:8px;border-bottom:1px solid var(--border);font-size:12px;"><span>Q'+(qi+1)+'. '+esc(q.text)+'</span><span>今回: '+ca.toFixed(1)+' / 前回: '+pa.toFixed(1)+' '+bd+'</span></div>';});cont.innerHTML=html;}
 
 // ===== STATE =====
 let appConfig = {
@@ -2691,66 +2370,72 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
     return;
   }
+  // codeパラメータがない場合：保存済みrefresh_tokenでの自動ログインを試みる（リロード時のログイン維持）
   if (appConfig.clientId && appConfig.tenantId && localStorage.getItem('hr_tool_refresh_token')) {
     try {
       const token = await refreshAccessToken();
-      if (token) { await handleAuthToken(token); return; }
-    } catch(e) { console.warn('自動ログインに失敗:', e.message); }
-  }
-  if (appConfig.clientId && appConfig.tenantId && appConfig.siteUrl && appConfig.listName) {
-    showLoading('Microsoft 365にログインします...', '画面が切り替わります');
-    setTimeout(() => startAuth(), 1500);
+      if (token) {
+        await handleAuthToken(token);
+      }
+    } catch(e) {
+      console.warn('自動ログインに失敗しました。再度ログインしてください:', e.message);
+    }
   }
 });
 
 // ===== CONFIG =====
 function loadConfig() {
-  appConfig = { ...appConfig, ...FIXED_CONFIG };
+  if (FIXED_CONFIG.clientId) appConfig.clientId = FIXED_CONFIG.clientId;
+  if (FIXED_CONFIG.tenantId) appConfig.tenantId = FIXED_CONFIG.tenantId;
+  if (FIXED_CONFIG.siteUrl) appConfig.siteUrl = FIXED_CONFIG.siteUrl;
+  if (FIXED_CONFIG.listName) appConfig.listName = FIXED_CONFIG.listName;
   try {
     const saved = localStorage.getItem('hr_tool_config');
     if (saved) {
-      const localCfg = JSON.parse(saved);
-      if (localCfg.githubToken) appConfig.githubToken = localCfg.githubToken;
-      if (localCfg.githubTokenExpiry) appConfig.githubTokenExpiry = localCfg.githubTokenExpiry;
-      if (localCfg.mynumberAccess) appConfig.mynumberAccess = localCfg.mynumberAccess;
-      if (localCfg.roles) appConfig.roles = localCfg.roles;
+      appConfig = { ...appConfig, ...JSON.parse(saved) };
+      document.getElementById('cfg-client-id').value = appConfig.clientId || '';
+      document.getElementById('cfg-tenant-id').value = appConfig.tenantId || '';
+      document.getElementById('cfg-site-url').value = appConfig.siteUrl || '';
+      document.getElementById('cfg-list-name').value = appConfig.listName || '';
+      document.getElementById('cfg-mynumber-access').value = (appConfig.mynumberAccess || []).join(', ');
+      document.getElementById('cfg-github-owner').value = appConfig.githubOwner || '';
+      document.getElementById('cfg-github-repo').value = appConfig.githubRepo || '';
+      document.getElementById('cfg-github-token').value = appConfig.githubToken || '';
+      document.getElementById('cfg-github-token-expiry').value = appConfig.githubTokenExpiry || '';
     }
-    const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
-    setVal('cfg-client-id', appConfig.clientId);
-    setVal('cfg-tenant-id', appConfig.tenantId);
-    setVal('cfg-site-url', appConfig.siteUrl);
-    setVal('cfg-list-name', appConfig.listName);
-    setVal('cfg-mynumber-access', (appConfig.mynumberAccess || []).join(', '));
-    setVal('cfg-github-owner', appConfig.githubOwner);
-    setVal('cfg-github-repo', appConfig.githubRepo);
-    setVal('cfg-github-token', appConfig.githubToken);
-    setVal('cfg-github-token-expiry', appConfig.githubTokenExpiry);
-    ['cfg-client-id','cfg-tenant-id','cfg-site-url','cfg-list-name','cfg-github-owner','cfg-github-repo'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) { el.readOnly = true; el.style.background = 'var(--c-gray-50)'; el.style.color = 'var(--text-muted)'; el.title = '管理者が変更する場合は HTML ファイルの FIXED_CONFIG を直接編集してください'; }
-    });
   } catch(e) {}
 }
 
 async function saveConfig() {
+  appConfig.clientId = document.getElementById('cfg-client-id').value.trim();
+  appConfig.tenantId = document.getElementById('cfg-tenant-id').value.trim();
+  appConfig.siteUrl = document.getElementById('cfg-site-url').value.trim();
+  appConfig.listName = document.getElementById('cfg-list-name').value.trim();
   appConfig.mynumberAccess = document.getElementById('cfg-mynumber-access').value.split(',').map(s => s.trim()).filter(Boolean);
+  appConfig.githubOwner = document.getElementById('cfg-github-owner').value.trim();
+  appConfig.githubRepo = document.getElementById('cfg-github-repo').value.trim();
   appConfig.githubToken = document.getElementById('cfg-github-token').value.trim();
   appConfig.githubTokenExpiry = document.getElementById('cfg-github-token-expiry').value.trim();
-  appConfig.clientId = FIXED_CONFIG.clientId;
-  appConfig.tenantId = FIXED_CONFIG.tenantId;
-  appConfig.siteUrl = FIXED_CONFIG.siteUrl;
-  appConfig.listName = FIXED_CONFIG.listName;
-  appConfig.githubOwner = FIXED_CONFIG.githubOwner;
-  appConfig.githubRepo = FIXED_CONFIG.githubRepo;
-  localStorage.setItem('hr_tool_config', JSON.stringify({ githubToken: appConfig.githubToken, githubTokenExpiry: appConfig.githubTokenExpiry, mynumberAccess: appConfig.mynumberAccess, roles: appConfig.roles }));
-  if (accessToken && masterListId) {
-    try {
-      await saveMasterToSP('systemConfig', { githubToken: appConfig.githubToken, githubTokenExpiry: appConfig.githubTokenExpiry, mynumberAccess: appConfig.mynumberAccess });
-      showToast('設定をSharePointに保存しました。全利用者に同期されます。', 'success');
-    } catch(e) { showToast('SharePoint保存エラー: ' + e.message, 'error'); }
-  } else { showToast('設定を保存しました', 'success'); }
+  // rolesはpermission modalで管理するため維持
+  if (!appConfig.clientId || !appConfig.tenantId || !appConfig.siteUrl || !appConfig.listName) {
+    showToast('必須項目を入力してください', 'error'); return;
+  }
+  localStorage.setItem('hr_tool_config', JSON.stringify(appConfig));
+  try {
+    if (typeof masterListId !== 'undefined' && masterListId) {
+      await saveMasterToSP('systemConfig', {
+        mynumberAccess: appConfig.mynumberAccess,
+        githubOwner: appConfig.githubOwner,
+        githubRepo: appConfig.githubRepo,
+        githubToken: appConfig.githubToken,
+        githubTokenExpiry: appConfig.githubTokenExpiry,
+        roles: appConfig.roles
+      });
+    }
+  } catch(e) { console.warn('SP設定保存エラー:', e.message); }
   closeModal('config-modal');
-  if (!accessToken) setTimeout(() => startAuth(), 800);
+  showToast('設定を保存しました。Microsoftアカウントでログインします...', 'info');
+  setTimeout(() => startAuth(), 800);
 }
 
 // ===== AUTH: PKCE Authorization Code Flow =====
@@ -3277,20 +2962,19 @@ async function loadAllMastersFromSP() {
       window._spChangeHistory = map['changeHistory'] || [];
     }
 
+    // システム設定
+    if (map['systemConfig']) {
+      const sc = map['systemConfig'];
+      if (sc.mynumberAccess) appConfig.mynumberAccess = sc.mynumberAccess;
+      if (sc.githubOwner) appConfig.githubOwner = sc.githubOwner;
+      if (sc.githubRepo) appConfig.githubRepo = sc.githubRepo;
+      if (sc.githubToken) appConfig.githubToken = sc.githubToken;
+      if (sc.githubTokenExpiry) appConfig.githubTokenExpiry = sc.githubTokenExpiry;
+    }
     // 権限設定
     if (map['roles']) {
       appConfig.roles = map['roles'];
       localStorage.setItem('hr_tool_config', JSON.stringify(appConfig));
-    }
-    if (map['systemConfig']) {
-      const sc = map['systemConfig'];
-      if (sc.githubToken) appConfig.githubToken = sc.githubToken;
-      if (sc.githubTokenExpiry) appConfig.githubTokenExpiry = sc.githubTokenExpiry;
-      if (sc.mynumberAccess) appConfig.mynumberAccess = sc.mynumberAccess;
-      if (currentUser) {
-        const email = (currentUser.mail || currentUser.userPrincipalName || '').toLowerCase();
-        canViewMynumber = (appConfig.mynumberAccess || []).some(a => a.toLowerCase() === email);
-      }
     }
 
     // UIを更新
@@ -3460,12 +3144,11 @@ function getColumnDefinitions() {
 // ===== LOAD EMPLOYEES =====
 async function loadEmployees() {
   if (!listId) return;
-  showLoading('社員データを読み込み中...');
+  showLoading('社員データを読み込み中...', 'しばらくお待ちください');
   renderSkeletonRows('employee-tbody', 5, 11);
   try {
     const data = await graphGet(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${listId}/items?expand=fields&$top=999`);
     employees = data.value.map(item => ({ id: item.id, ...item.fields }));
-    renderEmployeeTable(employees);
     updateStats(employees);
     updateDeptFilter(employees);
     updateCompanyFilter(employees);
@@ -3479,10 +3162,7 @@ async function loadEmployees() {
     }
   } finally {
     hideLoading();
-    if (typeof applyQuickFilter === 'function') {
-      const activeBtn = document.querySelector('.quick-filter-btn.active');
-      applyQuickFilter(s3CurrentFilter || 'all', activeBtn);
-    }
+    applyQuickFilter(s3CurrentFilter || 'all');
   }
 }
 
@@ -3495,7 +3175,7 @@ function renderEmployeeTable(list) {
   }
   tbody.innerHTML = list.map(e => `
     <tr class="clickable-row">
-      <td data-label="" onclick="event.stopPropagation()" style="text-align:center;"><input type="checkbox" class="emp-select-cb" value="${e.id}" onclick="event.stopPropagation();updateBulkActionBar()"></td>
+      <td data-label="選択" onclick="event.stopPropagation()" style="text-align:center;"><input type="checkbox" class="emp-select-cb" value="${e.id}" onclick="event.stopPropagation();updateBulkActionBar();"></td>
       <td data-label="社員ID" onclick="openEditEmployee('${e.id}')"><code style="font-size:12px;background:var(--c-gray-50);padding:2px 6px;border-radius:4px;">${esc(e.EmpID||'')}</code></td>
       <td data-label="氏名"><strong style="font-weight:500;">${esc(e.NameKanji||'')}</strong><br><span style="font-size:11px;color:var(--text-muted);">${esc(e.NameKana||'')}</span></td>
       <td data-label="所属会社">${companyBadges(e)}</td>
@@ -3505,7 +3185,7 @@ function renderEmployeeTable(list) {
       <td data-label="入社日">${formatDate(e.JoinDate)}</td>
       <td data-label="勤続年数">${calcServiceYears(e)}</td>
       <td data-label="ステータス">${statusBadge(e.Status)}</td>
-      <td data-label="" style="border-top:1px solid var(--border);padding-top:8px;"><button class="btn btn-secondary btn-sm" onclick="openEditEmployee('${e.id}')">編集</button></td>
+      <td data-label="操作"><button class="btn btn-secondary btn-sm" onclick="openEditEmployee('${e.id}')">編集</button></td>
     </tr>
   `).join('');
 }
@@ -5674,16 +5354,7 @@ async function openSurveyResult(surveyId) {
         🔀 クロス集計
       </button>
     </div>
-    <div id="result-tab-summary">${(function(){
-      let chartsHtml = '<div id="s4-charts-section" style="margin-bottom:20px;"><div style="font-size:13px;font-weight:600;color:var(--c-primary);margin-bottom:10px;">📊 グラフで見る</div>';
-      questions.forEach((q, qi) => {
-        if (q.type === "text") return;
-        const chartInfo = s4RenderChartForQuestion(q, responses, qi);
-        chartsHtml += chartInfo.html;
-      });
-      chartsHtml += '</div>';
-      return chartsHtml;
-    })()}`;
+    <div id="result-tab-summary">`;
 
   // 各質問の集計
   questions.forEach((q, qi) => {
@@ -5739,6 +5410,26 @@ async function openSurveyResult(surveyId) {
     html += '</div>';
   });
 
+  // Sprint 4: グラフで見る
+  html += '<div style="margin-top:20px;padding-top:16px;border-top:2px solid var(--border);"><h4 style="font-size:14px;margin-bottom:12px;">📊 グラフで見る</h4>';
+  questions.forEach((q, qi) => {
+    if (q.type === 'text') return;
+    html += '<div class="chart-wrap"><div class="chart-header"><div class="chart-title">Q' + (qi+1) + '. ' + esc(q.text) + '</div><div class="chart-actions">';
+    html += '<button class="chart-type-btn active" data-chart-target="s4chart-' + qi + '" data-chart-type="bar" onclick="s4SwitchChartType(\'s4chart-' + qi + '\',\'bar\')">📊 棒</button>';
+    html += '<button class="chart-type-btn" data-chart-target="s4chart-' + qi + '" data-chart-type="pie" onclick="s4SwitchChartType(\'s4chart-' + qi + '\',\'pie\')">🥧 円</button>';
+    html += '<button class="chart-type-btn" data-chart-target="s4chart-' + qi + '" data-chart-type="doughnut" onclick="s4SwitchChartType(\'s4chart-' + qi + '\',\'doughnut\')">🍩 ドーナツ</button>';
+    html += '<button class="chart-type-btn" onclick="s4ExportChartPNG(\'s4chart-' + qi + '\',\'chart-q' + (qi+1) + '\')">📥 PNG</button>';
+    html += '</div></div><div class="chart-canvas-container"><canvas id="s4chart-' + qi + '"></canvas></div></div>';
+  });
+  html += '<div id="s6-comparison-container" style="margin-top:16px;padding:12px;background:var(--c-gray-50);border-radius:var(--radius);"></div>';
+  html += '</div>';
+  html += `<div id="result-tab-cross" style="display:none;">
+    <div style="display:flex;gap:10px;margin-bottom:14px;">
+      <select class="form-control" id="cross-x-question" onchange="s5UpdateCrossTab()" style="flex:1;"><option value="">X軸の質問</option></select>
+      <select class="form-control" id="cross-y-question" onchange="s5UpdateCrossTab()" style="flex:1;"><option value="">Y軸の質問</option></select>
+    </div>
+    <div id="cross-result-body"><p style="text-align:center;color:var(--text-muted);padding:24px;">X軸とY軸の質問を選択してください</p></div>
+  </div>`;
   html += `</div>
     <div id="result-tab-individual" style="display:none;">`;
 
@@ -5789,37 +5480,28 @@ async function openSurveyResult(surveyId) {
   html += '</div>';
 
   document.getElementById('survey-result-body').innerHTML = html;
-  if (typeof s4InitChartsAfterRender === 'function') {
-    setTimeout(() => s4InitChartsAfterRender(questions, responses), 50);
-  }
-  if (typeof s5InitCrossTab === 'function') {
-    s5InitCrossTab(survey, questions, responses);
-  }
+  try { s4InitChartsAfterRender(surveyId, questions, responses); } catch(e) { console.warn(e); }
+  try { s5InitCrossTab(surveyId, questions, responses); } catch(e) { console.warn(e); }
+  try { s6RenderComparison(surveyId, questions, responses); } catch(e) { console.warn(e); }
 }
 
 function switchResultTab(tab) {
-  document.getElementById('result-tab-summary').style.display = tab === 'summary' ? 'block' : 'none';
-  document.getElementById('result-tab-individual').style.display = tab === 'individual' ? 'block' : 'none';
-  const crossTab = document.getElementById('result-tab-cross');
-  if (crossTab) crossTab.style.display = tab === 'cross' ? 'block' : 'none';
-  if (tab === 'cross' && typeof s5UpdateCrossTab === 'function') s5UpdateCrossTab();
-  const btnSummary = document.getElementById('tab-summary');
-  const btnIndividual = document.getElementById('tab-individual');
-  if (tab === 'summary') {
-    btnSummary.style.color = 'var(--c-primary)';
-    btnSummary.style.borderBottom = '2px solid var(--c-primary)';
-    btnSummary.style.marginBottom = '-2px';
-    btnIndividual.style.color = 'var(--text-muted)';
-    btnIndividual.style.borderBottom = 'none';
-    btnIndividual.style.marginBottom = '0';
-  } else {
-    btnIndividual.style.color = 'var(--c-primary)';
-    btnIndividual.style.borderBottom = '2px solid var(--c-primary)';
-    btnIndividual.style.marginBottom = '-2px';
-    btnSummary.style.color = 'var(--text-muted)';
-    btnSummary.style.borderBottom = 'none';
-    btnSummary.style.marginBottom = '0';
-  }
+  ['summary','individual','cross'].forEach(t => {
+    const panel = document.getElementById('result-tab-' + t);
+    if (panel) panel.style.display = tab === t ? 'block' : 'none';
+    const btn = document.getElementById('tab-' + t);
+    if (btn) {
+      if (tab === t) {
+        btn.style.color = 'var(--c-primary)';
+        btn.style.borderBottom = '2px solid var(--c-primary)';
+        btn.style.marginBottom = '-2px';
+      } else {
+        btn.style.color = 'var(--text-muted)';
+        btn.style.borderBottom = 'none';
+        btn.style.marginBottom = '0';
+      }
+    }
+  });
 }
 
 function exportSurveyResultCsv() {
@@ -8461,7 +8143,7 @@ function showOrgChart() {
 
 // 全ページを一括非表示にするヘルパー
 function hideAllPages() {
-  ['employee-list-card','org-chart-page','alert-page','history-page','transfer-page','survey-page'].forEach(id => {
+  ['employee-list-card','org-chart-page','alert-page','history-page','transfer-page','survey-page','dashboard-page'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = 'none';
   });
