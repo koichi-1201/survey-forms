@@ -1,0 +1,106 @@
+# ============================================================
+# HR管理ツール 定期動作監視（GitHub Actions）
+# ============================================================
+# 配置先: .github/workflows/health-check.yml
+# 実行頻度: 1時間毎 + 任意手動実行
+#
+# 必要なGitHub Secrets:
+#   - AZURE_TENANT_ID
+#   - AZURE_CLIENT_ID
+#   - AZURE_CLIENT_SECRET
+#   - SP_SITE_URL
+#   - SP_LIST_NAME
+#   - HR_TOOL_URL          (任意)
+#   - TEAMS_WEBHOOK_URL    (任意)
+#
+# Azure AD 権限要件:
+#   - Sites.ReadWrite.All
+# ============================================================
+
+name: HR Tool Health Check
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: '実行理由（任意）'
+        required: false
+        default: '手動チェック'
+
+jobs:
+  health-check:
+    name: 動作監視チェック
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: リポジトリのチェックアウト
+        uses: actions/checkout@v4
+
+      - name: ヘルスチェック実行
+        id: health
+        shell: pwsh
+        env:
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          SP_SITE_URL: ${{ secrets.SP_SITE_URL }}
+          SP_LIST_NAME: ${{ secrets.SP_LIST_NAME }}
+          HR_TOOL_URL: ${{ secrets.HR_TOOL_URL }}
+          TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
+          GH_RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          ./scripts/Check-HrToolHealth.ps1
+
+      - name: 結果サマリーを表示
+        if: always()
+        shell: pwsh
+        run: |
+          if (Test-Path "${{ github.workspace }}/health-output/health-status.json") {
+            $status = Get-Content "${{ github.workspace }}/health-output/health-status.json" -Raw | ConvertFrom-Json
+            Write-Host "================================================"
+            Write-Host "ヘルスチェック結果"
+            Write-Host "================================================"
+            Write-Host "総合判定: $($status.OverallStatus)"
+            Write-Host "チェック項目: $($status.Checks.Count) 件"
+            Write-Host "失敗: $($status.FailedChecks.Count) 件"
+            Write-Host "================================================"
+          }
+
+      - name: 結果をアーティファクト保存
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: health-check-${{ github.run_id }}
+          path: health-output/
+          retention-days: 30
+
+      - name: 失敗時のTeams通知
+        if: failure()
+        env:
+          TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
+          GH_RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        shell: pwsh
+        run: |
+          if (-not $env:TEAMS_WEBHOOK_URL) { exit 0 }
+          $payload = @{
+            '@type' = 'MessageCard'
+            '@context' = 'https://schema.org/extensions'
+            themeColor = 'DC3545'
+            summary = 'HR ヘルスチェック失敗'
+            sections = @(@{
+              activityTitle = 'HR管理ツール ヘルスチェック失敗'
+              activitySubtitle = "GitHub Actions / $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
+              text = 'GitHub Actions でのヘルスチェックスクリプト実行が失敗しました。'
+              facts = @(
+                @{ name = 'ログURL'; value = $env:GH_RUN_URL }
+              )
+              markdown = $true
+            })
+          } | ConvertTo-Json -Depth 10
+          try {
+            Invoke-RestMethod -Uri $env:TEAMS_WEBHOOK_URL -Method POST -Body $payload -ContentType 'application/json'
+          } catch { Write-Warning $_.Exception.Message }
