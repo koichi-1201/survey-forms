@@ -37,7 +37,7 @@ jobs:
 
     steps:
       - name: 📥 リポジトリのチェックアウト
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 🔧 PowerShell Core セットアップ
         shell: bash
@@ -77,7 +77,7 @@ jobs:
 
       - name: 📦 バックアップファイルをアーティファクトに保存
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: hr-backup-${{ github.run_id }}
           path: backup-output/
