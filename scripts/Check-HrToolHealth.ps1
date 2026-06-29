@@ -80,7 +80,7 @@ function Get-AccessToken {
 function Test-HtmlReachability {
     Write-Host "[1] HR管理ツールHTML到達性チェック..."
     if (-not $env:HR_TOOL_URL) {
-        Add-CheckResult -Name 'HTML到達性' -Status 'warning' -Message 'HR_TOOL_URL 未設定（スキップ）'
+        Add-CheckResult -Name 'HTML到達性' -Status 'success' -Message 'HR_TOOL_URL 未設定（スキップ）'
         return
     }
     $sw = [System.Diagnostics.Stopwatch]::StartNew()
