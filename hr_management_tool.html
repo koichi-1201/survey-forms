@@ -442,7 +442,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   <nav class="sidebar">
     <div class="sidebar-logo">
       <h1>人事情報<br>管理システム</h1>
-      <p>HR Management v1.7.7</p>
+      <p>HR Management v1.7.8</p>
     </div>
     <div class="sidebar-nav">
       <div class="nav-section">メイン</div>
@@ -3742,6 +3742,31 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ===== CONFIG =====
+// v1.7.8 - FIXED_CONFIG に値がある場合、SharePoint接続情報の入力欄を読み取り専用にする
+function applyFixedConfigUI() {
+  var mapping = [
+    { id: 'cfg-client-id', key: 'clientId' },
+    { id: 'cfg-tenant-id', key: 'tenantId' },
+    { id: 'cfg-site-url',  key: 'siteUrl'  },
+    { id: 'cfg-list-name', key: 'listName' }
+  ];
+  mapping.forEach(function(m) {
+    var el = document.getElementById(m.id);
+    if (!el) return;
+    if (FIXED_CONFIG[m.key]) {
+      el.readOnly = true;
+      el.disabled = true;
+      el.style.backgroundColor = 'var(--c-gray-50)';
+      el.style.cursor = 'not-allowed';
+      el.style.color = 'var(--text-muted)';
+      el.title = '管理者により固定されています';
+      // 値を上書きしてFIXED_CONFIGを優先
+      el.value = FIXED_CONFIG[m.key];
+      // FIXED_CONFIGと同期するため、appConfigにも反映
+      appConfig[m.key] = FIXED_CONFIG[m.key];
+    }
+  });
+}
 function loadConfig() {
   if (FIXED_CONFIG.clientId) appConfig.clientId = FIXED_CONFIG.clientId;
   if (FIXED_CONFIG.tenantId) appConfig.tenantId = FIXED_CONFIG.tenantId;
@@ -3779,13 +3804,16 @@ function loadConfig() {
       if (typeof onAiProviderChange === 'function') onAiProviderChange();
     }
   } catch(e) {}
+  // v1.7.8 - FIXED_CONFIG が設定されている入力欄を読み取り専用化
+  applyFixedConfigUI();
 }
 
 async function saveConfig() {
-  appConfig.clientId = document.getElementById('cfg-client-id').value.trim();
-  appConfig.tenantId = document.getElementById('cfg-tenant-id').value.trim();
-  appConfig.siteUrl = document.getElementById('cfg-site-url').value.trim();
-  appConfig.listName = document.getElementById('cfg-list-name').value.trim();
+  // v1.7.8 - FIXED_CONFIG が設定されている項目は FIXED_CONFIG の値を優先（入力欄が無効化されていても安全）
+  appConfig.clientId = FIXED_CONFIG.clientId || document.getElementById('cfg-client-id').value.trim();
+  appConfig.tenantId = FIXED_CONFIG.tenantId || document.getElementById('cfg-tenant-id').value.trim();
+  appConfig.siteUrl = FIXED_CONFIG.siteUrl || document.getElementById('cfg-site-url').value.trim();
+  appConfig.listName = FIXED_CONFIG.listName || document.getElementById('cfg-list-name').value.trim();
   appConfig.mynumberAccess = document.getElementById('cfg-mynumber-access').value.split(',').map(s => s.trim()).filter(Boolean);
   appConfig.githubOwner = document.getElementById('cfg-github-owner').value.trim();
   appConfig.githubRepo = document.getElementById('cfg-github-repo').value.trim();
@@ -4935,7 +4963,7 @@ function switchTab(tabId) {
   document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
   document.getElementById(tabId).classList.add('active');
 }
-function openConfig() { loadConfig(); openModal('config-modal'); }
+function openConfig() { loadConfig(); openModal('config-modal'); applyFixedConfigUI(); /* v1.7.8 - モーダル表示後にも適用 */ }
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function safeFilename(s, fallback) {
   const clean = String(s || fallback || 'file').replace(/[\\\/:*?"<>|]/g, '_').replace(/[\u0000-\u001f]/g, '').replace(/^\.+|\.+$/g, '').trim();
