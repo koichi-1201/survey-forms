@@ -442,7 +442,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   <nav class="sidebar">
     <div class="sidebar-logo">
       <h1>人事情報<br>管理システム</h1>
-      <p>HR Management v1.7.8</p>
+      <p>HR Management v1.7.9</p>
     </div>
     <div class="sidebar-nav">
       <div class="nav-section">メイン</div>
@@ -503,15 +503,17 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
         <span>権限レビュー</span>
         <span id="perm-review-badge" style="display:none;background:var(--c-warning);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:auto;">0</span>
       </div>
-      <div class="nav-item" onclick="showBackupStatusPage()" id="nav-backup-status" style="display:none;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-        <span>バックアップ状態</span>
-        <span id="backup-status-badge" style="display:none;background:var(--c-danger);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:auto;">!</span>
-      </div>
+      <!-- v1.7.9 - システム運用セクション（管理者のみ表示） -->
+      <div class="nav-section" id="nav-section-sysops" style="display:none;">システム運用</div>
       <div class="nav-item" onclick="showHealthCheckPage()" id="nav-health-check" style="display:none;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
         <span>ヘルスチェック</span>
         <span id="health-status-badge" style="display:none;background:var(--c-danger);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:auto;">!</span>
+      </div>
+      <div class="nav-item" onclick="showBackupStatusPage()" id="nav-backup-status" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <span>バックアップ状態</span>
+        <span id="backup-status-badge" style="display:none;background:var(--c-danger);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:auto;">!</span>
       </div>
       <div class="nav-item" onclick="showExpiryPage()" id="nav-expiry" style="display:none;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -1193,7 +1195,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 Azureシークレット追加
               </button>
-              <button class="btn btn-secondary btn-sm" onclick="loadExpiryDashboard()">
+              <button class="btn btn-secondary btn-sm" onclick="loadExpiryDashboard(true)">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
                 更新
               </button>
@@ -1257,13 +1259,13 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
         </div>
       </div>
 
-      <!-- v1.7.6 - ヘルスチェック監視ページ -->
+      <!-- v1.7.9 - ヘルスチェック監視ページ（更新ボタン改善） -->
       <div id="health-check-page" style="display:none;">
         <div class="card" style="margin-bottom:16px;">
           <div class="card-header">
             <h3>🩺 動作監視ヘルスチェック</h3>
             <div style="display:flex;gap:8px;align-items:center;">
-              <button class="btn btn-secondary btn-sm" onclick="loadHealthCheckStatus()">
+              <button class="btn btn-secondary btn-sm" id="health-refresh-btn" onclick="loadHealthCheckStatus(true)">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
                 更新
               </button>
@@ -1274,10 +1276,16 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
             1時間ごとにHTML到達性・Azure AD認証・SharePoint接続・リスト件数・件数変動を自動チェックします。
           </div>
           <div id="health-status-display" style="padding:20px;">
-            <div style="text-align:center;color:var(--text-muted);padding:40px;">読み込み中...</div>
+            <div style="text-align:center;color:var(--text-muted);padding:40px;">
+              <div class="spinner" style="margin:0 auto 12px;border-color:var(--c-gray-100);border-top-color:var(--c-primary);width:32px;height:32px;border-width:3px;"></div>
+              読み込み中...
+            </div>
           </div>
           <div style="padding:14px 20px;border-top:1px solid var(--border);">
-            <h4 style="font-size:13px;margin-bottom:10px;">📊 監視履歴（直近100件）</h4>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <h4 style="font-size:13px;">📊 監視履歴（直近100件）</h4>
+              <span id="health-last-refreshed" style="font-size:11px;color:var(--text-muted);"></span>
+            </div>
             <div class="table-container">
               <table>
                 <thead><tr>
@@ -1292,17 +1300,17 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
         </div>
       </div>
 
-      <!-- v1.7.5 - ハイブリッドバックアップ状態ページ -->
+      <!-- v1.7.9 - バックアップ状態ページ（シングル構成） -->
       <div id="backup-status-page" style="display:none;">
         <div class="card" style="margin-bottom:16px;">
           <div class="card-header">
-            <h3>💾 バックアップ状態（ハイブリッド対応）</h3>
+            <h3>💾 バックアップ状態</h3>
             <div style="display:flex;gap:8px;align-items:center;">
               <button class="btn btn-secondary btn-sm" onclick="openBackupConfig()">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"/></svg>
                 通知設定
               </button>
-              <button class="btn btn-secondary btn-sm" onclick="loadBackupStatus()">
+              <button class="btn btn-secondary btn-sm" id="backup-refresh-btn" onclick="loadBackupStatus(true)">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
                 更新
               </button>
@@ -1310,51 +1318,28 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
           </div>
           <div style="padding:12px 20px;background:var(--c-primary-light);border-bottom:1px solid var(--border);font-size:12px;color:#0C447C;line-height:1.6;">
             💾 <strong>SharePoint データの自動バックアップ状態</strong>を表示します。<br>
-            <strong>🛡 ハイブリッド構成</strong>では、Power Automate（メイン）と GitHub Actions（冗長）の両方を監視します。
+            GitHub Actions が毎日自動でバックアップを実行し、結果をSharePointに記録します。「更新」ボタンで最新状態を再取得できます。
           </div>
-          <!-- メイン/冗長 ステータス並列表示 -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:20px;">
-            <!-- メイン: Power Automate -->
-            <div>
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-                <span style="font-size:14px;font-weight:700;color:var(--c-primary);">🌐 メインバックアップ</span>
-                <span style="font-size:10px;padding:2px 8px;background:var(--c-primary);color:#fff;border-radius:10px;font-weight:600;">Power Automate</span>
-              </div>
-              <div id="backup-status-main" style="padding:14px;border:1px solid var(--border);border-radius:var(--radius-lg);min-height:160px;">
-                <div style="text-align:center;color:var(--text-muted);padding:30px;">読み込み中...</div>
-              </div>
+          <!-- ステータス表示 -->
+          <div id="backup-status-display" style="padding:20px;">
+            <div style="text-align:center;color:var(--text-muted);padding:40px;">
+              <div class="spinner" style="margin:0 auto 12px;border-color:var(--c-gray-100);border-top-color:var(--c-primary);width:32px;height:32px;border-width:3px;"></div>
+              読み込み中...
             </div>
-            <!-- 冗長: GitHub Actions -->
-            <div>
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-                <span style="font-size:14px;font-weight:700;color:var(--c-secondary);">🚀 冗長バックアップ</span>
-                <span style="font-size:10px;padding:2px 8px;background:var(--c-secondary);color:#fff;border-radius:10px;font-weight:600;">GitHub Actions</span>
-              </div>
-              <div id="backup-status-github" style="padding:14px;border:1px solid var(--border);border-radius:var(--radius-lg);min-height:160px;">
-                <div style="text-align:center;color:var(--text-muted);padding:30px;">読み込み中...</div>
-              </div>
-            </div>
-          </div>
-          <!-- 統合健全性表示 -->
-          <div id="backup-health-summary" style="padding:14px 20px;border-top:1px solid var(--border);">
           </div>
           <!-- 履歴一覧 -->
           <div style="padding:14px 20px;border-top:1px solid var(--border);">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-              <h4 style="font-size:13px;">📊 バックアップ実行履歴（直近30件・両方統合）</h4>
-              <div style="display:flex;gap:6px;">
-                <button class="btn btn-secondary btn-sm" onclick="filterBackupHistory('all')" id="hist-filter-all" style="font-size:11px;padding:3px 8px;background:var(--c-primary-light);color:var(--c-primary);">全件</button>
-                <button class="btn btn-secondary btn-sm" onclick="filterBackupHistory('main')" id="hist-filter-main" style="font-size:11px;padding:3px 8px;">🌐 メイン</button>
-                <button class="btn btn-secondary btn-sm" onclick="filterBackupHistory('github')" id="hist-filter-github" style="font-size:11px;padding:3px 8px;">🚀 冗長</button>
-              </div>
+              <h4 style="font-size:13px;">📊 バックアップ実行履歴（直近30件）</h4>
+              <span id="backup-last-refreshed" style="font-size:11px;color:var(--text-muted);"></span>
             </div>
             <div class="table-container">
               <table>
                 <thead><tr>
-                  <th>実行日時</th><th>種別</th><th>状態</th><th>対象リスト数</th><th>総アイテム数</th><th>所要時間</th><th>実行環境</th><th>備考</th>
+                  <th>実行日時</th><th>状態</th><th>対象リスト数</th><th>総アイテム数</th><th>所要時間</th><th>実行環境</th><th>備考</th>
                 </tr></thead>
                 <tbody id="backup-history-tbody">
-                  <tr><td colspan="8" style="padding:24px;text-align:center;color:var(--text-muted);">履歴がありません</td></tr>
+                  <tr><td colspan="7" style="padding:24px;text-align:center;color:var(--text-muted);">履歴がありません</td></tr>
                 </tbody>
               </table>
             </div>
@@ -5794,6 +5779,9 @@ function applyRoleUI() {
   }
   badge.textContent = roleLabels[currentRole] || '閲覧者';
   badge.style.background = roleColors[currentRole] || 'var(--c-success)';
+  // v1.7.9 - システム運用セクション見出しの表示制御（管理者のみ）
+  var sysOpsSec = document.getElementById('nav-section-sysops');
+  if (sysOpsSec) sysOpsSec.style.display = isAdmin ? '' : 'none';
 }
 
 function openPermissionMaster() {
@@ -9990,7 +9978,7 @@ async function testTeamsNotification() {
     message: 'これは人事情報管理ツールからのテスト通知です。\n\n設定が正しく完了しました。',
     severity: 'success',
     facts: [
-      { name: 'システム', value: '人事情報管理システム v1.7.7' },
+      { name: 'システム', value: '人事情報管理システム v1.7.9' },
       { name: '送信者', value: currentUser ? (currentUser.displayName || currentUser.mail || '') : '匿名' },
       { name: '送信日時', value: new Date().toLocaleString('ja-JP') }
     ]
@@ -11466,7 +11454,7 @@ function renderReportAppendixSection(data) {
 // ----- フッター -----
 function renderReportFooter() {
   return '<div class="report-footer">' +
-    '人事情報管理システム v1.7.7 / 本レポートは社員データを基に自動生成されました。' +
+    '人事情報管理システム v1.7.9 / 本レポートは社員データを基に自動生成されました。' +
     '<br>※ 機密情報を含むため、取扱いには十分ご注意ください。' +
     '</div>';
 }
@@ -13780,41 +13768,53 @@ function showBackupStatusPage() {
   loadBackupStatus();
 }
 
-// ----- v1.7.5 ハイブリッド対応: メイン/冗長 両方のステータス読み込み -----
-var backupStatusMain = null;     // Power Automate (メイン)
-var backupStatusGitHub = null;   // GitHub Actions (冗長)
-var backupHistoryFilter = 'all';
+// ----- v1.7.9 シングル構成: バックアップステータス読み込み -----
+var backupHistoryFilter = 'all'; // 互換性維持用（現状は不使用）
 
-async function loadBackupStatus() {
+async function loadBackupStatus(userTriggered) {
+  var btn = document.getElementById('backup-refresh-btn');
+  var origHtml;
+  if (userTriggered && btn) {
+    origHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner" style="border:2px solid rgba(0,0,0,0.15);border-top-color:currentColor;width:12px;height:12px;border-radius:50%;animation:spin 0.6s linear infinite;display:inline-block;vertical-align:middle;margin-right:6px;"></div>更新中...';
+  }
   try {
-    // メインバックアップステータス（Power Automate）
-    backupStatusMain = await loadMasterFromSP('backupStatus');
-    // 冗長バックアップステータス（GitHub Actions）
-    backupStatusGitHub = await loadMasterFromSP('backupStatusGitHub');
-    // 統合履歴
+    // GitHub Actions からのバックアップ状態と履歴を取得（シングル構成）
+    // 過去互換のため backupStatus / backupStatusGitHub の両方を確認して新しい方を採用
+    var main = await loadMasterFromSP('backupStatus');
+    var github = await loadMasterFromSP('backupStatusGitHub');
+    backupStatus = pickLatestBackupStatus(main, github);
+    // 履歴も両方を統合
     var histMain = await loadMasterFromSP('backupHistory');
     var histGitHub = await loadMasterFromSP('backupHistoryGitHub');
     var combined = [];
-    if (Array.isArray(histMain)) {
-      combined = combined.concat(histMain.map(function(h){ h.Source = h.Source || 'main'; return h; }));
-    }
-    if (Array.isArray(histGitHub)) {
-      combined = combined.concat(histGitHub.map(function(h){ h.Source = 'github'; return h; }));
-    }
+    if (Array.isArray(histMain)) combined = combined.concat(histMain);
+    if (Array.isArray(histGitHub)) combined = combined.concat(histGitHub);
     backupHistory = combined;
-    // 後方互換: backupStatus 変数も最新のもの（より新しい方）を設定
-    backupStatus = pickLatestBackupStatus(backupStatusMain, backupStatusGitHub);
-    renderBackupStatusHybrid();
+    renderBackupStatusSingle();
     renderBackupHistory();
     updateBackupBadge();
+    // 最終更新時刻を表示
+    var refreshedEl = document.getElementById('backup-last-refreshed');
+    if (refreshedEl) refreshedEl.textContent = '最終取得: ' + new Date().toLocaleTimeString('ja-JP');
+    if (userTriggered) {
+      showToast('バックアップ状態を更新しました', 'success');
+    }
   } catch(e) {
     console.warn('バックアップ状態読み込みエラー:', e.message);
-    var disp = document.getElementById('backup-status-main');
+    var disp = document.getElementById('backup-status-display');
     if (disp) disp.innerHTML = '<div style="color:var(--c-danger);padding:20px;">読み込み失敗: ' + esc(e.message) + '</div>';
+    if (userTriggered) showToast('読み込み失敗: ' + e.message, 'error');
+  } finally {
+    if (userTriggered && btn) {
+      btn.disabled = false;
+      btn.innerHTML = origHtml;
+    }
   }
 }
 
-// メイン・冗長のうち、より新しいバックアップを返す
+// より新しいバックアップステータスを返す（互換性維持）
 function pickLatestBackupStatus(main, github) {
   var mainTime = main && main.CompletedAt ? new Date(main.CompletedAt).getTime() : 0;
   var ghTime = github && github.CompletedAt ? new Date(github.CompletedAt).getTime() : 0;
@@ -13822,11 +13822,82 @@ function pickLatestBackupStatus(main, github) {
   return github;
 }
 
-// ハイブリッド描画
+// v1.7.9 - シングル構成のステータス表示
+function renderBackupStatusSingle() {
+  var disp = document.getElementById('backup-status-display');
+  if (!disp) return;
+  if (!backupStatus) {
+    disp.innerHTML = '<div style="background:var(--c-warning-light);border:1px solid var(--c-warning);border-radius:var(--radius);padding:20px;text-align:center;">' +
+      '<div style="font-size:32px;margin-bottom:8px;">⚙️</div>' +
+      '<div style="font-size:14px;font-weight:600;color:var(--c-warning);">バックアップ未実行</div>' +
+      '<div style="font-size:12px;color:var(--text-muted);margin-top:6px;">GitHub Actions ワークフローを稼働させてください。<br>初回実行後、ここに結果が表示されます。</div>' +
+      '</div>';
+    return;
+  }
+  var status = backupStatus.Status || 'unknown';
+  var info = {
+    success: { color: 'var(--c-success)', bg: 'var(--c-success-light)', icon: '✅', label: '正常完了' },
+    partial: { color: 'var(--c-warning)', bg: 'var(--c-warning-light)', icon: '⚠', label: '部分的成功' },
+    failed:  { color: 'var(--c-danger)',  bg: 'var(--c-danger-light)',  icon: '🚨', label: '失敗' }
+  }[status] || { color: 'var(--text-muted)', bg: 'var(--c-gray-50)', icon: '？', label: status };
+
+  var completedAt = backupStatus.CompletedAt ? new Date(backupStatus.CompletedAt) : null;
+  var hoursSince = completedAt ? Math.floor((Date.now() - completedAt) / 3600000) : -1;
+  var isStale = hoursSince > backupConfig.alertDays * 24;
+
+  var html = '<div style="background:' + info.bg + ';border:1px solid ' + info.color + ';border-radius:var(--radius-lg);padding:20px;">';
+  html += '<div style="display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center;">';
+  html += '<div style="font-size:48px;">' + info.icon + '</div>';
+  html += '<div>';
+  html += '<div style="font-size:13px;color:' + info.color + ';font-weight:600;">' + info.label + '</div>';
+  html += '<div style="font-size:22px;font-weight:700;color:' + info.color + ';margin-top:2px;">最終バックアップ: ' + (completedAt ? completedAt.toLocaleString('ja-JP') : '不明') + '</div>';
+  if (hoursSince >= 0) {
+    var ageStr = hoursSince < 24 ? (hoursSince + ' 時間前') : (Math.floor(hoursSince / 24) + ' 日前');
+    html += '<div style="font-size:13px;color:var(--text-muted);margin-top:2px;">' + ageStr + (isStale ? ' ⚠ <strong style="color:var(--c-danger);">バックアップが古すぎます</strong>' : '') + '</div>';
+  }
+  html += '</div></div>';
+
+  // 詳細メトリクス
+  html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px;padding-top:14px;border-top:1px solid ' + info.color + ';">';
+  html += '<div><div style="font-size:10px;color:var(--text-muted);font-weight:600;">対象リスト</div><div style="font-size:18px;font-weight:700;margin-top:2px;">' + ((backupStatus.Lists || []).length) + ' 件</div></div>';
+  html += '<div><div style="font-size:10px;color:var(--text-muted);font-weight:600;">総アイテム</div><div style="font-size:18px;font-weight:700;margin-top:2px;">' + (backupStatus.TotalItems || 0) + ' 件</div></div>';
+  html += '<div><div style="font-size:10px;color:var(--text-muted);font-weight:600;">所要時間</div><div style="font-size:18px;font-weight:700;margin-top:2px;">' + (backupStatus.DurationSec || 0) + ' 秒</div></div>';
+  html += '<div><div style="font-size:10px;color:var(--text-muted);font-weight:600;">エラー</div><div style="font-size:18px;font-weight:700;margin-top:2px;color:' + ((backupStatus.Errors || []).length > 0 ? 'var(--c-danger)' : 'var(--c-success)') + ';">' + ((backupStatus.Errors || []).length) + ' 件</div></div>';
+  html += '</div>';
+
+  // 実行環境
+  if (backupStatus.ServerName) {
+    html += '<div style="margin-top:12px;padding-top:10px;border-top:1px dashed ' + info.color + ';font-size:11px;color:var(--text-muted);text-align:center;">📍 実行環境: ' + esc(backupStatus.ServerName) + '</div>';
+  }
+  html += '</div>';
+
+  // リスト別状況
+  if (backupStatus.Lists && backupStatus.Lists.length) {
+    html += '<div style="margin-top:16px;"><div style="font-size:12px;font-weight:600;margin-bottom:8px;">リスト別バックアップ状況</div>';
+    html += '<table class="report-table" style="font-size:11px;"><thead><tr><th>リスト名</th><th style="text-align:right;">件数</th><th style="text-align:right;">サイズ</th><th>状態</th></tr></thead><tbody>';
+    backupStatus.Lists.forEach(function(l) {
+      var stat = l.Status === 'success' ? '<span style="color:var(--c-success);">✅ 成功</span>' : '<span style="color:var(--c-danger);">❌ ' + esc(l.Error || '失敗') + '</span>';
+      html += '<tr><td>' + esc(l.ListName || '') + '</td><td style="text-align:right;">' + (l.Count || 0) + '</td><td style="text-align:right;">' + (l.SizeKB ? l.SizeKB + ' KB' : '-') + '</td><td>' + stat + '</td></tr>';
+    });
+    html += '</tbody></table></div>';
+  }
+
+  // エラー詳細
+  if (backupStatus.Errors && backupStatus.Errors.length) {
+    html += '<div style="margin-top:14px;padding:10px 12px;background:var(--c-danger-light);border-left:4px solid var(--c-danger);border-radius:var(--radius);">';
+    html += '<div style="font-size:12px;font-weight:600;color:var(--c-danger);margin-bottom:6px;">エラー詳細</div>';
+    backupStatus.Errors.forEach(function(err) {
+      html += '<div style="font-size:11px;color:var(--c-danger);line-height:1.6;">• ' + esc(err) + '</div>';
+    });
+    html += '</div>';
+  }
+
+  disp.innerHTML = html;
+}
+
+// v1.7.5 互換維持（内部からシングル版へルーティング）
 function renderBackupStatusHybrid() {
-  renderSingleBackupStatus('backup-status-main', backupStatusMain, 'main');
-  renderSingleBackupStatus('backup-status-github', backupStatusGitHub, 'github');
-  renderHealthSummary();
+  renderBackupStatusSingle();
 }
 
 function renderSingleBackupStatus(targetId, status, type) {
@@ -14026,19 +14097,17 @@ function renderBackupStatus() {
   disp.innerHTML = html;
 }
 
-// ----- 履歴描画（v1.7.5 ハイブリッド対応） -----
+// ----- 履歴描画（v1.7.9 シングル構成） -----
 function renderBackupHistory() {
   var tbody = document.getElementById('backup-history-tbody');
   if (!tbody) return;
-  var filtered = backupHistory.slice();
-  if (backupHistoryFilter === 'main') filtered = filtered.filter(function(h){ return (h.Source || 'main') === 'main'; });
-  if (backupHistoryFilter === 'github') filtered = filtered.filter(function(h){ return h.Source === 'github'; });
+  var list = backupHistory.slice();
 
-  if (!filtered.length) {
-    tbody.innerHTML = '<tr><td colspan="8" style="padding:24px;text-align:center;color:var(--text-muted);">該当する履歴がありません</td></tr>';
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="padding:24px;text-align:center;color:var(--text-muted);">履歴がありません</td></tr>';
     return;
   }
-  var sorted = filtered.sort(function(a, b) {
+  var sorted = list.sort(function(a, b) {
     var ta = a.CompletedAt ? new Date(a.CompletedAt).getTime() : 0;
     var tb = b.CompletedAt ? new Date(b.CompletedAt).getTime() : 0;
     return tb - ta;
@@ -14049,19 +14118,13 @@ function renderBackupHistory() {
     failed: 'background:var(--c-danger-light);color:var(--c-danger);'
   };
   var statusLabels = { success: '✅ 成功', partial: '⚠ 部分', failed: '❌ 失敗' };
-  var sourceLabels = { main: '🌐 メイン', github: '🚀 冗長' };
-  var sourceColors = { main: 'background:var(--c-primary-light);color:var(--c-primary);', github: 'background:var(--c-secondary-light);color:var(--c-secondary);' };
   tbody.innerHTML = sorted.map(function(h) {
     var dt = h.CompletedAt ? new Date(h.CompletedAt).toLocaleString('ja-JP') : '-';
     var st = h.Status || 'unknown';
     var stStyle = statusInfo[st] || '';
     var stLabel = statusLabels[st] || st;
-    var source = h.Source || 'main';
-    var srcLabel = sourceLabels[source] || source;
-    var srcStyle = sourceColors[source] || '';
     return '<tr>' +
       '<td style="font-size:12px;font-family:monospace;">' + esc(dt) + '</td>' +
-      '<td><span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;' + srcStyle + '">' + srcLabel + '</span></td>' +
       '<td><span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;' + stStyle + '">' + stLabel + '</span></td>' +
       '<td style="font-size:12px;">' + ((h.Lists || []).length) + ' 件</td>' +
       '<td style="font-size:12px;">' + (h.TotalItems || 0) + ' 件</td>' +
@@ -14153,7 +14216,14 @@ async function checkBackupStatus() {
 var healthStatus = null;
 var healthHistory = [];
 
-async function loadHealthCheckStatus() {
+async function loadHealthCheckStatus(userTriggered) {
+  var btn = document.getElementById('health-refresh-btn');
+  var origHtml;
+  if (userTriggered && btn) {
+    origHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner" style="border:2px solid rgba(0,0,0,0.15);border-top-color:currentColor;width:12px;height:12px;border-radius:50%;animation:spin 0.6s linear infinite;display:inline-block;vertical-align:middle;margin-right:6px;"></div>更新中...';
+  }
   try {
     healthStatus = await loadMasterFromSP('toolHealth');
     var hist = await loadMasterFromSP('toolHealthHistory');
@@ -14161,10 +14231,22 @@ async function loadHealthCheckStatus() {
     renderHealthStatus();
     renderHealthHistory();
     updateHealthBadge();
+    // 最終更新時刻を表示
+    var refreshedEl = document.getElementById('health-last-refreshed');
+    if (refreshedEl) refreshedEl.textContent = '最終取得: ' + new Date().toLocaleTimeString('ja-JP');
+    if (userTriggered) {
+      showToast('ヘルスチェック状態を更新しました', 'success');
+    }
   } catch(e) {
     console.warn('ヘルスチェック読み込みエラー:', e.message);
     var disp = document.getElementById('health-status-display');
     if (disp) disp.innerHTML = '<div style="color:var(--c-danger);padding:20px;">読み込み失敗: ' + esc(e.message) + '</div>';
+    if (userTriggered) showToast('読み込み失敗: ' + e.message, 'error');
+  } finally {
+    if (userTriggered && btn) {
+      btn.disabled = false;
+      btn.innerHTML = origHtml;
+    }
   }
 }
 
@@ -14380,11 +14462,14 @@ function showExpiryPage() {
 }
 
 // ----- ダッシュボード読み込み・描画 -----
-function loadExpiryDashboard() {
+function loadExpiryDashboard(userTriggered) {
   var items = getAllExpiryItems();
   renderExpiryTable(items);
   updateExpiryKpis(items);
   updateExpiryBadge(items);
+  if (userTriggered) {
+    showToast('期限管理データを更新しました（' + items.length + '件）', 'success');
+  }
 }
 
 function updateExpiryKpis(items) {
