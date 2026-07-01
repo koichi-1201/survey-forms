@@ -223,6 +223,19 @@
 .skeleton-row { display: flex; gap: 12px; padding: 12px; border-bottom: 1px solid var(--border); }
 .skeleton-cell { height: 16px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: skeleton-loading 1.4s ease-in-out infinite; border-radius: 4px; }
 @keyframes skeleton-loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+/* ===== v1.8.0 - A3 エラーハンドリング強化 ===== */
+.offline-banner { position: fixed; top: 0; left: 0; right: 0; z-index: 10000; background: linear-gradient(90deg, #DC3545, #A32D2D); color: #fff; padding: 10px 16px; text-align: center; font-size: 13px; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.15); display: none; animation: slideDown 0.3s ease; }
+.offline-banner.show { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.offline-banner svg { flex-shrink: 0; }
+.online-restored { background: linear-gradient(90deg, #28A745, #3B6D11); }
+@keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+.progress-detail { font-size: 11px; color: var(--text-muted); margin-top: 6px; padding: 4px 8px; background: var(--c-gray-50); border-radius: 4px; display: inline-block; min-width: 200px; text-align: center; }
+.error-recovery-panel { padding: 14px 16px; background: var(--c-warning-light); border: 1px solid var(--c-warning); border-radius: var(--radius); margin: 12px 0; }
+.error-recovery-panel h4 { font-size: 13px; color: var(--c-warning); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.error-recovery-panel button { margin-right: 6px; margin-top: 6px; }
+.progress-bar-wrap { width: 100%; max-width: 300px; height: 6px; background: var(--c-gray-100); border-radius: 3px; overflow: hidden; margin: 6px auto; }
+.progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--c-primary), var(--c-primary-mid)); transition: width 0.3s ease; }
+/* ===== End v1.8.0 ===== */
 .btn:disabled, .btn[disabled] { opacity: 0.6; cursor: not-allowed; }
 .btn.btn-loading { color: transparent !important; pointer-events: none; position: relative; }
 .btn.btn-loading::after { content: ''; position: absolute; top: 50%; left: 50%; margin: -8px 0 0 -8px; width: 16px; height: 16px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: spin 0.6s linear infinite; }
@@ -437,12 +450,17 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 </head>
 <body>
 
+<!-- v1.8.0 - オフラインバナー -->
+<div class="offline-banner" id="offline-banner">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+  <span id="offline-banner-text">⚠ オフライン中: ネットワーク接続を確認してください</span>
+</div>
 <div class="app-layout">
   <!-- Sidebar -->
   <nav class="sidebar">
     <div class="sidebar-logo">
       <h1>人事情報<br>管理システム</h1>
-      <p>HR Management v1.7.9</p>
+      <p>HR Management v1.8.0</p>
     </div>
     <div class="sidebar-nav">
       <div class="nav-section">メイン</div>
@@ -3564,6 +3582,241 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 <div class="toast-container" id="toast-container"></div>
 
 <script>
+// ============================================================
+// v1.8.0 - A3 エラーハンドリング強化モジュール
+// ============================================================
+// エラーメッセージのローカライズ
+function humanizeError(err) {
+  var msg = (err && err.message) ? String(err.message) : String(err || '');
+  var lower = msg.toLowerCase();
+  if (lower.indexOf('401') !== -1 || lower.indexOf('unauthorized') !== -1 || lower.indexOf('invalidauthenticationtoken') !== -1) {
+    return { title: '🔐 認証エラー', message: 'ログインの有効期限が切れました。ページを再読み込みして再ログインしてください。', canRetry: true, needsReauth: true };
+  }
+  if (lower.indexOf('403') !== -1 || lower.indexOf('forbidden') !== -1) {
+    return { title: '⛔ 権限エラー', message: 'この操作を行う権限がありません。管理者に連絡してください。', canRetry: false };
+  }
+  if (lower.indexOf('404') !== -1 || lower.indexOf('not found') !== -1 || lower.indexOf('itemnotfound') !== -1) {
+    return { title: '🔍 データなし', message: '対象データが見つかりません。既に削除されている可能性があります。', canRetry: false };
+  }
+  if (lower.indexOf('429') !== -1 || lower.indexOf('too many requests') !== -1) {
+    return { title: '⏱ アクセス集中', message: 'アクセスが集中しています。少し待ってから再試行してください。', canRetry: true, waitSec: 30 };
+  }
+  if (lower.indexOf('failed to fetch') !== -1 || lower.indexOf('networkerror') !== -1 || lower.indexOf('network request failed') !== -1) {
+    return { title: '📡 ネットワークエラー', message: 'ネットワーク接続を確認してください。', canRetry: true };
+  }
+  if (lower.indexOf('timeout') !== -1 || lower.indexOf('timed out') !== -1) {
+    return { title: '⏱ タイムアウト', message: '応答がありませんでした。ネットワークまたはサーバーが混雑している可能性があります。', canRetry: true };
+  }
+  if (lower.indexOf('quotaexceedederror') !== -1 || lower.indexOf('quota') !== -1) {
+    return { title: '💾 ストレージ制限', message: 'ブラウザストレージが上限に達しました。設定画面から不要データをクリアしてください。', canRetry: false };
+  }
+  if (lower.indexOf('500') !== -1 || lower.indexOf('502') !== -1 || lower.indexOf('503') !== -1 || lower.indexOf('504') !== -1) {
+    return { title: '🚨 サーバーエラー', message: 'SharePointサーバーで一時的な問題が発生しています。しばらく待ってから再試行してください。', canRetry: true, waitSec: 15 };
+  }
+  if (lower.indexOf('cors') !== -1) {
+    return { title: '🚫 CORSエラー', message: 'ブラウザのセキュリティ制限により通信できません。管理者に連絡してください。', canRetry: false };
+  }
+  return { title: '⚠ エラー', message: msg.substring(0, 200), canRetry: false, raw: msg };
+}
+// スリープユーティリティ
+function sleepMs(ms) { return new Promise(function(r){ setTimeout(r, ms); }); }
+// リトライ付きfetch（指数バックオフ）
+async function fetchWithRetry(url, options, retryOpts) {
+  retryOpts = retryOpts || {};
+  var maxRetries = retryOpts.maxRetries != null ? retryOpts.maxRetries : 3;
+  var baseDelay = retryOpts.baseDelay || 1000;
+  var timeout = retryOpts.timeout || 30000;
+  var attempt = 0;
+  var lastError;
+  while (attempt <= maxRetries) {
+    try {
+      // タイムアウト制御
+      var controller = new AbortController();
+      var timer = setTimeout(function(){ controller.abort(); }, timeout);
+      var opts = Object.assign({}, options || {}, { signal: controller.signal });
+      var res = await fetch(url, opts);
+      clearTimeout(timer);
+      // 401は上位でトークン更新を試みる
+      if (res.status === 401) {
+        var text = await res.text().catch(function(){ return ''; });
+        var err = new Error('401 Unauthorized: ' + text);
+        err.status = 401;
+        throw err;
+      }
+      // 429/503はリトライ
+      if ((res.status === 429 || res.status === 503) && attempt < maxRetries) {
+        var retryAfter = parseInt(res.headers.get('Retry-After') || '0') * 1000;
+        var wait = retryAfter || (baseDelay * Math.pow(2, attempt));
+        console.warn('[Retry] ' + res.status + ' → ' + wait + 'ms後にリトライ (' + (attempt+1) + '/' + maxRetries + ')');
+        await sleepMs(wait);
+        attempt++;
+        continue;
+      }
+      return res;
+    } catch(e) {
+      lastError = e;
+      // ネットワークエラー・タイムアウト・AbortErrorはリトライ
+      var msg = String(e.message || '');
+      var isRetryable = msg.indexOf('Failed to fetch') !== -1 ||
+                        msg.indexOf('NetworkError') !== -1 ||
+                        msg.indexOf('timeout') !== -1 ||
+                        e.name === 'AbortError';
+      if (isRetryable && attempt < maxRetries) {
+        var wait = baseDelay * Math.pow(2, attempt);
+        console.warn('[Retry] ネットワークエラー → ' + wait + 'ms後にリトライ (' + (attempt+1) + '/' + maxRetries + '):', msg.substring(0, 80));
+        await sleepMs(wait);
+        attempt++;
+        continue;
+      }
+      throw e;
+    }
+  }
+  throw lastError || new Error('リトライ上限に達しました');
+}
+// 401時に自動トークン更新を試みるラッパー
+async function graphFetchWithAutoRefresh(url, options) {
+  try {
+    var res = await fetchWithRetry(url, options);
+    return res;
+  } catch(e) {
+    if (e.status === 401 && typeof refreshAccessToken === 'function') {
+      console.warn('[Auto-Refresh] 401検知 → トークン更新を試行');
+      try {
+        var newToken = await refreshAccessToken();
+        if (newToken) {
+          accessToken = newToken;
+          console.log('[Auto-Refresh] トークン更新成功。リクエスト再試行');
+          var newOpts = Object.assign({}, options || {});
+          newOpts.headers = Object.assign({}, newOpts.headers || {}, { Authorization: 'Bearer ' + accessToken });
+          return await fetchWithRetry(url, newOpts);
+        }
+      } catch(re) {
+        console.warn('[Auto-Refresh] トークン更新失敗:', re.message);
+      }
+    }
+    throw e;
+  }
+}
+// safeLocalStorage - QuotaExceededError対策
+var safeStorage = {
+  getItem: function(k) {
+    try { return localStorage.getItem(k); } catch(e) { console.warn('localStorage.getItem失敗:', e.message); return null; }
+  },
+  setItem: function(k, v) {
+    try { localStorage.setItem(k, v); return true; } catch(e) {
+      console.warn('localStorage.setItem失敗:', e.message);
+      if (String(e.name || '').indexOf('Quota') !== -1) {
+        try {
+          // 履歴系の古いデータを削減して再試行
+          var histKey = 'hr_change_history';
+          var hist = localStorage.getItem(histKey);
+          if (hist) {
+            var arr = JSON.parse(hist);
+            if (Array.isArray(arr) && arr.length > 100) {
+              localStorage.setItem(histKey, JSON.stringify(arr.slice(-100)));
+            }
+          }
+          localStorage.setItem(k, v);
+          if (typeof showToast === 'function') showToast('ブラウザストレージを整理して保存しました', 'info');
+          return true;
+        } catch(e2) {
+          if (typeof showToast === 'function') showToast('ブラウザストレージの空き容量が不足しています', 'error');
+        }
+      }
+      return false;
+    }
+  },
+  removeItem: function(k) {
+    try { localStorage.removeItem(k); } catch(e) {}
+  }
+};
+// エラーログを SharePoint に自動送信（重要度高のみ）
+var errorLogBuffer = [];
+var errorLogSendTimer = null;
+async function reportErrorToSharePoint(errorInfo) {
+  if (!errorInfo) return;
+  errorLogBuffer.push({
+    ts: new Date().toISOString(),
+    ...errorInfo
+  });
+  if (errorLogSendTimer) clearTimeout(errorLogSendTimer);
+  errorLogSendTimer = setTimeout(async function() {
+    if (!errorLogBuffer.length) return;
+    var toSend = errorLogBuffer.slice();
+    errorLogBuffer = [];
+    if (typeof masterListId === 'undefined' || !masterListId) return;
+    if (typeof currentRole !== 'undefined' && currentRole !== 'admin') return; // 管理者のみ送信
+    try {
+      var existing = await loadMasterFromSP('errorLogs');
+      var logs = Array.isArray(existing) ? existing : [];
+      logs = toSend.concat(logs).slice(0, 200); // 最新200件保持
+      await saveMasterToSP('errorLogs', logs);
+    } catch(e) { console.warn('エラーログ送信失敗:', e.message); }
+  }, 5000);
+}
+// グローバルエラーハンドラ
+window.addEventListener('error', function(e) {
+  console.error('[Global Error]', e.error || e.message);
+  var info = { source: 'window.error', message: (e.error && e.error.message) || e.message, url: e.filename, line: e.lineno, col: e.colno };
+  reportErrorToSharePoint(info);
+});
+window.addEventListener('unhandledrejection', function(e) {
+  console.error('[Unhandled Promise Rejection]', e.reason);
+  var msg = e.reason && e.reason.message ? e.reason.message : String(e.reason);
+  var info = { source: 'unhandledrejection', message: msg };
+  reportErrorToSharePoint(info);
+  // ネットワークエラーはトーストのみ、それ以外はサイレント
+  if (typeof showToast === 'function' && (String(msg).indexOf('Failed to fetch') !== -1 || String(msg).indexOf('NetworkError') !== -1)) {
+    var h = humanizeError(e.reason);
+    if (h && !window._lastNetworkErrorToast || Date.now() - (window._lastNetworkErrorToast || 0) > 10000) {
+      showToast(h.title + ': ' + h.message, 'error');
+      window._lastNetworkErrorToast = Date.now();
+    }
+  }
+});
+// オフライン検知
+function updateOfflineBanner() {
+  var banner = document.getElementById('offline-banner');
+  var text = document.getElementById('offline-banner-text');
+  if (!banner) return;
+  if (!navigator.onLine) {
+    banner.classList.add('show');
+    banner.classList.remove('online-restored');
+    if (text) text.textContent = '⚠ オフライン中: ネットワーク接続を確認してください';
+  } else {
+    if (banner.classList.contains('show')) {
+      banner.classList.add('online-restored');
+      if (text) text.textContent = '✅ オンラインに復帰しました';
+      setTimeout(function(){ banner.classList.remove('show'); banner.classList.remove('online-restored'); }, 3000);
+    }
+  }
+}
+window.addEventListener('online', updateOfflineBanner);
+window.addEventListener('offline', updateOfflineBanner);
+window.addEventListener('DOMContentLoaded', updateOfflineBanner);
+// 進捗表示ヘルパー（大量データ処理用）
+function updateProgressBar(current, total, message) {
+  var loadingEl = document.getElementById('global-loading');
+  if (!loadingEl) return;
+  var msgEl = loadingEl.querySelector('.loading-message');
+  var subEl = loadingEl.querySelector('.loading-sub');
+  if (msgEl && message) msgEl.textContent = message;
+  if (subEl) {
+    var pct = total > 0 ? Math.round(current / total * 100) : 0;
+    subEl.innerHTML = '進捗: ' + current + ' / ' + total + ' (' + pct + '%)<div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:' + pct + '%"></div></div>';
+  }
+}
+// 統一エラーハンドラ（try-catchから呼び出す用）
+function handleErrorWithToast(err, contextMsg) {
+  var h = humanizeError(err);
+  var toastMsg = h.title + (contextMsg ? ' (' + contextMsg + ')' : '') + ': ' + h.message;
+  if (typeof showToast === 'function') showToast(toastMsg, 'error');
+  console.error('[Error]', contextMsg || '', err);
+  return h;
+}
+// ============================================================
+// End v1.8.0 A3 モジュール
+// ============================================================
 // ===== FIXED CONFIG =====
 const FIXED_CONFIG = { clientId:'313ac5f9-2f4d-4e4d-ac06-f0948e6efd1a', tenantId:'d627f39c-6dbe-4d90-b1d2-f90f9af49f7d', siteUrl:'https://alcgp.sharepoint.com/sites/test629', listName:'人事情報管理ツール' };
 // ===== Sprint 1: Sidebar/Loading/Skeleton =====
@@ -3585,7 +3838,7 @@ function s3GotoPage(p){s3CurrentPage=Math.max(1,p);renderPaginatedEmployees();}
 function sortEmployeesByColumn(col){if(s3Sort.col===col){s3Sort.dir=s3Sort.dir==='asc'?'desc':'asc';}else{s3Sort.col=col;s3Sort.dir='asc';}s3FilteredList=sortEmployeesList(s3FilteredList);s3CurrentPage=1;renderPaginatedEmployees();}
 function updateSortIndicators(){document.querySelectorAll('#employee-table th[data-sort-col]').forEach(function(th){var col=th.dataset.sortCol;var ind=th.querySelector('.sort-indicator');if(!ind){ind=document.createElement('span');ind.className='sort-indicator';th.appendChild(ind);}if(s3Sort.col===col){ind.textContent=s3Sort.dir==='asc'?' ▲':' ▼';}else{ind.textContent='';}});}
 function updateBulkActionBar(){var c=document.querySelectorAll('.emp-select-cb:checked').length;var bar=document.getElementById('bulk-action-bar');var cnt=document.getElementById('bulk-action-count');if(!bar)return;if(c>0){bar.classList.add('show');if(cnt)cnt.textContent=c+'名選択中';}else{bar.classList.remove('show');}}
-async function bulkChangeStatus(ns){var sel=getSelectedEmployees();if(!sel.length){showToast('社員を選択してください','error');return;}if(!confirm(sel.length+'名のステータスを「'+ns+'」に変更しますか？'))return;showLoading('ステータス変更中...','0 / '+sel.length);var done=0;for(var i=0;i<sel.length;i++){try{await graphPatch('https://graph.microsoft.com/v1.0/sites/'+siteId+'/lists/'+listId+'/items/'+sel[i].id+'/fields',{Status:ns});done++;updateLoadingMessage('ステータス変更中...',done+' / '+sel.length);}catch(e){console.warn(e);}}hideLoading();showToast(done+'名のステータスを変更しました','success');await loadEmployees();}
+async function bulkChangeStatus(ns){var sel=getSelectedEmployees();if(!sel.length){showToast('社員を選択してください','error');return;}if(!confirm(sel.length+'名のステータスを「'+ns+'」に変更しますか？'))return;showLoading('ステータス変更中...','0 / '+sel.length);var done=0,failed=0;for(var i=0;i<sel.length;i++){try{await graphPatch('https://graph.microsoft.com/v1.0/sites/'+siteId+'/lists/'+listId+'/items/'+sel[i].id+'/fields',{Status:ns});done++;}catch(e){failed++;console.warn(e);}updateProgressBar(done+failed,sel.length,'ステータス変更中...');}hideLoading();if(failed>0){showToast(done+'名成功、'+failed+'名失敗しました','warn');}else{showToast(done+'名のステータスを変更しました','success');}await loadEmployees();}
 function bulkClearSelection(){document.querySelectorAll('.emp-select-cb').forEach(function(el){el.checked=false;});var a=document.getElementById('select-all-emp');if(a)a.checked=false;updateBulkActionBar();}
 // ===== Sprint 4: Chart =====
 var s4Charts=new Map();
@@ -4040,41 +4293,41 @@ function checkGithubTokenExpiry() {
   }
 }
 
-// ===== GRAPH API =====
+// ===== GRAPH API (v1.8.0 - リトライ+自動再認証対応) =====
 async function graphGet(url) {
   if (!accessToken) throw new Error('未認証');
-  const res = await fetch(url, { headers: { Authorization: 'Bearer ' + accessToken } });
+  const res = await graphFetchWithAutoRefresh(url, { headers: { Authorization: 'Bearer ' + accessToken } });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
 async function graphPost(url, body) {
   if (!accessToken) throw new Error('未認証');
-  const res = await fetch(url, { method: 'POST', headers: { Authorization: 'Bearer ' + accessToken, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const res = await graphFetchWithAutoRefresh(url, { method: 'POST', headers: { Authorization: 'Bearer ' + accessToken, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
 // sendMail等、成功時に空レスポンス(204)を返すエンドポイント用
 async function graphPostNoContent(url, body) {
   if (!accessToken) throw new Error('未認証');
-  const res = await fetch(url, { method: 'POST', headers: { Authorization: 'Bearer ' + accessToken, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const res = await graphFetchWithAutoRefresh(url, { method: 'POST', headers: { Authorization: 'Bearer ' + accessToken, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   if (!res.ok) throw new Error(await res.text());
   return null;
 }
 async function graphPatch(url, body) {
   if (!accessToken) throw new Error('未認証');
-  const res = await fetch(url, { method: 'PATCH', headers: { Authorization: 'Bearer ' + accessToken, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const res = await graphFetchWithAutoRefresh(url, { method: 'PATCH', headers: { Authorization: 'Bearer ' + accessToken, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
 async function graphDelete(url) {
   if (!accessToken) throw new Error('未認証');
-  const res = await fetch(url, { method: 'DELETE', headers: { Authorization: 'Bearer ' + accessToken } });
+  const res = await graphFetchWithAutoRefresh(url, { method: 'DELETE', headers: { Authorization: 'Bearer ' + accessToken } });
   if (!res.ok) throw new Error(await res.text());
 }
 
 async function graphPutText(url, textContent) {
   if (!accessToken) throw new Error('未認証');
-  const res = await fetch(url, {
+  const res = await graphFetchWithAutoRefresh(url, {
     method: 'PUT',
     headers: { Authorization: 'Bearer ' + accessToken, 'Content-Type': 'text/html' },
     body: textContent
@@ -4210,9 +4463,27 @@ async function ensureSurveyAuthPage() {
 
 // ===== SHAREPOINT INIT =====
 async function initSharePoint() {
-  const siteHostname = new URL(appConfig.siteUrl).hostname;
-  const sitePath = new URL(appConfig.siteUrl).pathname;
-  const siteData = await graphGet(`https://graph.microsoft.com/v1.0/sites/${siteHostname}:${sitePath}`);
+  // v1.8.0 - URL パース失敗を分かりやすく通知
+  var siteHostname, sitePath;
+  try {
+    siteHostname = new URL(appConfig.siteUrl).hostname;
+    sitePath = new URL(appConfig.siteUrl).pathname;
+  } catch(e) {
+    showToast('⚠ SharePoint サイトURLの形式が不正です。設定を確認してください', 'error');
+    throw new Error('無効なSharePoint URL: ' + appConfig.siteUrl);
+  }
+  var siteData;
+  try {
+    siteData = await graphGet(`https://graph.microsoft.com/v1.0/sites/${siteHostname}:${sitePath}`);
+  } catch(e) {
+    // v1.8.0 - SharePoint接続失敗時のフォールバック
+    var h = humanizeError(e);
+    showToast(h.title + ' (SharePoint接続): ' + h.message, 'error');
+    if (h.needsReauth) {
+      setTimeout(function(){ if (confirm('認証が必要です。再ログインしますか？')) window.location.reload(); }, 1000);
+    }
+    throw e;
+  }
   siteId = siteData.id;
 
   // 社員情報リスト
@@ -4634,11 +4905,12 @@ async function loadEmployees() {
     updateCompanyFilter(employees);
     checkAndShowAlerts(employees);
   } catch(e) {
-    // トークン切れの場合は再ログインを促す（リダイレクトしない）
-    if (e.message && (e.message.includes('401') || e.message.includes('Unauthorized') || e.message.includes('InvalidAuthenticationToken'))) {
-      showToast('セッションが切れました。ページを再読み込みして再ログインしてください。', 'error');
-    } else {
-      showToast('データ取得エラー: ' + e.message, 'error');
+    // v1.8.0 - 統一エラーハンドラで日本語化＋回復ガイダンス
+    var h = handleErrorWithToast(e, '社員データ取得');
+    if (h.needsReauth) {
+      setTimeout(function(){
+        if (confirm('セッションが切れました。ページを再読み込みしますか？')) window.location.reload();
+      }, 800);
     }
   } finally {
     hideLoading();
@@ -9978,7 +10250,7 @@ async function testTeamsNotification() {
     message: 'これは人事情報管理ツールからのテスト通知です。\n\n設定が正しく完了しました。',
     severity: 'success',
     facts: [
-      { name: 'システム', value: '人事情報管理システム v1.7.9' },
+      { name: 'システム', value: '人事情報管理システム v1.8.0' },
       { name: '送信者', value: currentUser ? (currentUser.displayName || currentUser.mail || '') : '匿名' },
       { name: '送信日時', value: new Date().toLocaleString('ja-JP') }
     ]
@@ -11454,7 +11726,7 @@ function renderReportAppendixSection(data) {
 // ----- フッター -----
 function renderReportFooter() {
   return '<div class="report-footer">' +
-    '人事情報管理システム v1.7.9 / 本レポートは社員データを基に自動生成されました。' +
+    '人事情報管理システム v1.8.0 / 本レポートは社員データを基に自動生成されました。' +
     '<br>※ 機密情報を含むため、取扱いには十分ご注意ください。' +
     '</div>';
 }
