@@ -460,7 +460,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   <nav class="sidebar">
     <div class="sidebar-logo">
       <h1>人事情報<br>管理システム</h1>
-      <p>HR Management v1.8.0</p>
+      <p>HR Management v1.8.1</p>
     </div>
     <div class="sidebar-nav">
       <div class="nav-section">メイン</div>
@@ -4879,8 +4879,8 @@ function getColumnDefinitions() {
     textCol('Company1'), textCol('EmploymentType'), textCol('Status'), dateCol('JoinDate'),
     textCol('ContractType'), textCol('ContractPeriod'), dateCol('RetireDate'), textCol('RetireReason'),
     textCol('Department'), textCol('Position'), textCol('JobType'), textCol('ManagerID'),
-    textCol('Company2'), textCol('EmpType2'), textCol('Dept2'), textCol('Pos2'),
-    textCol('Company3'), textCol('EmpType3'), textCol('Dept3'), textCol('Pos3'),
+    textCol('Company2'), textCol('EmpType2'), textCol('Dept2'), textCol('Position2'),
+    textCol('Company3'), textCol('EmpType3'), textCol('Dept3'), textCol('Position3'),
     textCol('WorkStyle'), textCol('WorkHours'),
     textCol('Edu1School'), textCol('Edu1Faculty'), textCol('Edu1Dept'), textCol('Edu1Major'),
     textCol('Edu2School'), textCol('Edu2Faculty'), textCol('Edu2Dept'), textCol('Edu2Major'),
@@ -5069,9 +5069,9 @@ function fillForm(e) {
   setWithDept('f-company1', 'f-department', e.Company1, e.Department);
   set('f-employment-type', e.EmploymentType); set('f-status', e.Status);
   setWithDept('f-company2', 'f-dept2', e.Company2, e.Dept2);
-  set('f-emp-type2', e.EmpType2); set('f-pos2', e.Pos2);
+  set('f-emp-type2', e.EmpType2); set('f-pos2', e.Position2 || e.Pos2);
   setWithDept('f-company3', 'f-dept3', e.Company3, e.Dept3);
-  set('f-emp-type3', e.EmpType3); set('f-pos3', e.Pos3);
+  set('f-emp-type3', e.EmpType3); set('f-pos3', e.Position3 || e.Pos3);
   set('f-join-date', e.JoinDate ? e.JoinDate.substring(0,10) : '');
   set('f-contract-type', e.ContractType); set('f-contract-period', e.ContractPeriod);
   set('f-retire-date', e.RetireDate ? e.RetireDate.substring(0,10) : '');
@@ -5100,8 +5100,8 @@ function collectForm() {
     Child3Birth: v('f-child3-birthdate') || null,
     EmergencyName: v('f-emergency-name'), EmergencyPhone: v('f-emergency-phone'),
     Company1: v('f-company1'), EmploymentType: v('f-employment-type'), Status: v('f-status'),
-    Company2: v('f-company2'), EmpType2: v('f-emp-type2'), Dept2: v('f-dept2'), Pos2: v('f-pos2'),
-    Company3: v('f-company3'), EmpType3: v('f-emp-type3'), Dept3: v('f-dept3'), Pos3: v('f-pos3'),
+    Company2: v('f-company2'), EmpType2: v('f-emp-type2'), Dept2: v('f-dept2'), Position2: v('f-pos2'),
+    Company3: v('f-company3'), EmpType3: v('f-emp-type3'), Dept3: v('f-dept3'), Position3: v('f-pos3'),
     JoinDate: v('f-join-date') || null, ContractType: v('f-contract-type'),
     ContractPeriod: v('f-contract-period'), RetireDate: v('f-retire-date') || null,
     RetireReason: v('f-retire-reason'), Department: v('f-department'),
@@ -5281,10 +5281,10 @@ const TRANSFER_WATCH = [
   { key: 'EmploymentType', label: '雇用形態' },
   { key: 'Company2',       label: '兼務会社①' },
   { key: 'Dept2',          label: '兼務部署①' },
-  { key: 'Pos2',           label: '兼務役職①' },
+  { key: 'Position2',      label: '兼務役職①' },
   { key: 'Company3',       label: '兼務会社②' },
   { key: 'Dept3',          label: '兼務部署②' },
-  { key: 'Pos3',           label: '兼務役職②' },
+  { key: 'Position3',      label: '兼務役職②' },
 ];
 
 function detectTransferType(before, after) {
@@ -5657,8 +5657,8 @@ const FIELD_LABELS = {
   JoinDate:'入社日', ContractType:'契約種別', ContractPeriod:'契約期間',
   RetireDate:'退職日', RetireReason:'退職理由',
   Department:'部署(主)', Position:'役職(主)', JobType:'職種', ManagerID:'上司ID',
-  Company2:'兼務会社①', EmpType2:'雇用形態(兼①)', Dept2:'部署(兼①)', Pos2:'役職(兼①)',
-  Company3:'兼務会社②', EmpType3:'雇用形態(兼②)', Dept3:'部署(兼②)', Pos3:'役職(兼②)',
+  Company2:'兼務会社①', EmpType2:'雇用形態(兼①)', Dept2:'部署(兼①)', Position2:'役職(兼①)',
+  Company3:'兼務会社②', EmpType3:'雇用形態(兼②)', Dept3:'部署(兼②)', Position3:'役職(兼②)',
   WorkStyle:'勤務形態', WorkHours:'勤務時間区分',
   Edu1School:'学校①', Edu1Faculty:'学部①', Edu1Dept:'学科①', Edu1Major:'専攻①',
   Edu2School:'学校②', Edu2Faculty:'学部②', Edu2Dept:'学科②', Edu2Major:'専攻②',
@@ -5882,8 +5882,8 @@ function printEmployee() {
   ${row('役職（主）', e.Position)}
   ${row('職種', e.JobType)}
   ${row('上司 社員ID', e.ManagerID)}
-  ${e.Company2 ? row('兼務先①', e.Company2 + '　' + (e.Dept2||'') + '　' + (e.Pos2||'')) : ''}
-  ${e.Company3 ? row('兼務先②', e.Company3 + '　' + (e.Dept3||'') + '　' + (e.Pos3||'')) : ''}
+  ${e.Company2 ? row('兼務先①', e.Company2 + '　' + (e.Dept2||'') + '　' + (e.Position2||e.Pos2||'')) : ''}
+  ${e.Company3 ? row('兼務先②', e.Company3 + '　' + (e.Dept3||'') + '　' + (e.Position3||e.Pos3||'')) : ''}
 
   ${section('③ 労務')}
   ${row('勤務形態', e.WorkStyle)}
@@ -6398,7 +6398,7 @@ function buildEmployeePdfPage(e) {
         <div class="field"><div class="field-label">会社</div><div class="field-value">${f(e.Company2)}</div></div>
         <div class="field"><div class="field-label">雇用形態</div><div class="field-value">${f(e.EmpType2)}</div></div>
         <div class="field"><div class="field-label">部署</div><div class="field-value">${f(e.Dept2)}</div></div>
-        <div class="field"><div class="field-label">役職</div><div class="field-value">${f(e.Pos2)}</div></div>
+        <div class="field"><div class="field-label">役職</div><div class="field-value">${f(e.Position2||e.Pos2)}</div></div>
       </div></div>` : ''}
     ${e.Company3 ? `<div class="company-sub">
       <div style="font-size:10px;font-weight:700;color:#5B89BE;margin-bottom:4px;">兼務先②</div>
@@ -6406,7 +6406,7 @@ function buildEmployeePdfPage(e) {
         <div class="field"><div class="field-label">会社</div><div class="field-value">${f(e.Company3)}</div></div>
         <div class="field"><div class="field-label">雇用形態</div><div class="field-value">${f(e.EmpType3)}</div></div>
         <div class="field"><div class="field-label">部署</div><div class="field-value">${f(e.Dept3)}</div></div>
-        <div class="field"><div class="field-label">役職</div><div class="field-value">${f(e.Pos3)}</div></div>
+        <div class="field"><div class="field-label">役職</div><div class="field-value">${f(e.Position3||e.Pos3)}</div></div>
       </div></div>` : ''}
 
     <!-- ③労務 -->
@@ -9709,11 +9709,11 @@ const CSV_COLUMNS = [
   { key: 'Company2',        label: '兼務会社①',            required: false },
   { key: 'EmpType2',        label: '雇用形態（兼務①）',      required: false },
   { key: 'Dept2',           label: '部署（兼務①）',         required: false },
-  { key: 'Pos2',            label: '役職（兼務①）',         required: false },
+  { key: 'Position2',       label: '役職（兼務①）',         required: false },
   { key: 'Company3',        label: '兼務会社②',            required: false },
   { key: 'EmpType3',        label: '雇用形態（兼務②）',      required: false },
   { key: 'Dept3',           label: '部署（兼務②）',         required: false },
-  { key: 'Pos3',            label: '役職（兼務②）',         required: false },
+  { key: 'Position3',       label: '役職（兼務②）',         required: false },
   { key: 'WorkStyle',       label: '勤務形態',             required: false },
   { key: 'WorkHours',       label: '勤務時間区分',          required: false },
   { key: 'Edu1School',      label: '学校名①',             required: false },
@@ -9922,7 +9922,7 @@ function buildSharePointFields(row) {
   const DATE_FIELDS = new Set(['Birthdate','JoinDate','RetireDate','Child1Birth','Child2Birth','Child3Birth']);
   // 空文字でも送信すべきフィールド（クリア操作に対応）
   const CLEARABLE_FIELDS = new Set(['Department','Position','JobType','ManagerID',
-    'Dept2','Pos2','Dept3','Pos3','RetireReason','ContractPeriod',
+    'Dept2','Position2','Dept3','Position3','RetireReason','ContractPeriod',
     'SpouseName','ChildrenCount','ChildrenUnder18','ZipCode','Phone','Address']);
   const fields = {};
   Object.entries(row).forEach(([key, val]) => {
@@ -10250,7 +10250,7 @@ async function testTeamsNotification() {
     message: 'これは人事情報管理ツールからのテスト通知です。\n\n設定が正しく完了しました。',
     severity: 'success',
     facts: [
-      { name: 'システム', value: '人事情報管理システム v1.8.0' },
+      { name: 'システム', value: '人事情報管理システム v1.8.1' },
       { name: '送信者', value: currentUser ? (currentUser.displayName || currentUser.mail || '') : '匿名' },
       { name: '送信日時', value: new Date().toLocaleString('ja-JP') }
     ]
@@ -10492,7 +10492,7 @@ function buildGlobalSearchIndex() {
       e.SpouseName, e.EmergencyName,
       e.Company1, e.Company2, e.Company3,
       e.Department, e.Department2, e.Department3,
-      e.Position, e.Position2, e.Position3,
+      e.Position, e.Position2||e.Pos2, e.Position3||e.Pos3,
       e.EmploymentType, e.EmpType2, e.EmpType3,
       e.JobType, e.ManagerID, e.JoinDate, e.RetireDate, e.RetireReason,
       e.Status, e.ContractType, e.ContractPeriod,
@@ -11726,7 +11726,7 @@ function renderReportAppendixSection(data) {
 // ----- フッター -----
 function renderReportFooter() {
   return '<div class="report-footer">' +
-    '人事情報管理システム v1.8.0 / 本レポートは社員データを基に自動生成されました。' +
+    '人事情報管理システム v1.8.1 / 本レポートは社員データを基に自動生成されました。' +
     '<br>※ 機密情報を含むため、取扱いには十分ご注意ください。' +
     '</div>';
 }
