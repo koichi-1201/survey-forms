@@ -460,7 +460,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   <nav class="sidebar">
     <div class="sidebar-logo">
       <h1>人事情報<br>管理システム</h1>
-      <p>HR Management v1.8.1</p>
+      <p>HR Management v1.9.0</p>
     </div>
     <div class="sidebar-nav">
       <div class="nav-section">メイン</div>
@@ -977,7 +977,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
         <div class="card" style="margin-bottom:16px;">
           <div class="card-header">
             <h3>異動履歴</h3>
-            <div style="display:flex;gap:8px;align-items:center;">
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
               <input type="text" class="filter-select" id="transfer-search" placeholder="社員名・IDで検索..." oninput="renderTransferPage()" style="width:180px;">
               <select class="filter-select" id="transfer-type-filter" onchange="renderTransferPage()">
                 <option value="">全種別</option>
@@ -992,17 +992,37 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 手動登録
               </button>
+              <!-- v1.9.0 - 重複検出・CSV出力ボタン（管理者のみ） -->
+              <button class="btn btn-secondary btn-sm" id="transfer-duplicate-btn" onclick="detectTransferDuplicates()" style="display:none;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                重複検出
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="exportTransferCsv()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                CSV出力
+              </button>
               <button class="btn btn-secondary btn-sm" onclick="printTransferHistory()">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
                 印刷
               </button>
             </div>
           </div>
+          <!-- v1.9.0 - 一括削除バー（管理者のみ、選択時に表示） -->
+          <div id="transfer-bulk-bar" style="display:none;padding:10px 16px;background:var(--c-danger-light);border-bottom:1px solid var(--c-danger);align-items:center;gap:12px;flex-wrap:wrap;">
+            <span style="font-weight:600;color:var(--c-danger);font-size:13px;" id="transfer-bulk-count">0件選択中</span>
+            <button class="btn btn-danger btn-sm" onclick="bulkDeleteTransfers()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+              選択削除
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="clearTransferSelection()" style="margin-left:auto;">選択解除</button>
+          </div>
           <div class="table-container">
             <table>
               <thead><tr>
+                <th id="transfer-check-header" style="width:36px;display:none;"><input type="checkbox" id="transfer-select-all" onchange="toggleAllTransferSelection(this)" title="全選択"></th>
                 <th>発令日</th><th>異動種別</th><th data-sort-col="EmpID" onclick="sortEmployeesByColumn('EmpID')">社員ID</th><th data-sort-col="NameKanji" onclick="sortEmployeesByColumn('NameKanji')">氏名</th>
                 <th>異動前</th><th>異動後</th><th>事由</th><th>記録者</th>
+                <th id="transfer-actions-header" style="display:none;">操作</th>
               </tr></thead>
               <tbody id="transfer-tbody"></tbody>
             </table>
@@ -4229,53 +4249,44 @@ async function handleAuthToken(token) {
     applyRoleUI();
     addOpLog('ログイン', `${email}がログインしました`, email);
     document.getElementById('auth-banner').style.display = 'none';
+    // v1.9.0 - B1: 起動時間短縮のため並列化
     await initSharePoint();
     await loadAllMastersFromSP();
-    // v1.6.7 - 勤続節目・誕生日アラート設定読み込み
-    try { await loadMilestoneConfig(); } catch(e) { console.warn(e); }
-    // v1.6.9 - 申請ワークフローリスト初期化と承認待ち件数取得
-    try {
-      await ensureRequestList();
-      await loadWorkflowRequests();
-    } catch(e) { console.warn('Workflow init error:', e); }
-    // v1.7.1 - マイナンバー監査ログリスト初期化（バックグラウンド）
-    try {
-      await ensureMynumberAuditList();
-      // 管理者のみログを読み込み（KPI更新用）
-      if (currentRole === 'admin') {
-        loadMynumberAuditLogs().catch(function(e){ console.warn(e); });
-      }
-    } catch(e) { console.warn('Audit log init error:', e); }
-    // v1.7.2 - アーカイブ設定読み込み
-    try { await loadArchiveConfig(); } catch(e) { console.warn('Archive config error:', e); }
-    // v1.7.3 - 権限レビュー設定読み込み
-    try { await loadPermReviewConfig(); } catch(e) { console.warn('Perm review config error:', e); }
+    // 社員一覧を最優先で表示（体感速度向上）
     await loadEmployees();
+    // その他の初期化をバックグラウンドで並列実行（UI ブロックしない）
+    Promise.allSettled([
+      loadMilestoneConfig().catch(function(e){ console.warn('Milestone config error:', e); }),
+      ensureRequestList().then(function(){ return loadWorkflowRequests(); }).catch(function(e){ console.warn('Workflow init error:', e); }),
+      ensureMynumberAuditList().then(function(){
+        if (currentRole === 'admin') return loadMynumberAuditLogs();
+      }).catch(function(e){ console.warn('Audit log init error:', e); }),
+      loadArchiveConfig().catch(function(e){ console.warn('Archive config error:', e); }),
+      loadPermReviewConfig().catch(function(e){ console.warn('Perm review config error:', e); })
+    ]).then(function(){
+      console.log('[v1.9.0] Background initialization completed');
+    });
     // PAT有効期限チェック
     checkGithubTokenExpiry();
-    // v1.6.5/1.6.7 - Teamsアラート通知（ログイン2秒後にバックグラウンドで実行）
-    setTimeout(function(){ try { checkAndNotifyAlerts(); } catch(e) { console.warn(e); } }, 2000);
-    // v1.7.2 - 退職者アーカイブ対象チェック（ログイン3秒後）
-    setTimeout(function(){ try { checkArchivePending(); } catch(e) { console.warn(e); } }, 3000);
-    // v1.7.3 - 権限レビュー期限・休眠ユーザーチェック（ログイン4秒後）
-    setTimeout(function(){ try { checkPermReviewDue(); } catch(e) { console.warn(e); } }, 4000);
-    // v1.7.4 - バックアップ状態チェック（ログイン5秒後）
-    setTimeout(function(){ try { checkBackupStatus(); } catch(e) { console.warn(e); } }, 5000);
-    // v1.7.6 - ヘルスチェック状態取得（ログイン6秒後）
-    setTimeout(function(){
-      try {
-        if (currentRole === 'admin') loadHealthCheckStatus();
-      } catch(e) { console.warn(e); }
-    }, 6000);
-    // v1.7.7 - 期限管理通知チェック（ログイン7秒後）
-    setTimeout(function(){
-      try {
-        if (currentRole === 'admin') {
-          checkAllExpiryNotifications();
-          loadExpiryDashboard();
-        }
-      } catch(e) { console.warn(e); }
-    }, 7000);
+    // v1.9.0 - B1: 遅延タイマー最適化（管理者のみバックグラウンド実行、間隔短縮）
+    // 全員対象のアラート通知チェック（3秒後）
+    setTimeout(function(){ try { checkAndNotifyAlerts(); } catch(e) { console.warn(e); } }, 3000);
+    // 管理者専用処理をアイドル時に並列実行
+    if (currentRole === 'admin') {
+      var runIdle = window.requestIdleCallback || function(cb){ return setTimeout(cb, 4000); };
+      runIdle(function() {
+        Promise.allSettled([
+          Promise.resolve().then(checkArchivePending).catch(function(e){ console.warn('Archive check error:', e); }),
+          Promise.resolve().then(checkPermReviewDue).catch(function(e){ console.warn('Perm review check error:', e); }),
+          Promise.resolve().then(checkBackupStatus).catch(function(e){ console.warn('Backup check error:', e); }),
+          Promise.resolve().then(loadHealthCheckStatus).catch(function(e){ console.warn('Health check error:', e); }),
+          Promise.resolve().then(checkAllExpiryNotifications).catch(function(e){ console.warn('Expiry check error:', e); }),
+          Promise.resolve().then(loadExpiryDashboard).catch(function(e){ console.warn('Expiry dashboard error:', e); })
+        ]).then(function(){
+          console.log('[v1.9.0] Admin background checks completed');
+        });
+      });
+    }
   } catch(e) {
     showToast('ログイン処理に失敗しました: ' + e.message, 'error');
   }
@@ -4898,8 +4909,22 @@ async function loadEmployees() {
   showLoading('社員データを読み込み中...', 'しばらくお待ちください');
   renderSkeletonRows('employee-tbody', 5, 11);
   try {
-    const data = await graphGet(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${listId}/items?expand=fields&$top=999`);
-    employees = data.value.map(item => ({ id: item.id, ...item.fields }));
+    // v1.9.0 - B3: 大量データ対応（ページング取得で1000件超も対応）
+    employees = [];
+    let nextUrl = `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${listId}/items?expand=fields&$top=999`;
+    let pageNum = 0;
+    while (nextUrl) {
+      pageNum++;
+      const data = await graphGet(nextUrl);
+      const pageItems = data.value.map(item => ({ id: item.id, ...item.fields }));
+      employees = employees.concat(pageItems);
+      // 進捗表示（2ページ目以降）
+      if (pageNum > 1) {
+        updateLoadingMessage('社員データを読み込み中...', `${employees.length}件取得済み（ページ${pageNum}）`);
+      }
+      nextUrl = data['@odata.nextLink'] || null;
+    }
+    console.log('[v1.9.0] loadEmployees: 全' + employees.length + '件取得（' + pageNum + 'ページ）');
     updateStats(employees);
     updateDeptFilter(employees);
     updateCompanyFilter(employees);
@@ -4915,10 +4940,9 @@ async function loadEmployees() {
   } finally {
     hideLoading();
     applyQuickFilter(s3CurrentFilter || 'all');
-    // v1.6.6 - グローバル検索インデックス更新（バックグラウンド）
-    setTimeout(function() {
-      try { refreshSearchCaches(); } catch(e) { console.warn('検索インデックス更新失敗:', e); }
-    }, 500);
+    // v1.9.0 - B2: 検索インデックス最適化（初回検索時に遅延構築）
+    window._searchIndexBuilt = false;
+    window._searchIndexBuiltAt = 0;
   }
 }
 
@@ -5395,8 +5419,18 @@ function renderTransferPage() {
   const page = list.slice(start, start + TRANSFER_PAGE_SIZE);
   const tbody = document.getElementById('transfer-tbody');
 
+  // v1.9.0 - 管理者のみチェックボックス列・削除ボタン・重複検出ボタン表示
+  const isAdmin = currentRole === 'admin';
+  const checkHdr = document.getElementById('transfer-check-header');
+  const actHdr = document.getElementById('transfer-actions-header');
+  const dupBtn = document.getElementById('transfer-duplicate-btn');
+  if (checkHdr) checkHdr.style.display = isAdmin ? '' : 'none';
+  if (actHdr) actHdr.style.display = isAdmin ? '' : 'none';
+  if (dupBtn) dupBtn.style.display = isAdmin ? '' : 'none';
+  const colSpan = isAdmin ? 10 : 8;
+
   if (!total) {
-    tbody.innerHTML = '<tr><td colspan="8" style="padding:32px;text-align:center;color:var(--text-muted);">異動履歴がありません</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="' + colSpan + '" style="padding:32px;text-align:center;color:var(--text-muted);">異動履歴がありません</td></tr>';
     document.getElementById('transfer-pagination').innerHTML = '';
     return;
   }
@@ -5415,7 +5449,13 @@ function renderTransferPage() {
     const typeStyle = Object.entries(typeColors).find(([k]) => (r.TransferType||'').includes(k))?.[1] || '';
     const fromText = [r.FromCompany,r.FromDept,r.FromPosition,r.FromEmpType].filter(Boolean).join(' / ');
     const toText   = [r.ToCompany,  r.ToDept,  r.ToPosition,  r.ToEmpType ].filter(Boolean).join(' / ');
-    return `<tr>
+    const checkCell = isAdmin
+      ? '<td style="text-align:center;"><input type="checkbox" class="transfer-select-cb" value="' + esc(r.id||'') + '" onchange="updateTransferBulkBar()" onclick="event.stopPropagation();"></td>'
+      : '';
+    const actionCell = isAdmin
+      ? '<td style="white-space:nowrap;"><button class="btn btn-secondary btn-sm" onclick="openEditTransfer(\'' + esc(r.id||'') + '\')" style="font-size:10px;padding:2px 6px;margin-right:3px;" title="編集"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="btn btn-danger btn-sm" onclick="deleteTransferRecord(\'' + esc(r.id||'') + '\')" style="font-size:10px;padding:2px 6px;" title="削除"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button></td>'
+      : '';
+    return '<tr>' + checkCell + `
       <td style="white-space:nowrap;font-size:12px;">${formatDate(r.EffectiveDate)}</td>
       <td><span class="badge" style="${typeStyle}">${esc(r.TransferType||'—')}</span></td>
       <td><code style="font-size:11px;background:var(--c-gray-50);padding:2px 6px;border-radius:4px;">${esc(r.EmpID||'')}</code></td>
@@ -5424,7 +5464,7 @@ function renderTransferPage() {
       <td style="font-size:11px;">${esc(toText||'—')}</td>
       <td style="font-size:11px;color:var(--text-muted);">${esc(r.Reason||'—')}</td>
       <td style="font-size:11px;color:var(--text-muted);">${esc(r.RecordedBy||'—')}</td>
-    </tr>`;
+    ` + actionCell + '</tr>';
   }).join('');
 
   const totalPages = Math.ceil(total / TRANSFER_PAGE_SIZE);
@@ -5433,6 +5473,206 @@ function renderTransferPage() {
     <button class="btn btn-secondary btn-sm" onclick="transferPageIndex=Math.max(0,transferPageIndex-1);renderTransferPage();" ${transferPageIndex===0?'disabled':''}>← 前</button>
     <button class="btn btn-secondary btn-sm" onclick="transferPageIndex=Math.min(${totalPages-1},transferPageIndex+1);renderTransferPage();" ${transferPageIndex>=totalPages-1?'disabled':''}>次 →</button>
   `;
+
+  // v1.9.0 - 選択バーもクリア
+  updateTransferBulkBar();
+}
+
+// v1.9.0 - 異動履歴管理機能
+function updateTransferBulkBar() {
+  const bar = document.getElementById('transfer-bulk-bar');
+  const count = document.querySelectorAll('.transfer-select-cb:checked').length;
+  const countEl = document.getElementById('transfer-bulk-count');
+  if (!bar) return;
+  if (count > 0) {
+    bar.style.display = 'flex';
+    if (countEl) countEl.textContent = count + '件選択中';
+  } else {
+    bar.style.display = 'none';
+    const selAll = document.getElementById('transfer-select-all');
+    if (selAll) selAll.checked = false;
+  }
+}
+function toggleAllTransferSelection(cb) {
+  document.querySelectorAll('.transfer-select-cb').forEach(function(x){ x.checked = cb.checked; });
+  updateTransferBulkBar();
+}
+function clearTransferSelection() {
+  document.querySelectorAll('.transfer-select-cb').forEach(function(x){ x.checked = false; });
+  const selAll = document.getElementById('transfer-select-all');
+  if (selAll) selAll.checked = false;
+  updateTransferBulkBar();
+}
+
+async function deleteTransferRecord(id) {
+  if (currentRole !== 'admin') { showToast('削除は管理者のみ実行可能です', 'error'); return; }
+  const r = transferRecords.find(x => x.id === id);
+  if (!r) return;
+  if (!confirm('この異動履歴を削除しますか？\n\n' + (r.EffectiveDate || '') + ' / ' + (r.EmpName || '') + ' / ' + (r.TransferType || '') + '\n\n※削除後は元に戻せません')) return;
+  try {
+    await graphDelete('https://graph.microsoft.com/v1.0/sites/' + siteId + '/lists/' + transferListId + '/items/' + id);
+    addOpLog('社員削除', '異動履歴削除: ' + (r.EmpName || '') + ' / ' + (r.TransferType || '') + ' / ' + (r.EffectiveDate || ''), currentUser ? (currentUser.mail || '') : '');
+    try {
+      await sendTeamsNotification({
+        title: '🗑 異動履歴削除',
+        message: '異動履歴が1件削除されました。',
+        severity: 'warning',
+        facts: [
+          { name: '対象社員', value: (r.EmpName || '') + ' (' + (r.EmpID || '') + ')' },
+          { name: '発令日', value: r.EffectiveDate || '' },
+          { name: '種別', value: r.TransferType || '' },
+          { name: '実行者', value: currentUser ? (currentUser.mail || '') : '' }
+        ]
+      });
+    } catch(e) {}
+    showToast('異動履歴を削除しました', 'success');
+    await loadTransferRecords();
+    renderTransferPage();
+  } catch(e) {
+    showToast('削除失敗: ' + e.message, 'error');
+  }
+}
+
+async function bulkDeleteTransfers() {
+  if (currentRole !== 'admin') { showToast('削除は管理者のみ実行可能です', 'error'); return; }
+  const ids = Array.from(document.querySelectorAll('.transfer-select-cb:checked')).map(function(cb){ return cb.value; });
+  if (!ids.length) { showToast('削除対象を選択してください', 'error'); return; }
+  if (!confirm(ids.length + '件の異動履歴を一括削除します。\n\n※削除後は元に戻せません。実行しますか？')) return;
+  showLoading('一括削除中...', '0 / ' + ids.length);
+  let success = 0, failed = 0;
+  for (let i = 0; i < ids.length; i++) {
+    try {
+      await graphDelete('https://graph.microsoft.com/v1.0/sites/' + siteId + '/lists/' + transferListId + '/items/' + ids[i]);
+      success++;
+    } catch(e) {
+      failed++;
+      console.warn('削除失敗:', e);
+    }
+    updateProgressBar(success + failed, ids.length, '削除中...');
+  }
+  hideLoading();
+  addOpLog('社員削除', '異動履歴一括削除: 成功' + success + '件 / 失敗' + failed + '件', currentUser ? (currentUser.mail || '') : '');
+  try {
+    await sendTeamsNotification({
+      title: '🗑 異動履歴一括削除',
+      message: '異動履歴が' + success + '件、一括削除されました。',
+      severity: 'warning',
+      facts: [
+        { name: '削除件数', value: success + ' 件' },
+        { name: '失敗件数', value: failed + ' 件' },
+        { name: '実行者', value: currentUser ? (currentUser.mail || '') : '' },
+        { name: '実行日時', value: new Date().toLocaleString('ja-JP') }
+      ]
+    });
+  } catch(e) {}
+  if (failed > 0) {
+    showToast(success + '件削除、' + failed + '件失敗しました', 'warn');
+  } else {
+    showToast(success + '件の異動履歴を削除しました', 'success');
+  }
+  await loadTransferRecords();
+  renderTransferPage();
+}
+
+async function openEditTransfer(id) {
+  if (currentRole !== 'admin') { showToast('編集は管理者のみ実行可能です', 'error'); return; }
+  const r = transferRecords.find(x => x.id === id);
+  if (!r) return;
+  document.getElementById('transfer-modal-title').textContent = '異動履歴 編集';
+  document.getElementById('tf-emp-id').value = r.EmpID || '';
+  document.getElementById('tf-emp-name').value = r.EmpName || '';
+  document.getElementById('tf-date').value = r.EffectiveDate ? r.EffectiveDate.substring(0, 10) : '';
+  document.getElementById('tf-type').value = r.TransferType || '';
+  document.getElementById('tf-from-company').value = r.FromCompany || '';
+  document.getElementById('tf-from-dept').value = r.FromDept || '';
+  document.getElementById('tf-from-position').value = r.FromPosition || '';
+  document.getElementById('tf-from-emptype').value = r.FromEmpType || '';
+  document.getElementById('tf-to-company').value = r.ToCompany || '';
+  document.getElementById('tf-to-dept').value = r.ToDept || '';
+  document.getElementById('tf-to-position').value = r.ToPosition || '';
+  document.getElementById('tf-to-emptype').value = r.ToEmpType || '';
+  document.getElementById('tf-reason').value = r.Reason || '';
+  window._editingTransferId = id;
+  openModal('transfer-modal');
+}
+
+function exportTransferCsv() {
+  const q = (document.getElementById('transfer-search')?.value || '').toLowerCase();
+  const typeFilter = document.getElementById('transfer-type-filter')?.value || '';
+  let list = [...transferRecords];
+  if (q) list = list.filter(r => (r.EmpID||'').toLowerCase().includes(q) || (r.EmpName||'').toLowerCase().includes(q));
+  if (typeFilter) list = list.filter(r => (r.TransferType||'').includes(typeFilter));
+  list.sort((a,b) => (b.EffectiveDate||'').localeCompare(a.EffectiveDate||''));
+  if (!list.length) { showToast('出力するデータがありません', 'error'); return; }
+  const headers = ['発令日','異動種別','社員ID','氏名','変更前_会社','変更前_部署','変更前_役職','変更前_雇用形態','変更後_会社','変更後_部署','変更後_役職','変更後_雇用形態','事由','記録者'];
+  const rows = list.map(r => [
+    formatDateYMD(r.EffectiveDate) || '',
+    r.TransferType || '',
+    r.EmpID || '',
+    r.EmpName || '',
+    r.FromCompany || '', r.FromDept || '', r.FromPosition || '', r.FromEmpType || '',
+    r.ToCompany || '', r.ToDept || '', r.ToPosition || '', r.ToEmpType || '',
+    r.Reason || '',
+    r.RecordedBy || ''
+  ]);
+  const csv = '\uFEFF' + headers.join(',') + '\n' + rows.map(row =>
+    row.map(cell => '"' + String(cell).replace(/"/g, '""') + '"').join(',')
+  ).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '異動履歴_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  addOpLog('マスター更新', '異動履歴CSV出力（' + list.length + '件）', currentUser ? (currentUser.mail || '') : '');
+  showToast(list.length + '件をCSV出力しました', 'success');
+}
+
+function detectTransferDuplicates() {
+  if (!transferRecords || !transferRecords.length) { showToast('データがありません', 'info'); return; }
+  const groups = {};
+  transferRecords.forEach(r => {
+    const dateStr = r.EffectiveDate ? r.EffectiveDate.substring(0, 10) : '';
+    if (!dateStr || !r.EmpID || !r.TransferType) return;
+    const key = dateStr + '|' + r.EmpID + '|' + r.TransferType;
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(r);
+  });
+  const duplicates = Object.values(groups).filter(g => g.length > 1);
+  if (!duplicates.length) {
+    showToast('重複データは見つかりませんでした ✅', 'success');
+    return;
+  }
+  let msg = '重複データが ' + duplicates.length + ' グループ（合計 ' + duplicates.reduce((s,g)=>s+g.length,0) + ' 件）見つかりました。\n\n';
+  duplicates.slice(0, 10).forEach((g, i) => {
+    const r = g[0];
+    msg += (i+1) + '. ' + (r.EmpName || r.EmpID) + ' / ' + r.EffectiveDate + ' / ' + r.TransferType + '（' + g.length + '件）\n';
+  });
+  if (duplicates.length > 10) msg += '\n... 他 ' + (duplicates.length - 10) + ' グループ';
+  msg += '\n\n重複データを絞り込み表示しますか？';
+  if (confirm(msg)) {
+    const dupIds = new Set();
+    duplicates.forEach(g => g.forEach(r => dupIds.add(r.id)));
+    window._transferDupFilterIds = dupIds;
+    renderTransferPageWithDupFilter();
+  }
+}
+
+function renderTransferPageWithDupFilter() {
+  const orig = transferRecords;
+  transferRecords = orig.filter(r => window._transferDupFilterIds && window._transferDupFilterIds.has(r.id));
+  renderTransferPage();
+  transferRecords = orig;
+  const tbody = document.getElementById('transfer-tbody');
+  if (tbody) {
+    const notice = document.createElement('tr');
+    notice.innerHTML = '<td colspan="10" style="padding:12px 16px;background:var(--c-warning-light);color:var(--c-warning);font-size:12px;text-align:center;"><strong>⚠ 重複検出結果を表示中</strong> <button class="btn btn-secondary btn-sm" onclick="clearTransferDupFilter()" style="margin-left:12px;">全件表示に戻す</button></td>';
+    tbody.insertBefore(notice, tbody.firstChild);
+  }
+}
+
+function clearTransferDupFilter() {
+  window._transferDupFilterIds = null;
+  renderTransferPage();
 }
 
 function openManualTransfer() {
@@ -5441,6 +5681,9 @@ function openManualTransfer() {
   });
   document.getElementById('tf-date').value = new Date().toISOString().split('T')[0];
   document.getElementById('tf-type').value = '';
+  document.getElementById('transfer-modal-title').textContent = '異動履歴 手動登録';
+  // v1.9.0 - 編集モードをクリア
+  window._editingTransferId = null;
   openModal('transfer-modal');
 }
 
@@ -5485,9 +5728,31 @@ async function saveManualTransfer() {
     RecordedBy:   currentUser ? (currentUser.mail || currentUser.userPrincipalName || '') : '',
   };
   try {
-    await graphPost(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${transferListId}/items`, { fields });
-    addHistory('異動登録', empId, fields.EmpName, `${type}: ${fields.FromDept}→${fields.ToDept}`);
-    showToast('異動履歴を登録しました', 'success');
+    // v1.9.0 - 編集モードならPATCH、新規ならPOST
+    if (window._editingTransferId) {
+      await graphPatch(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${transferListId}/items/${window._editingTransferId}/fields`, fields);
+      addHistory('異動更新', empId, fields.EmpName, `${type}: ${fields.FromDept}→${fields.ToDept}`);
+      addOpLog('社員更新', '異動履歴編集: ' + fields.EmpName + ' / ' + type, currentUser ? (currentUser.mail || '') : '');
+      try {
+        await sendTeamsNotification({
+          title: '✏ 異動履歴編集',
+          message: '異動履歴が編集されました。',
+          severity: 'info',
+          facts: [
+            { name: '対象社員', value: fields.EmpName + ' (' + fields.EmpID + ')' },
+            { name: '発令日', value: fields.EffectiveDate },
+            { name: '種別', value: type },
+            { name: '実行者', value: currentUser ? (currentUser.mail || '') : '' }
+          ]
+        });
+      } catch(e) {}
+      showToast('異動履歴を更新しました', 'success');
+      window._editingTransferId = null;
+    } else {
+      await graphPost(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${transferListId}/items`, { fields });
+      addHistory('異動登録', empId, fields.EmpName, `${type}: ${fields.FromDept}→${fields.ToDept}`);
+      showToast('異動履歴を登録しました', 'success');
+    }
     closeModal('transfer-modal');
     await loadTransferRecords();
     renderTransferPage();
@@ -10250,7 +10515,7 @@ async function testTeamsNotification() {
     message: 'これは人事情報管理ツールからのテスト通知です。\n\n設定が正しく完了しました。',
     severity: 'success',
     facts: [
-      { name: 'システム', value: '人事情報管理システム v1.8.1' },
+      { name: 'システム', value: '人事情報管理システム v1.9.0' },
       { name: '送信者', value: currentUser ? (currentUser.displayName || currentUser.mail || '') : '匿名' },
       { name: '送信日時', value: new Date().toLocaleString('ja-JP') }
     ]
@@ -10686,7 +10951,7 @@ function onGlobalSearchInput() {
 
   if (globalSearchDebounceTimer) clearTimeout(globalSearchDebounceTimer);
   globalSearchDebounceTimer = setTimeout(function() {
-    renderGlobalSearchResults(q);
+    renderGlobalSearchResults(q).catch(function(e){ console.warn('検索エラー:', e); });
   }, 200);
 }
 
@@ -10740,7 +11005,7 @@ function clearGlobalSearch() {
   globalSearchResults = [];
 }
 
-function renderGlobalSearchResults(query) {
+async function renderGlobalSearchResults(query) {
   var dd = document.getElementById('search-dropdown');
   if (!dd) return;
   if (!query || query.trim().length < 1) {
@@ -10748,9 +11013,21 @@ function renderGlobalSearchResults(query) {
     dd.innerHTML = '';
     return;
   }
-  // インデックス未構築の場合は構築
-  if (!globalSearchIndex.length) {
-    buildGlobalSearchIndex();
+  // v1.9.0 - B2: 検索インデックスの遅延構築 + 5分キャッシュ
+  var now = Date.now();
+  var cacheAge = now - (window._searchIndexBuiltAt || 0);
+  var CACHE_MAX_AGE = 5 * 60 * 1000; // 5分
+  if (!window._searchIndexBuilt || cacheAge > CACHE_MAX_AGE || !globalSearchIndex.length) {
+    // 初回・期限切れの場合、キャッシュとインデックスを更新
+    dd.innerHTML = '<div class="search-loading" style="padding:16px;text-align:center;">検索インデックスを構築中...</div>';
+    dd.classList.add('open');
+    try {
+      await refreshSearchCaches();
+      window._searchIndexBuilt = true;
+      window._searchIndexBuiltAt = now;
+    } catch(e) {
+      console.warn('検索インデックス構築失敗:', e);
+    }
   }
   var results = executeGlobalSearch(query);
   globalSearchResults = results;
@@ -11726,7 +12003,7 @@ function renderReportAppendixSection(data) {
 // ----- フッター -----
 function renderReportFooter() {
   return '<div class="report-footer">' +
-    '人事情報管理システム v1.8.1 / 本レポートは社員データを基に自動生成されました。' +
+    '人事情報管理システム v1.9.0 / 本レポートは社員データを基に自動生成されました。' +
     '<br>※ 機密情報を含むため、取扱いには十分ご注意ください。' +
     '</div>';
 }
