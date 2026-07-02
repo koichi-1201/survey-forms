@@ -223,6 +223,35 @@
 .skeleton-row { display: flex; gap: 12px; padding: 12px; border-bottom: 1px solid var(--border); }
 .skeleton-cell { height: 16px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: skeleton-loading 1.4s ease-in-out infinite; border-radius: 4px; }
 @keyframes skeleton-loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+/* ===== v2.1.0 - リアルタイムバリデーション ===== */
+.form-control.field-invalid { border-color: var(--c-danger) !important; background-color: #FFF5F5; }
+.form-control.field-valid { border-color: var(--c-success) !important; }
+.field-error-msg { color: var(--c-danger); font-size: 11px; margin-top: 3px; display: none; padding-left: 2px; line-height: 1.4; }
+.field-error-msg.show { display: block; }
+.field-error-msg::before { content: '⚠ '; font-weight: 600; }
+/* v2.1.0 - タイムライン（変更履歴タブ用） */
+.timeline-container { padding: 8px 0; position: relative; }
+.timeline-container::before { content: ''; position: absolute; left: 12px; top: 0; bottom: 0; width: 2px; background: var(--border); }
+.timeline-item { position: relative; padding-left: 40px; margin-bottom: 20px; }
+.timeline-item::before { content: ''; position: absolute; left: 6px; top: 6px; width: 14px; height: 14px; border-radius: 50%; background: var(--c-primary); border: 3px solid var(--surface); z-index: 1; box-shadow: 0 0 0 1px var(--border); }
+.timeline-item.tl-create::before { background: var(--c-success); }
+.timeline-item.tl-update::before { background: var(--c-primary); }
+.timeline-item.tl-delete::before { background: var(--c-danger); }
+.timeline-item.tl-transfer::before { background: var(--c-warning); }
+.timeline-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.timeline-action { font-size: 13px; font-weight: 600; }
+.timeline-date { font-size: 11px; color: var(--text-muted); font-family: monospace; }
+.timeline-actor { font-size: 11px; color: var(--text-muted); padding: 1px 6px; background: var(--c-gray-50); border-radius: 4px; }
+.timeline-body { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; font-size: 12px; line-height: 1.6; }
+.timeline-change-list { display: flex; flex-direction: column; gap: 4px; }
+.timeline-change-item { padding: 4px 8px; background: var(--c-gray-50); border-radius: 4px; font-size: 11px; }
+.timeline-change-item strong { color: var(--c-primary); }
+.timeline-empty { text-align: center; padding: 30px; color: var(--text-muted); font-size: 12px; }
+/* v2.1.0 - 休職セクション */
+.leave-section { border: 1px solid var(--c-warning); background: var(--c-warning-light); border-radius: var(--radius-lg); padding: 14px 16px; margin-top: 12px; display: none; }
+.leave-section.show { display: block; }
+.leave-section-title { color: var(--c-warning); font-weight: 700; font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; padding-bottom: 6px; border-bottom: 2px solid var(--c-warning); margin-bottom: 12px; }
+/* ===== End v2.1.0 ===== */
 /* ===== v1.8.0 - A3 エラーハンドリング強化 ===== */
 .offline-banner { position: fixed; top: 0; left: 0; right: 0; z-index: 10000; background: linear-gradient(90deg, #DC3545, #A32D2D); color: #fff; padding: 10px 16px; text-align: center; font-size: 13px; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.15); display: none; animation: slideDown 0.3s ease; }
 .offline-banner.show { display: flex; align-items: center; justify-content: center; gap: 8px; }
@@ -460,7 +489,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   <nav class="sidebar">
     <div class="sidebar-logo">
       <h1>人事情報<br>管理システム</h1>
-      <p>HR Management v2.0.1</p>
+      <p>HR Management v2.1.0</p>
     </div>
     <div class="sidebar-nav">
       <div class="nav-section">メイン</div>
@@ -1865,6 +1894,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
         <div class="form-tab" onclick="switchTab('tab-labor')">③ 労務</div>
         <div class="form-tab" onclick="switchTab('tab-edu')">④ 学歴・資格</div>
         <div class="form-tab" onclick="switchTab('tab-career')">⑤ 職歴</div>
+        <div class="form-tab" onclick="switchTab('tab-history')" id="tab-history-btn" style="display:none;">📊 変更履歴</div>
       </div>
 
       <!-- Tab: 基本情報 -->
@@ -2022,7 +2052,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
           <div class="form-grid">
             <div class="form-group">
               <label>ステータス <span class="required">*</span></label>
-              <select class="form-control" id="f-status">
+              <select class="form-control" id="f-status" onchange="onEmployeeStatusChange()">
                 <option value="">選択</option>
                 <option>在職</option><option>休職</option><option>退職</option>
               </select>
@@ -2034,6 +2064,40 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
             <div class="form-group form-full">
               <label>退職理由</label>
               <textarea class="form-control" id="f-retire-reason" rows="2" placeholder="退職理由（退職の場合）"></textarea>
+            </div>
+          </div>
+        </div>
+        <!-- v2.1.0 - 休職情報セクション（ステータス=休職の時に表示） -->
+        <div class="leave-section" id="leave-section">
+          <div class="leave-section-title">🏥 休職情報</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>休職開始日 <span class="required">*</span></label>
+              <input class="form-control" type="date" id="f-leave-start-date">
+            </div>
+            <div class="form-group">
+              <label>復職予定日 <span style="font-size:10px;color:var(--text-muted);">（未定の場合は空欄）</span></label>
+              <input class="form-control" type="date" id="f-leave-end-date">
+            </div>
+            <div class="form-group">
+              <label>休職種別 <span class="required">*</span></label>
+              <select class="form-control" id="f-leave-type">
+                <option value="">選択してください</option>
+                <option>育児休業</option>
+                <option>産前産後休業</option>
+                <option>傷病休職</option>
+                <option>介護休業</option>
+                <option>特別休職</option>
+                <option>その他</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>復職までの目安</label>
+              <input class="form-control" type="text" id="f-leave-remaining" readonly style="background:var(--c-gray-50);">
+            </div>
+            <div class="form-group form-full">
+              <label>休職事由・備考</label>
+              <textarea class="form-control" id="f-leave-reason" rows="2" placeholder="休職の詳細事由、連絡事項など"></textarea>
             </div>
           </div>
         </div>
@@ -2311,6 +2375,31 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
               <label>資格⑤</label>
               <select class="form-control" id="f-qual5"><option value="">選択してください</option></select>
             </div>
+          </div>
+        </div>
+      </div>
+      <!-- Tab: 変更履歴（v2.1.0） -->
+      <div class="form-panel" id="tab-history">
+        <div class="form-section">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <div>
+              <div class="form-section-title" style="margin-bottom:4px;">📊 この社員の変更履歴</div>
+              <p style="font-size:11px;color:var(--text-muted);">登録・更新・削除・異動などの操作履歴を時系列で表示します。</p>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <select class="filter-select" id="emp-history-type-filter" onchange="renderEmployeeHistoryTimeline()" style="font-size:12px;">
+                <option value="">全操作</option>
+                <option value="新規登録">新規登録</option>
+                <option value="更新">更新</option>
+                <option value="異動">異動</option>
+                <option value="削除">削除</option>
+              </select>
+            </div>
+          </div>
+          <div id="emp-history-summary" style="background:var(--c-primary-light);border:1px solid #B5D4F4;border-radius:var(--radius);padding:10px 14px;font-size:12px;color:#0C447C;margin-bottom:14px;display:none;">
+          </div>
+          <div id="emp-history-timeline" class="timeline-container">
+            <div class="timeline-empty">変更履歴を読み込み中...</div>
           </div>
         </div>
       </div>
@@ -4314,6 +4403,8 @@ async function handleAuthToken(token) {
     // v1.9.0 - B1: 遅延タイマー最適化（管理者のみバックグラウンド実行、間隔短縮）
     // 全員対象のアラート通知チェック（3秒後）
     setTimeout(function(){ try { checkAndNotifyAlerts(); } catch(e) { console.warn(e); } }, 3000);
+    // v2.1.0 - 復職予定アラート（4秒後）
+    setTimeout(function(){ try { checkLeaveReturnAlerts(); } catch(e) { console.warn(e); } }, 4000);
     // 管理者専用処理をアイドル時に並列実行
     if (currentRole === 'admin') {
       var runIdle = window.requestIdleCallback || function(cb){ return setTimeout(cb, 4000); };
@@ -4942,7 +5033,12 @@ function getColumnDefinitions() {
     // v1.7.2 - アーカイブ管理列
     textCol('ArchiveStatus'),
     { name: 'ArchivedAt', dateTime: { displayAs: 'dateTime', format: 'dateTime' } },
-    textCol('ArchivedBy')
+    textCol('ArchivedBy'),
+    // v2.1.0 - 休職期間管理列
+    dateCol('LeaveStartDate'),
+    dateCol('LeaveEndDate'),
+    textCol('LeaveType'),
+    textCol('LeaveReason')
   ];
 }
 
@@ -5093,6 +5189,18 @@ function openNewEmployee() {
     miniCardId: 'f-manager-mini-card',
     includeRetired: false
   });
+  // v2.1.0 - 変更履歴タブは新規登録時は非表示
+  var histBtn = document.getElementById('tab-history-btn');
+  if (histBtn) histBtn.style.display = 'none';
+  // 休職セクションを初期非表示
+  var leaveSec = document.getElementById('leave-section');
+  if (leaveSec) leaveSec.classList.remove('show');
+  // 復職までの表示クリア
+  var remEl = document.getElementById('f-leave-remaining');
+  if (remEl) { remEl.value = ''; remEl.style.color = ''; }
+  // リアルタイムバリデーション初期化
+  clearAllFieldValidation();
+  setTimeout(initRealtimeValidation, 100);
   openModal('employee-modal');
 }
 
@@ -5140,6 +5248,12 @@ function openEditEmployee(id) {
     if (mgrCardEl) { mgrCardEl.innerHTML = ''; mgrCardEl.style.display = 'none'; }
   }
   switchTab('tab-basic');
+  // v2.1.0 - 編集時は変更履歴タブを表示
+  var histBtn = document.getElementById('tab-history-btn');
+  if (histBtn) histBtn.style.display = '';
+  // リアルタイムバリデーション初期化
+  clearAllFieldValidation();
+  setTimeout(initRealtimeValidation, 100);
   openModal('employee-modal');
   // 職歴を非同期で読み込む
   loadCareerEntries(e.EmpID || '');
@@ -5191,6 +5305,14 @@ function fillForm(e) {
   set('f-contract-type', e.ContractType); set('f-contract-period', e.ContractPeriod);
   set('f-retire-date', e.RetireDate ? e.RetireDate.substring(0,10) : '');
   set('f-retire-reason', e.RetireReason);
+  // v2.1.0 - 休職情報
+  set('f-leave-start-date', e.LeaveStartDate ? e.LeaveStartDate.substring(0,10) : '');
+  set('f-leave-end-date', e.LeaveEndDate ? e.LeaveEndDate.substring(0,10) : '');
+  set('f-leave-type', e.LeaveType);
+  set('f-leave-reason', e.LeaveReason);
+  // ステータス変更に応じて休職セクションを表示
+  onEmployeeStatusChange();
+  updateLeaveRemainingDisplay();
   // f-departmentはrestoreDeptHierarchy内でセット済みのため重複呼び出しを除外
   set('f-position', e.Position); set('f-job-type', e.JobType); set('f-manager-id', e.ManagerID);
   set('f-work-style', e.WorkStyle); set('f-work-hours', e.WorkHours);
@@ -5224,12 +5346,312 @@ function collectForm() {
     WorkStyle: v('f-work-style'), WorkHours: v('f-work-hours'),
     Edu1School: v('f-edu1-school'), Edu1Faculty: v('f-edu1-faculty'), Edu1Dept: v('f-edu1-dept'), Edu1Major: v('f-edu1-major'),
     Edu2School: v('f-edu2-school'), Edu2Faculty: v('f-edu2-faculty'), Edu2Dept: v('f-edu2-dept'), Edu2Major: v('f-edu2-major'),
-    Qual1: v('f-qual1'), Qual2: v('f-qual2'), Qual3: v('f-qual3'), Qual4: v('f-qual4'), Qual5: v('f-qual5')
+    Qual1: v('f-qual1'), Qual2: v('f-qual2'), Qual3: v('f-qual3'), Qual4: v('f-qual4'), Qual5: v('f-qual5'),
+    // v2.1.0 - 休職情報
+    LeaveStartDate: v('f-leave-start-date') || null,
+    LeaveEndDate: v('f-leave-end-date') || null,
+    LeaveType: v('f-leave-type'),
+    LeaveReason: v('f-leave-reason')
   };
   if (mynValue !== null) fields.Mynumber = mynValue;
   return fields;
 }
 
+// ============================================================
+// v2.1.0 - リアルタイムバリデーション
+// ============================================================
+function initRealtimeValidation() {
+  // メールアドレス
+  attachFieldValidator('f-email', function(v) {
+    if (!v) return null;
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? null : 'メールアドレスの形式が正しくありません（例: user@example.com）';
+  });
+  // 電話番号
+  attachFieldValidator('f-phone', function(v) {
+    if (!v) return null;
+    return /^[0-9\-\(\)\s\+]+$/.test(v) ? null : '数字・ハイフン・カッコのみで入力してください';
+  });
+  attachFieldValidator('f-emergency-phone', function(v) {
+    if (!v) return null;
+    return /^[0-9\-\(\)\s\+]+$/.test(v) ? null : '数字・ハイフン・カッコのみで入力してください';
+  });
+  // 郵便番号
+  attachFieldValidator('f-zipcode', function(v) {
+    if (!v) return null;
+    return /^\d{3}-?\d{4}$/.test(v) ? null : '「123-4567」または「1234567」の形式で入力してください';
+  });
+  // 生年月日：未来日ブロック
+  attachFieldValidator('f-birthdate', function(v) {
+    if (!v) return null;
+    var bd = new Date(v);
+    var today = new Date();
+    today.setHours(23, 59, 59, 999);
+    return bd > today ? '未来の日付は指定できません' : null;
+  });
+  // マイナンバー
+  attachFieldValidator('f-mynumber', function(v) {
+    if (!v) return null;
+    var mynEl = document.getElementById('f-mynumber');
+    if (mynEl && mynEl.disabled) return null;
+    if (v.indexOf('•') !== -1) return null; // マスク中
+    return /^\d{12}$/.test(v) ? null : '12桁の数字で入力してください';
+  });
+  // 入社日 vs 退職日：逆転チェック
+  var joinDate = document.getElementById('f-join-date');
+  var retireDate = document.getElementById('f-retire-date');
+  function checkDateOrder() {
+    var errEl = ensureErrorMsgElement('f-retire-date');
+    if (!errEl) return;
+    var j = joinDate ? joinDate.value : '';
+    var r = retireDate ? retireDate.value : '';
+    if (j && r && new Date(r) < new Date(j)) {
+      retireDate.classList.add('field-invalid');
+      errEl.textContent = '退職日は入社日より後の日付にしてください';
+      errEl.classList.add('show');
+    } else {
+      retireDate.classList.remove('field-invalid');
+      errEl.classList.remove('show');
+    }
+  }
+  if (joinDate) joinDate.addEventListener('change', checkDateOrder);
+  if (retireDate) retireDate.addEventListener('change', checkDateOrder);
+}
+function attachFieldValidator(fieldId, validator) {
+  var el = document.getElementById(fieldId);
+  if (!el) return;
+  // 既にリスナーが設定済みならスキップ
+  if (el._v210_validator_attached) return;
+  el._v210_validator_attached = true;
+  var errEl = ensureErrorMsgElement(fieldId);
+  function run() {
+    var val = (el.value || '').trim();
+    var err = validator(val);
+    if (err) {
+      el.classList.add('field-invalid');
+      el.classList.remove('field-valid');
+      if (errEl) {
+        errEl.textContent = err;
+        errEl.classList.add('show');
+      }
+    } else {
+      el.classList.remove('field-invalid');
+      if (val) el.classList.add('field-valid');
+      else el.classList.remove('field-valid');
+      if (errEl) errEl.classList.remove('show');
+    }
+  }
+  el.addEventListener('blur', run);
+  el.addEventListener('input', function() {
+    // 入力中はエラー表示を控えめに、valid判定のみ
+    if (el.classList.contains('field-invalid')) run();
+  });
+}
+function ensureErrorMsgElement(fieldId) {
+  var el = document.getElementById(fieldId);
+  if (!el) return null;
+  var next = el.nextElementSibling;
+  if (next && next.classList && next.classList.contains('field-error-msg')) return next;
+  var errEl = document.createElement('div');
+  errEl.className = 'field-error-msg';
+  errEl.id = 'err-' + fieldId;
+  el.parentNode.insertBefore(errEl, el.nextSibling);
+  return errEl;
+}
+function clearAllFieldValidation() {
+  document.querySelectorAll('#employee-modal .form-control').forEach(function(el) {
+    el.classList.remove('field-invalid');
+    el.classList.remove('field-valid');
+  });
+  document.querySelectorAll('#employee-modal .field-error-msg').forEach(function(el) {
+    el.classList.remove('show');
+  });
+}
+// ============================================================
+// v2.1.0 - 休職情報管理
+// ============================================================
+function onEmployeeStatusChange() {
+  var status = (document.getElementById('f-status') || {}).value || '';
+  var leaveSec = document.getElementById('leave-section');
+  if (!leaveSec) return;
+  if (status === '休職') {
+    leaveSec.classList.add('show');
+    updateLeaveRemainingDisplay();
+  } else {
+    leaveSec.classList.remove('show');
+  }
+}
+function updateLeaveRemainingDisplay() {
+  var endEl = document.getElementById('f-leave-end-date');
+  var remEl = document.getElementById('f-leave-remaining');
+  if (!endEl || !remEl) return;
+  var val = endEl.value;
+  if (!val) { remEl.value = '復職予定日未定'; return; }
+  var end = new Date(val);
+  var today = new Date();
+  today.setHours(0, 0, 0, 0);
+  var daysLeft = Math.round((end - today) / 86400000);
+  if (daysLeft < 0) {
+    remEl.value = '復職予定日から ' + Math.abs(daysLeft) + '日 経過';
+    remEl.style.color = 'var(--c-danger)';
+  } else if (daysLeft === 0) {
+    remEl.value = '本日が復職予定日';
+    remEl.style.color = 'var(--c-warning)';
+  } else if (daysLeft <= 30) {
+    remEl.value = 'あと ' + daysLeft + '日 で復職予定';
+    remEl.style.color = 'var(--c-warning)';
+  } else {
+    remEl.value = 'あと ' + daysLeft + '日';
+    remEl.style.color = '';
+  }
+}
+// 復職予定日の変更を検知
+document.addEventListener('DOMContentLoaded', function() {
+  var interval = setInterval(function() {
+    var endEl = document.getElementById('f-leave-end-date');
+    if (endEl && !endEl._v210_listener) {
+      endEl._v210_listener = true;
+      endEl.addEventListener('change', updateLeaveRemainingDisplay);
+      endEl.addEventListener('input', updateLeaveRemainingDisplay);
+      clearInterval(interval);
+    }
+  }, 500);
+});
+// 復職予定アラート＆Teams通知
+async function checkLeaveReturnAlerts() {
+  if (!Array.isArray(employees) || !employees.length) return 0;
+  var today = new Date();
+  today.setHours(0, 0, 0, 0);
+  var notifLog = await loadNotificationLog();
+  var count = 0;
+  for (var i = 0; i < employees.length; i++) {
+    var e = employees[i];
+    if (e.Status !== '休職' || !e.LeaveEndDate) continue;
+    var end = new Date(e.LeaveEndDate);
+    end.setHours(0, 0, 0, 0);
+    var daysLeft = Math.round((end - today) / 86400000);
+    // 通知タイミング: 30日前 / 7日前 / 当日
+    var offsets = [30, 7, 0];
+    for (var j = 0; j < offsets.length; j++) {
+      if (daysLeft !== offsets[j]) continue;
+      var key = 'leave_return_' + (e.EmpID || '') + '_' + offsets[j] + '_' + today.toISOString().slice(0, 10);
+      if (notifLog[key]) continue;
+      var msg, sev;
+      if (offsets[j] === 0) {
+        msg = '**' + (e.NameKanji || '') + '** さんの復職予定日が本日です。\n復帰の受入準備をご確認ください。';
+        sev = 'warning';
+      } else if (offsets[j] === 7) {
+        msg = '**' + (e.NameKanji || '') + '** さんの復職予定日まで**1週間**です。\n復帰面談・業務引き継ぎの準備をお願いします。';
+        sev = 'info';
+      } else {
+        msg = '**' + (e.NameKanji || '') + '** さんの復職予定日まで**' + offsets[j] + '日**です。\n復帰時期に向けた準備をお願いします。';
+        sev = 'info';
+      }
+      if (appConfig.teamsEnableAlerts && appConfig.teamsWebhookUrl) {
+        var r = await sendTeamsNotification({
+          title: (offsets[j] === 0 ? '🏥 本日復職予定' : '🏥 復職まで' + offsets[j] + '日'),
+          message: msg,
+          severity: sev,
+          facts: [
+            { name: '社員ID', value: e.EmpID || '' },
+            { name: '所属会社', value: e.Company1 || '' },
+            { name: '部署', value: e.Department || '' },
+            { name: '休職種別', value: e.LeaveType || '不明' },
+            { name: '休職開始', value: e.LeaveStartDate || '不明' },
+            { name: '復職予定', value: e.LeaveEndDate || '' }
+          ]
+        });
+        if (r.success) {
+          notifLog[key] = true;
+          count++;
+        }
+      }
+    }
+  }
+  if (count > 0) await saveNotificationLog(notifLog);
+  return count;
+}
+// ============================================================
+// v2.1.0 - 社員別変更履歴タイムライン
+// ============================================================
+async function renderEmployeeHistoryTimeline() {
+  var container = document.getElementById('emp-history-timeline');
+  var summaryEl = document.getElementById('emp-history-summary');
+  if (!container) return;
+  var empId = (document.getElementById('f-emp-id') || {}).value || '';
+  if (!empId) {
+    container.innerHTML = '<div class="timeline-empty">社員IDが未設定です</div>';
+    return;
+  }
+  container.innerHTML = '<div class="timeline-empty">読み込み中...</div>';
+  // 変更履歴を読み込み（複数ソース統合）
+  var history = loadHistory() || [];
+  var empHistory = history.filter(function(h) {
+    return (h.empId || '') === empId;
+  });
+  // 異動履歴も統合
+  var transfers = (transferRecords || []).filter(function(t) {
+    return (t.EmpID || '') === empId;
+  }).map(function(t) {
+    return {
+      ts: t.EffectiveDate ? new Date(t.EffectiveDate).toISOString() : new Date().toISOString(),
+      action: '異動',
+      empId: t.EmpID,
+      empName: t.EmpName,
+      detail: (t.TransferType || '') + '：' + [t.FromCompany, t.FromDept, t.FromPosition].filter(Boolean).join('/') + ' → ' + [t.ToCompany, t.ToDept, t.ToPosition].filter(Boolean).join('/') + (t.Reason ? '｜事由：' + t.Reason : ''),
+      operator: t.RecordedBy || ''
+    };
+  });
+  var combined = empHistory.concat(transfers);
+  combined.sort(function(a, b) { return (b.ts || '').localeCompare(a.ts || ''); });
+  // フィルタ
+  var typeFilter = (document.getElementById('emp-history-type-filter') || {}).value || '';
+  if (typeFilter) {
+    combined = combined.filter(function(h) { return (h.action || '') === typeFilter; });
+  }
+  // サマリー
+  if (summaryEl) {
+    var createCount = empHistory.filter(function(h){return h.action==='新規登録';}).length;
+    var updateCount = empHistory.filter(function(h){return h.action==='更新';}).length;
+    var transferCount = transfers.length;
+    summaryEl.style.display = 'block';
+    summaryEl.innerHTML = '📊 <strong>操作履歴サマリー</strong>：新規登録 ' + createCount + ' / 更新 ' + updateCount + ' / 異動 ' + transferCount + ' / 合計 ' + (empHistory.length + transferCount) + ' 件';
+  }
+  if (!combined.length) {
+    container.innerHTML = '<div class="timeline-empty">' + (typeFilter ? '該当する変更履歴はありません' : '変更履歴がまだありません') + '</div>';
+    return;
+  }
+  var html = combined.map(function(h) {
+    var dt = h.ts ? new Date(h.ts) : new Date();
+    var dtStr = dt.toLocaleString('ja-JP');
+    var action = h.action || '';
+    var cls = 'tl-update';
+    if (action === '新規登録') cls = 'tl-create';
+    else if (action === '削除') cls = 'tl-delete';
+    else if (action === '異動') cls = 'tl-transfer';
+    var actionIcon = { '新規登録':'🟢', '更新':'🔵', '削除':'🔴', '異動':'🟠', 'CSVインポート':'📥', '異動登録':'🟠', '異動更新':'🟠' }[action] || '📝';
+    // 詳細を整形（更新の場合は変更項目リスト風に）
+    var detail = h.detail || '';
+    var detailHtml;
+    if (action === '更新' && detail.indexOf('/') !== -1) {
+      // 「A: 「〜」→「〜」/ B: ...」形式を分解
+      var parts = detail.split(/\s\/\s(?![^「]*」)/);
+      detailHtml = '<div class="timeline-change-list">' +
+        parts.map(function(p) { return '<div class="timeline-change-item">' + esc(p) + '</div>'; }).join('') +
+        '</div>';
+    } else {
+      detailHtml = '<div>' + esc(detail) + '</div>';
+    }
+    return '<div class="timeline-item ' + cls + '">' +
+      '<div class="timeline-header">' +
+      '<span class="timeline-action">' + actionIcon + ' ' + esc(action) + '</span>' +
+      '<span class="timeline-date">' + dtStr + '</span>' +
+      '<span class="timeline-actor">by ' + esc(h.operator || '不明') + '</span>' +
+      '</div>' +
+      '<div class="timeline-body">' + detailHtml + '</div>' +
+      '</div>';
+  }).join('');
+  container.innerHTML = html;
+}
 // ============================================================
 // v2.0.0 - 社員ID自動採番
 // ============================================================
@@ -5693,6 +6115,22 @@ function validateEmployeeForm(fields) {
       }
     }
   }
+  // v2.1.0 - 休職情報のバリデーション
+  if (fields.Status === '休職') {
+    if (!fields.LeaveStartDate) {
+      errors.push('休職ステータスの場合、休職開始日は必須です');
+    }
+    if (!fields.LeaveType) {
+      errors.push('休職ステータスの場合、休職種別の選択は必須です');
+    }
+    if (fields.LeaveStartDate && fields.LeaveEndDate) {
+      var ls = new Date(fields.LeaveStartDate);
+      var le = new Date(fields.LeaveEndDate);
+      if (le < ls) {
+        errors.push('復職予定日は休職開始日より後の日付にしてください');
+      }
+    }
+  }
   return errors;
 }
 async function saveEmployee() {
@@ -5807,12 +6245,17 @@ function showPage(page) {
   showListPage();
 }
 function switchTab(tabId) {
+  // v2.1.0 - 変更履歴タブを含む6タブに対応
   document.querySelectorAll('.form-tab').forEach((t, i) => {
-    const panels = ['tab-basic','tab-hr','tab-labor','tab-edu','tab-career'];
+    const panels = ['tab-basic','tab-hr','tab-labor','tab-edu','tab-career','tab-history'];
     t.classList.toggle('active', panels[i] === tabId);
   });
   document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
   document.getElementById(tabId).classList.add('active');
+  // v2.1.0 - 変更履歴タブ選択時にタイムライン描画
+  if (tabId === 'tab-history') {
+    renderEmployeeHistoryTimeline();
+  }
 }
 function openConfig() { loadConfig(); openModal('config-modal'); applyFixedConfigUI(); /* v1.7.8 - モーダル表示後にも適用 */ }
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -6525,6 +6968,7 @@ const FIELD_LABELS = {
   Company2:'兼務会社①', EmpType2:'雇用形態(兼①)', Dept2:'部署(兼①)', Position2:'役職(兼①)',
   Company3:'兼務会社②', EmpType3:'雇用形態(兼②)', Dept3:'部署(兼②)', Position3:'役職(兼②)',
   WorkStyle:'勤務形態', WorkHours:'勤務時間区分',
+  LeaveStartDate:'休職開始日', LeaveEndDate:'復職予定日', LeaveType:'休職種別', LeaveReason:'休職事由',
   Edu1School:'学校①', Edu1Faculty:'学部①', Edu1Dept:'学科①', Edu1Major:'専攻①',
   Edu2School:'学校②', Edu2Faculty:'学部②', Edu2Dept:'学科②', Edu2Major:'専攻②',
   Qual1:'資格①', Qual2:'資格②', Qual3:'資格③', Qual4:'資格④', Qual5:'資格⑤',
@@ -10594,6 +11038,11 @@ const CSV_COLUMNS = [
   { key: 'Qual3',           label: '資格③',               required: false },
   { key: 'Qual4',           label: '資格④',               required: false },
   { key: 'Qual5',           label: '資格⑤',               required: false },
+  // v2.1.0 - 休職情報
+  { key: 'LeaveStartDate',  label: '休職開始日(YYYY-MM-DD)', required: false },
+  { key: 'LeaveEndDate',    label: '復職予定日(YYYY-MM-DD)', required: false },
+  { key: 'LeaveType',       label: '休職種別',             required: false },
+  { key: 'LeaveReason',     label: '休職事由',             required: false },
 ];
 
 // ===== CSV TEMPLATE DOWNLOAD =====
@@ -10626,7 +11075,7 @@ function downloadCsvTemplate() {
 function exportCsv() {
   if (!employees.length) { showToast('エクスポートするデータがありません', 'error'); return; }
   const header = CSV_COLUMNS.map(c => c.label).join(',');
-  const DATE_KEYS_CSV = new Set(['Birthdate','JoinDate','RetireDate','Child1Birth','Child2Birth','Child3Birth']);
+  const DATE_KEYS_CSV = new Set(['Birthdate','JoinDate','RetireDate','Child1Birth','Child2Birth','Child3Birth','LeaveStartDate','LeaveEndDate']);
   const rows = employees.map(e =>
     CSV_COLUMNS.map(c => {
       const v = DATE_KEYS_CSV.has(c.key) ? formatDateYMD(e[c.key]) : String(e[c.key] || '');
@@ -10784,11 +11233,12 @@ async function refreshKnownColumns() {
 }
 
 function buildSharePointFields(row) {
-  const DATE_FIELDS = new Set(['Birthdate','JoinDate','RetireDate','Child1Birth','Child2Birth','Child3Birth']);
+  const DATE_FIELDS = new Set(['Birthdate','JoinDate','RetireDate','Child1Birth','Child2Birth','Child3Birth','LeaveStartDate','LeaveEndDate']);
   // 空文字でも送信すべきフィールド（クリア操作に対応）
   const CLEARABLE_FIELDS = new Set(['Department','Position','JobType','ManagerID',
     'Dept2','Position2','Dept3','Position3','RetireReason','ContractPeriod',
-    'SpouseName','ChildrenCount','ChildrenUnder18','ZipCode','Phone','Address']);
+    'SpouseName','ChildrenCount','ChildrenUnder18','ZipCode','Phone','Address',
+    'LeaveType','LeaveReason']);
   const fields = {};
   Object.entries(row).forEach(([key, val]) => {
     if (!/^[A-Za-z][A-Za-z0-9_]*$/.test(key)) return;
@@ -11115,7 +11565,7 @@ async function testTeamsNotification() {
     message: 'これは人事情報管理ツールからのテスト通知です。\n\n設定が正しく完了しました。',
     severity: 'success',
     facts: [
-      { name: 'システム', value: '人事情報管理システム v2.0.1' },
+      { name: 'システム', value: '人事情報管理システム v2.1.0' },
       { name: '送信者', value: currentUser ? (currentUser.displayName || currentUser.mail || '') : '匿名' },
       { name: '送信日時', value: new Date().toLocaleString('ja-JP') }
     ]
@@ -12603,7 +13053,7 @@ function renderReportAppendixSection(data) {
 // ----- フッター -----
 function renderReportFooter() {
   return '<div class="report-footer">' +
-    '人事情報管理システム v2.0.1 / 本レポートは社員データを基に自動生成されました。' +
+    '人事情報管理システム v2.1.0 / 本レポートは社員データを基に自動生成されました。' +
     '<br>※ 機密情報を含むため、取扱いには十分ご注意ください。' +
     '</div>';
 }
