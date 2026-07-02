@@ -223,6 +223,27 @@
 .skeleton-row { display: flex; gap: 12px; padding: 12px; border-bottom: 1px solid var(--border); }
 .skeleton-cell { height: 16px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: skeleton-loading 1.4s ease-in-out infinite; border-radius: 4px; }
 @keyframes skeleton-loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+/* ===== v2.2.0 - メール送信テンプレート機能 ===== */
+.mail-template-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 10px; transition: box-shadow 0.15s; }
+.mail-template-card:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.06); }
+.mail-template-category-header { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; color: var(--c-primary); letter-spacing: 0.05em; padding: 12px 4px 8px; margin-top: 12px; }
+.mail-template-category-header:first-child { margin-top: 0; }
+.mail-template-card-title { display: flex; align-items: center; gap: 8px; justify-content: space-between; margin-bottom: 6px; }
+.mail-template-card-name { font-size: 14px; font-weight: 600; }
+.mail-template-card-subject { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; padding-bottom: 4px; border-bottom: 1px dashed var(--border); }
+.mail-template-card-body { font-size: 11px; color: var(--text-muted); white-space: pre-wrap; max-height: 60px; overflow: hidden; text-overflow: ellipsis; line-height: 1.5; opacity: 0.85; }
+.mail-var-tag { display: inline-block; padding: 3px 8px; background: var(--c-primary-light); color: var(--c-primary); border-radius: 4px; font-size: 11px; font-family: monospace; cursor: pointer; margin: 2px; border: 1px solid var(--c-primary-mid); transition: all 0.15s; }
+.mail-var-tag:hover { background: var(--c-primary); color: #fff; }
+.mail-preview-box { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 18px; font-size: 13px; line-height: 1.8; max-height: 400px; overflow-y: auto; }
+.mail-preview-subject { font-weight: 700; font-size: 14px; padding-bottom: 8px; margin-bottom: 10px; border-bottom: 2px solid var(--c-primary); color: var(--c-primary); }
+.mail-preview-body { white-space: pre-wrap; }
+.mail-send-target-row { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 13px; cursor: pointer; }
+.mail-send-target-row:hover { background: var(--c-primary-light); }
+.mail-send-target-row.selected { background: var(--c-primary-light); }
+.mail-history-row-success { color: var(--c-success); }
+.mail-history-row-error { color: var(--c-danger); }
+[data-theme="dark"] .mail-preview-box { background: #1f1f1f; color: var(--text); }
+/* ===== End v2.2.0 ===== */
 /* ===== v2.1.0 - リアルタイムバリデーション ===== */
 .form-control.field-invalid { border-color: var(--c-danger) !important; background-color: #FFF5F5; }
 .form-control.field-valid { border-color: var(--c-success) !important; }
@@ -489,7 +510,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   <nav class="sidebar">
     <div class="sidebar-logo">
       <h1>人事情報<br>管理システム</h1>
-      <p>HR Management v2.1.0</p>
+      <p>HR Management v2.2.0</p>
     </div>
     <div class="sidebar-nav">
       <div class="nav-section">メイン</div>
@@ -566,6 +587,10 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         <span>期限管理</span>
         <span id="expiry-badge" style="display:none;background:var(--c-danger);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:auto;">!</span>
+      </div>
+      <div class="nav-item" onclick="showMailTemplatePage()" id="nav-mail-template" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        <span>メールテンプレート</span>
       </div>
       <div class="nav-section">マスター</div>
       <div class="nav-item" onclick="openCompanyMaster()">
@@ -1284,6 +1309,69 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
         </div>
       </div>
 
+      <!-- v2.2.0 - メールテンプレート管理ページ -->
+      <div id="mail-template-page" style="display:none;">
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-header">
+            <h3>📧 メールテンプレート管理</h3>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input type="text" class="filter-select" id="mail-tpl-search" placeholder="テンプレート検索..." oninput="renderMailTemplateList()" style="width:200px;">
+              <button class="btn btn-secondary btn-sm" onclick="loadPresetMailTemplates()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                プリセット読込
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="showMailHistoryModal()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                送信履歴
+              </button>
+              <button class="btn btn-primary btn-sm" onclick="openMailTemplateEdit(null)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                新規テンプレート
+              </button>
+            </div>
+          </div>
+          <div style="padding:12px 20px;background:var(--c-primary-light);border-bottom:1px solid var(--border);font-size:12px;color:#0C447C;line-height:1.6;">
+            📧 <strong>各種通知メールの定型文を管理</strong>します。テンプレートに <code>{{氏名}}</code> などの変数を含めると、送信時に自動で置換されます。<br>
+            <strong>使える変数:</strong>
+            <span class="mail-var-tag">{{氏名}}</span>
+            <span class="mail-var-tag">{{カナ}}</span>
+            <span class="mail-var-tag">{{社員ID}}</span>
+            <span class="mail-var-tag">{{所属会社}}</span>
+            <span class="mail-var-tag">{{部署}}</span>
+            <span class="mail-var-tag">{{役職}}</span>
+            <span class="mail-var-tag">{{入社日}}</span>
+            <span class="mail-var-tag">{{勤続年数}}</span>
+            <span class="mail-var-tag">{{誕生日}}</span>
+            <span class="mail-var-tag">{{復職予定日}}</span>
+            <span class="mail-var-tag">{{差出人名}}</span>
+            <span class="mail-var-tag">{{今日の日付}}</span>
+          </div>
+          <!-- KPIカード -->
+          <div style="padding:14px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;border-bottom:1px solid var(--border);">
+            <div style="padding:10px;background:var(--c-primary-light);border-radius:var(--radius);text-align:center;">
+              <div style="font-size:10px;color:var(--c-primary);font-weight:600;">📝 テンプレート総数</div>
+              <div id="mail-kpi-total" style="font-size:20px;font-weight:700;color:var(--c-primary);margin-top:2px;">0</div>
+            </div>
+            <div style="padding:10px;background:var(--c-success-light);border-radius:var(--radius);text-align:center;">
+              <div style="font-size:10px;color:var(--c-success);font-weight:600;">📤 累積送信数</div>
+              <div id="mail-kpi-sent" style="font-size:20px;font-weight:700;color:var(--c-success);margin-top:2px;">0</div>
+            </div>
+            <div style="padding:10px;background:var(--c-warning-light);border-radius:var(--radius);text-align:center;">
+              <div style="font-size:10px;color:var(--c-warning);font-weight:600;">📊 今月の送信</div>
+              <div id="mail-kpi-month" style="font-size:20px;font-weight:700;color:var(--c-warning);margin-top:2px;">0</div>
+            </div>
+            <div style="padding:10px;background:var(--c-secondary-light);border-radius:var(--radius);text-align:center;">
+              <div style="font-size:10px;color:var(--c-secondary);font-weight:600;">🏷 カテゴリ数</div>
+              <div id="mail-kpi-categories" style="font-size:20px;font-weight:700;color:var(--c-secondary);margin-top:2px;">0</div>
+            </div>
+          </div>
+          <!-- テンプレート一覧 -->
+          <div id="mail-template-list" style="padding:16px 20px;min-height:200px;">
+            <div style="text-align:center;color:var(--text-muted);padding:32px;">読み込み中...</div>
+          </div>
+        </div>
+      </div>
+
       <!-- v1.7.7 - 期限管理ダッシュボード -->
       <div id="expiry-page" style="display:none;">
         <div class="card" style="margin-bottom:16px;">
@@ -1848,6 +1936,10 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
           <button class="btn btn-secondary btn-sm" onclick="bulkChangeStatus('在職')">在職に変更</button>
           <button class="btn btn-secondary btn-sm" onclick="bulkChangeStatus('休職')">休職に変更</button>
           <button class="btn btn-secondary btn-sm" onclick="bulkChangeStatus('退職')">退職に変更</button>
+          <button class="btn btn-primary btn-sm" onclick="openMailSendFromSelected()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            📧 メール送信
+          </button>
           <button class="btn btn-secondary btn-sm" onclick="bulkClearSelection()" style="margin-left:auto;">選択解除</button>
         </div>
         <div class="table-container" id="employee-table-wrap">
@@ -3513,6 +3605,222 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   </div>
 </div>
 
+<!-- v2.2.0 - メールテンプレート編集モーダル -->
+<div class="modal-overlay" id="mail-template-modal">
+  <div class="modal" style="width:820px;">
+    <div class="modal-header">
+      <h2 id="mail-tpl-modal-title">新規テンプレート</h2>
+      <button class="modal-close" onclick="closeModal('mail-template-modal')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" style="padding:20px 24px;">
+      <input type="hidden" id="mail-tpl-id">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>テンプレート名 <span class="required">*</span></label>
+          <input class="form-control" type="text" id="mail-tpl-name" placeholder="例：入社案内メール">
+        </div>
+        <div class="form-group">
+          <label>カテゴリ</label>
+          <select class="form-control" id="mail-tpl-category">
+            <option>入社案内</option>
+            <option>契約更新</option>
+            <option>節目お祝い</option>
+            <option>復職連絡</option>
+            <option>退職挨拶</option>
+            <option>汎用</option>
+            <option>その他</option>
+          </select>
+        </div>
+        <div class="form-group form-full">
+          <label>件名 <span class="required">*</span> <span style="font-size:10px;color:var(--text-muted);">（{{変数}} 使用可）</span></label>
+          <input class="form-control" type="text" id="mail-tpl-subject" placeholder="例：【{{所属会社}}】{{氏名}}様 入社のご案内">
+        </div>
+        <div class="form-group form-full">
+          <label>本文 <span class="required">*</span> <span style="font-size:10px;color:var(--text-muted);">（{{変数}} 使用可）</span></label>
+          <textarea class="form-control" id="mail-tpl-body" rows="10" placeholder="{{氏名}}様&#10;&#10;このたびは、{{所属会社}}へのご入社..."></textarea>
+        </div>
+        <div class="form-group form-full">
+          <label>クイック挿入</label>
+          <div style="display:flex;flex-wrap:wrap;gap:4px;padding:8px;background:var(--c-gray-50);border-radius:var(--radius);">
+            <span class="mail-var-tag" onclick="insertMailVar('{{氏名}}')">{{氏名}}</span>
+            <span class="mail-var-tag" onclick="insertMailVar('{{カナ}}')">{{カナ}}</span>
+            <span class="mail-var-tag" onclick="insertMailVar('{{社員ID}}')">{{社員ID}}</span>
+            <span class="mail-var-tag" onclick="insertMailVar('{{所属会社}}')">{{所属会社}}</span>
+            <span class="mail-var-tag" onclick="insertMailVar('{{部署}}')">{{部署}}</span>
+            <span class="mail-var-tag" onclick="insertMailVar('{{役職}}')">{{役職}}</span>
+            <span class="mail-var-tag" onclick="insertMailVar('{{入社日}}')">{{入社日}}</span>
+            <span class="mail-var-tag" onclick="insertMailVar('{{勤続年数}}')">{{勤続年数}}</span>
+            <span class="mail-var-tag" onclick="insertMailVar('{{誕生日}}')">{{誕生日}}</span>
+            <span class="mail-var-tag" onclick="insertMailVar('{{復職予定日}}')">{{復職予定日}}</span>
+            <span class="mail-var-tag" onclick="insertMailVar('{{差出人名}}')">{{差出人名}}</span>
+            <span class="mail-var-tag" onclick="insertMailVar('{{今日の日付}}')">{{今日の日付}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" id="mail-tpl-delete-btn" onclick="deleteMailTemplate()" style="margin-right:auto;display:none;">削除</button>
+      <button class="btn btn-secondary" onclick="closeModal('mail-template-modal')">キャンセル</button>
+      <button class="btn btn-primary" onclick="saveMailTemplate()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+        保存
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- v2.2.0 - メール送信モーダル -->
+<div class="modal-overlay" id="mail-send-modal">
+  <div class="modal" style="width:920px;">
+    <div class="modal-header">
+      <h2>📧 メール送信</h2>
+      <button class="modal-close" onclick="closeModal('mail-send-modal')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" style="padding:0;">
+      <!-- タブ -->
+      <div style="display:flex;border-bottom:1px solid var(--border);padding:0 24px;">
+        <div class="form-tab active" id="mail-send-tab-target" onclick="switchMailSendTab('target')" style="cursor:pointer;">① 送信先</div>
+        <div class="form-tab" id="mail-send-tab-template" onclick="switchMailSendTab('template')" style="cursor:pointer;">② テンプレート</div>
+        <div class="form-tab" id="mail-send-tab-preview" onclick="switchMailSendTab('preview')" style="cursor:pointer;">③ プレビュー</div>
+      </div>
+      <!-- タブ①: 送信先 -->
+      <div id="mail-send-panel-target" style="padding:20px 24px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;margin-bottom:8px;align-items:center;">
+          <select class="form-control" id="mail-send-filter-company" onchange="renderMailSendTargetList()" style="font-size:12px;">
+            <option value="">全会社</option>
+          </select>
+          <select class="form-control" id="mail-send-filter-dept" onchange="renderMailSendTargetList()" style="font-size:12px;">
+            <option value="">全部署</option>
+          </select>
+          <select class="form-control" id="mail-send-filter-status" onchange="renderMailSendTargetList()" style="font-size:12px;">
+            <option value="">全ステータス</option>
+            <option value="在職">在職</option>
+            <option value="休職">休職</option>
+          </select>
+          <input type="text" class="form-control" id="mail-send-target-search" placeholder="氏名・ID検索..." oninput="renderMailSendTargetList()" style="font-size:12px;width:140px;">
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:8px 10px;background:var(--c-gray-50);border-radius:var(--radius);margin-bottom:8px;font-size:12px;">
+          <span id="mail-send-filter-count" style="color:var(--text-muted);">0名表示中</span>
+          <div style="display:flex;gap:8px;margin-left:auto;">
+            <label style="display:flex;align-items:center;gap:5px;cursor:pointer;color:var(--c-primary);font-weight:600;">
+              <input type="checkbox" id="mail-send-select-all" onchange="toggleSelectAllMailTargets(this)">
+              絞り込み結果を全選択
+            </label>
+            <button class="btn btn-secondary btn-sm" onclick="clearMailTargets()" style="font-size:11px;padding:2px 8px;">選択解除</button>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">※メールアドレスが未登録の社員は選択できません</div>
+        <div id="mail-send-target-list" style="border:1px solid var(--border);border-radius:var(--radius);max-height:340px;overflow-y:auto;"></div>
+        <div style="margin-top:8px;">
+          <span style="font-size:12px;color:var(--text-muted);" id="mail-send-selected-count">選択済み: 0名</span>
+        </div>
+      </div>
+      <!-- タブ②: テンプレート選択 -->
+      <div id="mail-send-panel-template" style="padding:20px 24px;display:none;">
+        <div class="form-group form-full" style="margin-bottom:14px;">
+          <label>テンプレート選択</label>
+          <select class="form-control" id="mail-send-template-select" onchange="onMailSendTemplateChange()">
+            <option value="">選択してください（または直接入力）</option>
+          </select>
+        </div>
+        <div class="form-grid">
+          <div class="form-group form-full">
+            <label>送信元メールアドレス <span style="font-size:10px;color:var(--text-muted);">（任意・共有メールボックスのアドレス）</span></label>
+            <input class="form-control" type="email" id="mail-send-from" placeholder="例: hr@company.com（未入力なら自分のアドレス）">
+          </div>
+          <div class="form-group form-full">
+            <label>件名 <span class="required">*</span></label>
+            <input class="form-control" type="text" id="mail-send-subject" placeholder="件名を入力">
+          </div>
+          <div class="form-group form-full">
+            <label>本文 <span class="required">*</span></label>
+            <textarea class="form-control" id="mail-send-body" rows="12" placeholder="本文を入力（{{変数}} 使用可）"></textarea>
+          </div>
+          <div class="form-group form-full">
+            <label>クイック挿入</label>
+            <div style="display:flex;flex-wrap:wrap;gap:4px;padding:8px;background:var(--c-gray-50);border-radius:var(--radius);">
+              <span class="mail-var-tag" onclick="insertMailSendVar('{{氏名}}')">{{氏名}}</span>
+              <span class="mail-var-tag" onclick="insertMailSendVar('{{カナ}}')">{{カナ}}</span>
+              <span class="mail-var-tag" onclick="insertMailSendVar('{{社員ID}}')">{{社員ID}}</span>
+              <span class="mail-var-tag" onclick="insertMailSendVar('{{所属会社}}')">{{所属会社}}</span>
+              <span class="mail-var-tag" onclick="insertMailSendVar('{{部署}}')">{{部署}}</span>
+              <span class="mail-var-tag" onclick="insertMailSendVar('{{役職}}')">{{役職}}</span>
+              <span class="mail-var-tag" onclick="insertMailSendVar('{{入社日}}')">{{入社日}}</span>
+              <span class="mail-var-tag" onclick="insertMailSendVar('{{勤続年数}}')">{{勤続年数}}</span>
+              <span class="mail-var-tag" onclick="insertMailSendVar('{{誕生日}}')">{{誕生日}}</span>
+              <span class="mail-var-tag" onclick="insertMailSendVar('{{復職予定日}}')">{{復職予定日}}</span>
+              <span class="mail-var-tag" onclick="insertMailSendVar('{{差出人名}}')">{{差出人名}}</span>
+              <span class="mail-var-tag" onclick="insertMailSendVar('{{今日の日付}}')">{{今日の日付}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- タブ③: プレビュー -->
+      <div id="mail-send-panel-preview" style="padding:20px 24px;display:none;">
+        <div style="background:var(--c-warning-light);border:1px solid var(--c-warning);border-radius:var(--radius);padding:10px 14px;font-size:12px;color:var(--c-warning);margin-bottom:14px;">
+          ⚠ プレビューは最初の1名を対象とした表示です。実際は各社員の情報に応じて変数が置換されて送信されます。
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <label style="font-size:12px;">プレビュー対象:</label>
+          <select class="form-control" id="mail-preview-target-select" onchange="renderMailPreview()" style="width:280px;font-size:12px;"></select>
+        </div>
+        <div class="mail-preview-box">
+          <div class="mail-preview-subject" id="mail-preview-subject">件名がここに表示されます</div>
+          <div class="mail-preview-body" id="mail-preview-body">本文がここに表示されます</div>
+        </div>
+        <div style="margin-top:14px;padding:10px 14px;background:var(--c-gray-50);border-radius:var(--radius);font-size:12px;">
+          <div><strong>📤 送信サマリー</strong></div>
+          <div style="margin-top:4px;color:var(--text-muted);">送信件数: <strong id="mail-preview-target-count" style="color:var(--c-primary);">0</strong> 名</div>
+          <div style="color:var(--text-muted);">送信元: <span id="mail-preview-from" style="color:var(--text);">（自分のアドレス）</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('mail-send-modal')">キャンセル</button>
+      <button class="btn btn-primary" id="mail-send-btn" onclick="executeSendMails()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        メール送信
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- v2.2.0 - メール送信履歴モーダル -->
+<div class="modal-overlay" id="mail-history-modal">
+  <div class="modal" style="width:900px;">
+    <div class="modal-header">
+      <h2>📊 メール送信履歴</h2>
+      <button class="modal-close" onclick="closeModal('mail-history-modal')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" style="padding:16px 24px;">
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">直近500件を表示（新しい順）</div>
+      <div class="table-container" style="max-height:520px;overflow-y:auto;">
+        <table>
+          <thead><tr>
+            <th>送信日時</th><th>テンプレート</th><th>受信者</th><th>件名</th><th>状態</th><th>送信者</th>
+          </tr></thead>
+          <tbody id="mail-history-tbody">
+            <tr><td colspan="6" style="padding:24px;text-align:center;color:var(--text-muted);">読み込み中...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('mail-history-modal')">閉じる</button>
+      <button class="btn btn-secondary" onclick="exportMailHistoryCsv()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        CSV出力
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- v1.7.0 - AI要約結果モーダル -->
 <div class="modal-overlay" id="ai-summary-modal">
   <div class="modal" style="width:780px;">
@@ -3992,6 +4300,32 @@ function updateSortIndicators(){document.querySelectorAll('#employee-table th[da
 function updateBulkActionBar(){var c=document.querySelectorAll('.emp-select-cb:checked').length;var bar=document.getElementById('bulk-action-bar');var cnt=document.getElementById('bulk-action-count');if(!bar)return;if(c>0){bar.classList.add('show');if(cnt)cnt.textContent=c+'名選択中';}else{bar.classList.remove('show');}}
 async function bulkChangeStatus(ns){var sel=getSelectedEmployees();if(!sel.length){showToast('社員を選択してください','error');return;}if(!confirm(sel.length+'名のステータスを「'+ns+'」に変更しますか？'))return;showLoading('ステータス変更中...','0 / '+sel.length);var done=0,failed=0;for(var i=0;i<sel.length;i++){try{await graphPatch('https://graph.microsoft.com/v1.0/sites/'+siteId+'/lists/'+listId+'/items/'+sel[i].id+'/fields',{Status:ns});done++;}catch(e){failed++;console.warn(e);}updateProgressBar(done+failed,sel.length,'ステータス変更中...');}hideLoading();if(failed>0){showToast(done+'名成功、'+failed+'名失敗しました','warn');}else{showToast(done+'名のステータスを変更しました','success');}await loadEmployees();}
 function bulkClearSelection(){document.querySelectorAll('.emp-select-cb').forEach(function(el){el.checked=false;});var a=document.getElementById('select-all-emp');if(a)a.checked=false;updateBulkActionBar();}
+// v2.2.0 - 社員一覧の選択からメール送信モーダルを開く
+async function openMailSendFromSelected() {
+  if (currentRole !== 'admin') { showToast('メール送信は管理者のみ実行可能です', 'error'); return; }
+  var sel = getSelectedEmployees();
+  if (!sel.length) { showToast('社員を選択してください', 'error'); return; }
+  var withEmail = sel.filter(function(e){ return e.Email && e.Email.trim(); });
+  if (!withEmail.length) { showToast('選択した社員にはメールアドレスが登録されていません', 'error'); return; }
+  if (withEmail.length < sel.length) {
+    showToast(sel.length + '名中 ' + withEmail.length + '名がメール送信可能です（' + (sel.length - withEmail.length) + '名はメール未登録）', 'info');
+  }
+  // テンプレートを読み込む
+  if (!mailTemplates.length) await loadMailTemplates();
+  var empIds = withEmail.map(function(e){ return e.EmpID; });
+  openMailSendModal(empIds, null);
+  // 選択済み社員を復元
+  setTimeout(function() {
+    document.querySelectorAll('.mail-target-cb').forEach(function(cb) {
+      var empId = cb.getAttribute('data-empid');
+      if (empIds.indexOf(empId) !== -1) {
+        cb.checked = true;
+        updateMailSendRowStyle(cb);
+      }
+    });
+    updateMailSendSelectedCount();
+  }, 100);
+}
 // ===== Sprint 4: Chart =====
 var s4Charts=new Map();
 function s4CreateChart(id,type,data,options){if(typeof Chart==='undefined')return null;var ctx=document.getElementById(id);if(!ctx)return null;if(s4Charts.has(id)){try{s4Charts.get(id).destroy();}catch(e){}}var isDark=document.documentElement.getAttribute('data-theme')==='dark';var tc=isDark?'#e0e0e0':'#2C2C2A';var gc=isDark?'#404040':'#e2e1d9';var defOpts={responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:tc,font:{size:11}}}},scales:type==='pie'||type==='doughnut'?{}:{x:{ticks:{color:tc,font:{size:10}},grid:{color:gc}},y:{ticks:{color:tc,font:{size:10}},grid:{color:gc},beginAtZero:true}}};var chart=new Chart(ctx,{type:type,data:data,options:Object.assign({},defOpts,options||{})});s4Charts.set(id,chart);return chart;}
@@ -4394,7 +4728,8 @@ async function handleAuthToken(token) {
         if (currentRole === 'admin') return loadMynumberAuditLogs();
       }).catch(function(e){ console.warn('Audit log init error:', e); }),
       loadArchiveConfig().catch(function(e){ console.warn('Archive config error:', e); }),
-      loadPermReviewConfig().catch(function(e){ console.warn('Perm review config error:', e); })
+      loadPermReviewConfig().catch(function(e){ console.warn('Perm review config error:', e); }),
+      loadMailTemplates().catch(function(e){ console.warn('Mail templates error:', e); })
     ]).then(function(){
       console.log('[v1.9.0] Background initialization completed');
     });
@@ -5355,6 +5690,689 @@ function collectForm() {
   };
   if (mynValue !== null) fields.Mynumber = mynValue;
   return fields;
+}
+
+// ============================================================
+// v2.2.0 - メール送信テンプレート機能
+// ============================================================
+var mailTemplates = [];         // { id, name, category, subject, body, createdBy, createdAt, usageCount }
+var mailHistory = [];           // { id, ts, templateId, templateName, recipientEmail, recipientName, subject, status, sender, error }
+var currentMailContext = { targets: [], template: null }; // 送信モーダル用
+
+// プリセットテンプレート10種
+var MAIL_TEMPLATE_PRESETS = [
+  {
+    name: '入社案内メール',
+    category: '入社案内',
+    subject: '【{{所属会社}}】{{氏名}}様 入社のご案内',
+    body: '{{氏名}}様\n\nこのたびは、{{所属会社}}にご入社いただき、誠にありがとうございます。\n\n【配属予定】\n・所属会社：{{所属会社}}\n・部署：{{部署}}\n・役職：{{役職}}\n・入社日：{{入社日}}\n\n初日は9:00に本社受付にお越しください。\nご不明な点がございましたら、お気軽にご連絡ください。\n\n{{差出人名}}\n人事部\n{{今日の日付}}'
+  },
+  {
+    name: '内定通知メール',
+    category: '入社案内',
+    subject: '【{{所属会社}}】内定のご通知',
+    body: '{{氏名}}様\n\nこのたびは、当社の採用選考にご応募いただき、誠にありがとうございました。\n慎重に選考させていただきました結果、貴殿を採用することに決定いたしましたので、ご通知申し上げます。\n\n入社日：{{入社日}}\n配属予定：{{部署}}\n\n改めて詳細をご連絡いたしますので、今しばらくお待ちください。\n\n{{差出人名}}\n{{所属会社}} 人事部\n{{今日の日付}}'
+  },
+  {
+    name: '契約更新のお知らせ',
+    category: '契約更新',
+    subject: '【{{所属会社}}】{{氏名}}様 契約更新のご相談',
+    body: '{{氏名}}様\n\nいつもお疲れさまです。\n{{氏名}}様の雇用契約更新の時期が近づいてまいりました。\n\n【現在の状況】\n・所属：{{所属会社}} {{部署}}\n・役職：{{役職}}\n・勤続年数：{{勤続年数}}\n\n更新に関する面談をさせていただきたく、ご都合の良い日時をお知らせください。\n\n{{差出人名}}\n{{今日の日付}}'
+  },
+  {
+    name: '誕生日メッセージ',
+    category: '節目お祝い',
+    subject: '🎂 {{氏名}}様 お誕生日おめでとうございます',
+    body: '{{氏名}}様\n\nお誕生日おめでとうございます🎉\n\n日頃の{{部署}}での献身的なご活躍に感謝いたします。\n{{氏名}}様のますますのご健勝とご活躍を心よりお祈り申し上げます。\n\n素敵な一年になりますように。\n\n{{差出人名}}\n{{所属会社}}一同'
+  },
+  {
+    name: '勤続節目お祝いメッセージ',
+    category: '節目お祝い',
+    subject: '🏆 {{氏名}}様 勤続{{勤続年数}}おめでとうございます',
+    body: '{{氏名}}様\n\n勤続{{勤続年数}}を迎えられましたこと、心よりお慶び申し上げます🏆\n\n{{入社日}}のご入社以来、{{部署}}にて長きにわたるご尽力に、深く感謝いたします。\n{{氏名}}様のこれまでのご貢献に敬意を表するとともに、これからも変わらぬご活躍を期待しております。\n\n改めて、勤続{{勤続年数}}おめでとうございます。\n\n{{差出人名}}\n{{所属会社}}一同\n{{今日の日付}}'
+  },
+  {
+    name: '復職1週間前連絡',
+    category: '復職連絡',
+    subject: '【{{所属会社}}】{{氏名}}様 復職準備のご確認',
+    body: '{{氏名}}様\n\nお疲れさまです。\n{{氏名}}様の復職予定日（{{復職予定日}}）まで約1週間となりました。\n\n復帰にあたり、下記の準備をお願いいたします：\n・入館証・PCの動作確認\n・当日の出社時刻・場所の確認\n・引き継ぎ資料の事前確認\n\n何かご不明な点や体調面のご相談があれば、遠慮なくお知らせください。\n\n{{差出人名}}\n{{今日の日付}}'
+  },
+  {
+    name: '復職翌日フォロー',
+    category: '復職連絡',
+    subject: '【{{所属会社}}】{{氏名}}様 ご復帰おめでとうございます',
+    body: '{{氏名}}様\n\nご復帰おめでとうございます。\n\n昨日より{{部署}}での業務に復帰されましたが、体調はいかがでしょうか？\n無理のないペースで、少しずつ業務に慣れていただければと思います。\n\n何かお困りのことがあれば、いつでもご相談ください。\n\n{{差出人名}}\n{{今日の日付}}'
+  },
+  {
+    name: '退職ご挨拶',
+    category: '退職挨拶',
+    subject: '【{{所属会社}}】お世話になりました',
+    body: '{{氏名}}様\n\nこのたびは{{所属会社}}をご退職されるにあたり、\nこれまでの{{勤続年数}}にわたるご貢献に心より感謝申し上げます。\n\n{{部署}}での{{役職}}としてのご活躍は、皆の記憶に残り続けることでしょう。\n\nご退職後もお体に気を付けて、新たな道でのご活躍を心よりお祈り申し上げます。\n\n{{差出人名}}\n{{所属会社}}一同\n{{今日の日付}}'
+  },
+  {
+    name: '一般お知らせテンプレート',
+    category: '汎用',
+    subject: '【{{所属会社}}】ご連絡事項',
+    body: '{{氏名}}様\n\nお疲れさまです。\n\n（ここに本文を入力してください）\n\nご質問等ございましたら、お気軽にご連絡ください。\n\n{{差出人名}}\n{{今日の日付}}'
+  },
+  {
+    name: '面談日程調整',
+    category: '汎用',
+    subject: '【{{所属会社}}】面談日程のご相談',
+    body: '{{氏名}}様\n\nお疲れさまです。\n{{氏名}}様と面談させていただきたく、ご都合を伺います。\n\n■ 面談内容：（要件を記入）\n■ 所要時間：30分程度\n■ 場所：本社会議室（or リモート）\n\n下記候補日からご都合の良い時間をお知らせください：\n・候補1：（日時）\n・候補2：（日時）\n・候補3：（日時）\n\n{{差出人名}}\n{{今日の日付}}'
+  }
+];
+
+// ----- テンプレート読み込み・保存 -----
+async function loadMailTemplates() {
+  try {
+    var d = await loadMasterFromSP('mailTemplates');
+    if (Array.isArray(d)) mailTemplates = d;
+    else mailTemplates = [];
+  } catch(e) {
+    console.warn('メールテンプレート読み込みエラー:', e.message);
+    mailTemplates = [];
+  }
+}
+async function saveMailTemplatesToSP() {
+  try {
+    await saveMasterToSP('mailTemplates', mailTemplates);
+  } catch(e) {
+    console.warn('メールテンプレート保存エラー:', e.message);
+    throw e;
+  }
+}
+async function loadMailHistory() {
+  try {
+    var d = await loadMasterFromSP('mailHistory');
+    mailHistory = Array.isArray(d) ? d : [];
+  } catch(e) {
+    console.warn('メール送信履歴読み込みエラー:', e.message);
+    mailHistory = [];
+  }
+}
+async function saveMailHistoryToSP() {
+  try {
+    // 最新500件のみ保持
+    var toSave = mailHistory.slice(0, 500);
+    await saveMasterToSP('mailHistory', toSave);
+  } catch(e) {
+    console.warn('メール送信履歴保存エラー:', e.message);
+  }
+}
+
+// ----- ページ表示 -----
+async function showMailTemplatePage() {
+  if (currentRole !== 'admin') {
+    showToast('メールテンプレートは管理者のみアクセス可能です', 'error');
+    return;
+  }
+  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+  if (event && event.currentTarget) event.currentTarget.classList.add('active');
+  hideAllPages();
+  var p = document.getElementById('mail-template-page');
+  if (p) p.style.display = 'block';
+  var pt = document.getElementById('page-title');
+  if (pt) pt.textContent = 'メールテンプレート管理';
+  var nb = document.querySelector('.topbar-right .btn-primary');
+  if (nb) nb.style.display = 'none';
+  await loadMailTemplates();
+  await loadMailHistory();
+  renderMailTemplateList();
+  updateMailKpis();
+}
+
+// ----- プリセット読み込み -----
+async function loadPresetMailTemplates() {
+  if (mailTemplates.length > 0) {
+    if (!confirm('既に ' + mailTemplates.length + ' 件のテンプレートが登録されています。\nプリセット10種を追加しますか？\n（既存テンプレートは削除されず、新規追加されます）')) return;
+  }
+  var user = currentUser ? (currentUser.mail || currentUser.userPrincipalName || '') : '';
+  var now = new Date().toISOString();
+  MAIL_TEMPLATE_PRESETS.forEach(function(p) {
+    mailTemplates.push({
+      id: 'tpl_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+      name: p.name,
+      category: p.category,
+      subject: p.subject,
+      body: p.body,
+      createdBy: user,
+      createdAt: now,
+      usageCount: 0
+    });
+  });
+  try {
+    await saveMailTemplatesToSP();
+    showToast('プリセットテンプレート ' + MAIL_TEMPLATE_PRESETS.length + ' 種を追加しました', 'success');
+    renderMailTemplateList();
+    updateMailKpis();
+  } catch(e) {
+    showToast('保存失敗: ' + e.message, 'error');
+  }
+}
+
+// ----- KPI更新 -----
+function updateMailKpis() {
+  var setEl = function(id, v){ var e = document.getElementById(id); if (e) e.textContent = v; };
+  setEl('mail-kpi-total', mailTemplates.length);
+  var totalSent = mailHistory.filter(function(h){ return h.status === 'success'; }).length;
+  setEl('mail-kpi-sent', totalSent);
+  var now = new Date();
+  var monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  var monthSent = mailHistory.filter(function(h) {
+    if (h.status !== 'success' || !h.ts) return false;
+    return new Date(h.ts) >= monthStart;
+  }).length;
+  setEl('mail-kpi-month', monthSent);
+  var categories = new Set(mailTemplates.map(function(t){ return t.category; }));
+  setEl('mail-kpi-categories', categories.size);
+}
+
+// ----- 一覧描画 -----
+function renderMailTemplateList() {
+  var container = document.getElementById('mail-template-list');
+  if (!container) return;
+  var searchQ = ((document.getElementById('mail-tpl-search') || {}).value || '').toLowerCase();
+  var list = mailTemplates.slice();
+  if (searchQ) {
+    list = list.filter(function(t) {
+      return ((t.name || '') + ' ' + (t.subject || '') + ' ' + (t.body || '') + ' ' + (t.category || '')).toLowerCase().indexOf(searchQ) !== -1;
+    });
+  }
+  if (!list.length) {
+    container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:40px;">' +
+      (mailTemplates.length === 0 ? 'テンプレートが登録されていません。<br>「プリセット読込」で標準テンプレートを追加するか、「新規テンプレート」で作成してください。' : '該当するテンプレートがありません') +
+      '</div>';
+    return;
+  }
+  // カテゴリ順にソート
+  var categoryOrder = ['入社案内', '契約更新', '節目お祝い', '復職連絡', '退職挨拶', '汎用', 'その他'];
+  var byCategory = {};
+  list.forEach(function(t) {
+    var cat = t.category || 'その他';
+    if (!byCategory[cat]) byCategory[cat] = [];
+    byCategory[cat].push(t);
+  });
+  var html = '';
+  categoryOrder.forEach(function(cat) {
+    if (!byCategory[cat]) return;
+    html += '<div class="mail-template-category-header">📁 ' + esc(cat) + '（' + byCategory[cat].length + '件）</div>';
+    byCategory[cat].forEach(function(t) {
+      var bodyPreview = (t.body || '').substring(0, 120).replace(/\n/g, ' ');
+      html += '<div class="mail-template-card">' +
+        '<div class="mail-template-card-title">' +
+        '<span class="mail-template-card-name">' + esc(t.name || '') + '</span>' +
+        '<div style="display:flex;gap:4px;">' +
+        '<button class="btn btn-primary btn-sm" onclick="openMailSendModal([], \'' + esc(t.id) + '\')" style="font-size:11px;padding:3px 8px;">📧 送信</button>' +
+        '<button class="btn btn-secondary btn-sm" onclick="openMailTemplateEdit(\'' + esc(t.id) + '\')" style="font-size:11px;padding:3px 8px;">編集</button>' +
+        '</div>' +
+        '</div>' +
+        '<div class="mail-template-card-subject">📧 ' + esc(t.subject || '') + '</div>' +
+        '<div class="mail-template-card-body">' + esc(bodyPreview) + (t.body && t.body.length > 120 ? '...' : '') + '</div>' +
+        (t.usageCount ? '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">📊 使用回数: ' + t.usageCount + '回</div>' : '') +
+        '</div>';
+    });
+  });
+  // カテゴリ外のもの
+  Object.keys(byCategory).forEach(function(cat) {
+    if (categoryOrder.indexOf(cat) !== -1) return;
+    html += '<div class="mail-template-category-header">📁 ' + esc(cat) + '</div>';
+    byCategory[cat].forEach(function(t) {
+      var bodyPreview = (t.body || '').substring(0, 120).replace(/\n/g, ' ');
+      html += '<div class="mail-template-card">' +
+        '<div class="mail-template-card-title">' +
+        '<span class="mail-template-card-name">' + esc(t.name || '') + '</span>' +
+        '<div style="display:flex;gap:4px;">' +
+        '<button class="btn btn-primary btn-sm" onclick="openMailSendModal([], \'' + esc(t.id) + '\')" style="font-size:11px;padding:3px 8px;">📧 送信</button>' +
+        '<button class="btn btn-secondary btn-sm" onclick="openMailTemplateEdit(\'' + esc(t.id) + '\')" style="font-size:11px;padding:3px 8px;">編集</button>' +
+        '</div>' +
+        '</div>' +
+        '<div class="mail-template-card-subject">📧 ' + esc(t.subject || '') + '</div>' +
+        '<div class="mail-template-card-body">' + esc(bodyPreview) + '</div>' +
+        '</div>';
+    });
+  });
+  container.innerHTML = html;
+}
+
+// ----- テンプレート編集 -----
+function openMailTemplateEdit(templateId) {
+  document.getElementById('mail-tpl-id').value = templateId || '';
+  if (templateId) {
+    var t = mailTemplates.find(function(x){ return x.id === templateId; });
+    if (!t) { showToast('テンプレートが見つかりません', 'error'); return; }
+    document.getElementById('mail-tpl-modal-title').textContent = 'テンプレート編集: ' + t.name;
+    document.getElementById('mail-tpl-name').value = t.name || '';
+    document.getElementById('mail-tpl-category').value = t.category || '汎用';
+    document.getElementById('mail-tpl-subject').value = t.subject || '';
+    document.getElementById('mail-tpl-body').value = t.body || '';
+    document.getElementById('mail-tpl-delete-btn').style.display = '';
+  } else {
+    document.getElementById('mail-tpl-modal-title').textContent = '新規テンプレート';
+    document.getElementById('mail-tpl-name').value = '';
+    document.getElementById('mail-tpl-category').value = '汎用';
+    document.getElementById('mail-tpl-subject').value = '';
+    document.getElementById('mail-tpl-body').value = '';
+    document.getElementById('mail-tpl-delete-btn').style.display = 'none';
+  }
+  openModal('mail-template-modal');
+}
+
+// クイック挿入
+function insertMailVar(v) {
+  var el = document.getElementById('mail-tpl-body');
+  if (!el) return;
+  var start = el.selectionStart;
+  var end = el.selectionEnd;
+  var val = el.value;
+  el.value = val.substring(0, start) + v + val.substring(end);
+  el.focus();
+  el.selectionStart = el.selectionEnd = start + v.length;
+}
+function insertMailSendVar(v) {
+  var el = document.getElementById('mail-send-body');
+  if (!el) return;
+  var start = el.selectionStart;
+  var end = el.selectionEnd;
+  var val = el.value;
+  el.value = val.substring(0, start) + v + val.substring(end);
+  el.focus();
+  el.selectionStart = el.selectionEnd = start + v.length;
+}
+
+async function saveMailTemplate() {
+  var id = document.getElementById('mail-tpl-id').value;
+  var name = document.getElementById('mail-tpl-name').value.trim();
+  var category = document.getElementById('mail-tpl-category').value;
+  var subject = document.getElementById('mail-tpl-subject').value.trim();
+  var body = document.getElementById('mail-tpl-body').value.trim();
+  if (!name) { showToast('テンプレート名を入力してください', 'error'); return; }
+  if (!subject) { showToast('件名を入力してください', 'error'); return; }
+  if (!body) { showToast('本文を入力してください', 'error'); return; }
+  var user = currentUser ? (currentUser.mail || currentUser.userPrincipalName || '') : '';
+  var now = new Date().toISOString();
+  if (id) {
+    var idx = mailTemplates.findIndex(function(x){ return x.id === id; });
+    if (idx === -1) { showToast('編集対象が見つかりません', 'error'); return; }
+    mailTemplates[idx].name = name;
+    mailTemplates[idx].category = category;
+    mailTemplates[idx].subject = subject;
+    mailTemplates[idx].body = body;
+    mailTemplates[idx].updatedAt = now;
+    mailTemplates[idx].updatedBy = user;
+  } else {
+    mailTemplates.push({
+      id: 'tpl_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+      name: name, category: category, subject: subject, body: body,
+      createdBy: user, createdAt: now, usageCount: 0
+    });
+  }
+  try {
+    await saveMailTemplatesToSP();
+    showToast(id ? 'テンプレートを更新しました' : 'テンプレートを作成しました', 'success');
+    closeModal('mail-template-modal');
+    renderMailTemplateList();
+    updateMailKpis();
+  } catch(e) {
+    showToast('保存失敗: ' + e.message, 'error');
+  }
+}
+
+async function deleteMailTemplate() {
+  var id = document.getElementById('mail-tpl-id').value;
+  if (!id) return;
+  var t = mailTemplates.find(function(x){ return x.id === id; });
+  if (!t) return;
+  if (!confirm('「' + t.name + '」を削除しますか？\n\n※削除後は元に戻せません')) return;
+  mailTemplates = mailTemplates.filter(function(x){ return x.id !== id; });
+  try {
+    await saveMailTemplatesToSP();
+    showToast('テンプレートを削除しました', 'success');
+    closeModal('mail-template-modal');
+    renderMailTemplateList();
+    updateMailKpis();
+  } catch(e) {
+    showToast('削除失敗: ' + e.message, 'error');
+  }
+}
+
+// ----- 変数展開 -----
+function calcTenureText(joinDate) {
+  if (!joinDate) return '';
+  var jd = safeDate(joinDate);
+  if (!jd) return '';
+  var now = new Date();
+  var years = calcYearsDiff(jd, now);
+  var months = calcMonthsDiff(jd, now) % 12;
+  if (years === 0 && months === 0) return '1ヶ月未満';
+  if (years === 0) return months + 'ヶ月';
+  return years + '年' + (months > 0 ? months + 'ヶ月' : '');
+}
+function applyMailVariables(text, emp) {
+  if (!text) return '';
+  var senderName = currentUser ? (currentUser.displayName || currentUser.mail || '') : '';
+  var today = new Date().toLocaleDateString('ja-JP');
+  var vars = {
+    '{{氏名}}': emp.NameKanji || '',
+    '{{カナ}}': emp.NameKana || '',
+    '{{社員ID}}': emp.EmpID || '',
+    '{{所属会社}}': emp.Company1 || '',
+    '{{部署}}': emp.Department || '',
+    '{{役職}}': emp.Position || '',
+    '{{入社日}}': emp.JoinDate ? new Date(emp.JoinDate).toLocaleDateString('ja-JP') : '',
+    '{{勤続年数}}': calcTenureText(emp.JoinDate),
+    '{{誕生日}}': emp.Birthdate ? new Date(emp.Birthdate).toLocaleDateString('ja-JP') : '',
+    '{{復職予定日}}': emp.LeaveEndDate ? new Date(emp.LeaveEndDate).toLocaleDateString('ja-JP') : '',
+    '{{差出人名}}': senderName,
+    '{{今日の日付}}': today
+  };
+  var result = text;
+  Object.keys(vars).forEach(function(k) {
+    // グローバル置換
+    result = result.split(k).join(vars[k]);
+  });
+  return result;
+}
+
+// ----- メール送信モーダル -----
+function openMailSendModal(preselectedEmpIds, templateId) {
+  // 事前選択された社員IDがある場合
+  currentMailContext = { targets: preselectedEmpIds || [], template: templateId || null };
+  // 初期化
+  var searchEl = document.getElementById('mail-send-target-search');
+  if (searchEl) searchEl.value = '';
+  var fromEl = document.getElementById('mail-send-from');
+  if (fromEl) fromEl.value = '';
+  var subjectEl = document.getElementById('mail-send-subject');
+  if (subjectEl) subjectEl.value = '';
+  var bodyEl = document.getElementById('mail-send-body');
+  if (bodyEl) bodyEl.value = '';
+  // 会社・部署フィルター初期化
+  var companySel = document.getElementById('mail-send-filter-company');
+  if (companySel) {
+    var companies = Array.from(new Set(
+      (employees || []).filter(function(e){ return e.Status !== '退職'; })
+        .reduce(function(acc, e){ return acc.concat([e.Company1, e.Company2, e.Company3]); }, [])
+        .filter(Boolean)
+    )).sort();
+    companySel.innerHTML = '<option value="">全会社</option>' +
+      companies.map(function(c){ return '<option value="' + esc(c) + '">' + esc(c) + '</option>'; }).join('');
+  }
+  var deptSel = document.getElementById('mail-send-filter-dept');
+  if (deptSel) {
+    var depts = Array.from(new Set(
+      (employees || []).filter(function(e){ return e.Status !== '退職'; }).map(function(e){ return e.Department; }).filter(Boolean)
+    )).sort();
+    deptSel.innerHTML = '<option value="">全部署</option>' +
+      depts.map(function(d){ return '<option value="' + esc(d) + '">' + esc(d) + '</option>'; }).join('');
+  }
+  var statusSel = document.getElementById('mail-send-filter-status');
+  if (statusSel) statusSel.value = '';
+  // テンプレート選択肢初期化
+  var tplSel = document.getElementById('mail-send-template-select');
+  if (tplSel) {
+    tplSel.innerHTML = '<option value="">選択してください（または直接入力）</option>' +
+      mailTemplates.map(function(t){ return '<option value="' + esc(t.id) + '">' + esc(t.category || '') + ' / ' + esc(t.name || '') + '</option>'; }).join('');
+    if (templateId) {
+      tplSel.value = templateId;
+      onMailSendTemplateChange();
+    }
+  }
+  // タブを最初へ
+  switchMailSendTab('target');
+  renderMailSendTargetList();
+  openModal('mail-send-modal');
+}
+function switchMailSendTab(tab) {
+  ['target','template','preview'].forEach(function(t) {
+    var panel = document.getElementById('mail-send-panel-' + t);
+    if (panel) panel.style.display = t === tab ? '' : 'none';
+    var btn = document.getElementById('mail-send-tab-' + t);
+    if (btn) btn.classList.toggle('active', t === tab);
+  });
+  if (tab === 'preview') {
+    renderMailPreview();
+  }
+}
+function renderMailSendTargetList() {
+  var container = document.getElementById('mail-send-target-list');
+  if (!container) return;
+  var searchQ = ((document.getElementById('mail-send-target-search') || {}).value || '').toLowerCase();
+  var companyF = (document.getElementById('mail-send-filter-company') || {}).value || '';
+  var deptF = (document.getElementById('mail-send-filter-dept') || {}).value || '';
+  var statusF = (document.getElementById('mail-send-filter-status') || {}).value || '';
+  var list = (employees || []).filter(function(e){ return e.Status !== '退職'; });
+  if (companyF) list = list.filter(function(e){ return e.Company1 === companyF || e.Company2 === companyF || e.Company3 === companyF; });
+  if (deptF) list = list.filter(function(e){ return e.Department === deptF; });
+  if (statusF) list = list.filter(function(e){ return e.Status === statusF; });
+  if (searchQ) list = list.filter(function(e) {
+    var t = ((e.NameKanji || '') + ' ' + (e.EmpID || '') + ' ' + (e.Email || '')).toLowerCase();
+    return t.indexOf(searchQ) !== -1;
+  });
+  var countEl = document.getElementById('mail-send-filter-count');
+  if (countEl) countEl.textContent = list.length + '名表示中';
+  if (!list.length) {
+    container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px;">該当する社員がいません</div>';
+    updateMailSendSelectedCount();
+    return;
+  }
+  container.innerHTML = list.map(function(e) {
+    var hasEmail = !!(e.Email && e.Email.trim());
+    var prev = document.querySelector('.mail-target-cb[value="' + e.id + '"]');
+    var isChecked = prev ? prev.checked : (currentMailContext.targets.indexOf(e.EmpID) !== -1);
+    var company1 = e.Company1 ? '<span style="font-size:10px;padding:1px 6px;border-radius:10px;background:var(--c-primary-light);color:var(--c-primary);">' + esc(e.Company1) + '</span>' : '';
+    var deptStr = e.Department ? '<span style="font-size:10px;color:var(--text-muted);">' + esc(e.Department) + '</span>' : '';
+    return '<label class="mail-send-target-row' + (isChecked ? ' selected' : '') + '" style="' + (hasEmail ? '' : 'opacity:0.4;cursor:not-allowed;') + '">' +
+      '<input type="checkbox" class="mail-target-cb" value="' + esc(e.id) + '" data-empid="' + esc(e.EmpID || '') + '" ' + (hasEmail ? '' : 'disabled') + ' ' + (isChecked ? 'checked' : '') + ' onchange="updateMailSendSelectedCount();updateMailSendRowStyle(this)">' +
+      '<div style="flex:1;min-width:0;">' +
+      '<div style="display:flex;align-items:center;gap:6px;">' +
+      '<span style="font-size:13px;font-weight:500;">' + esc(e.NameKanji || '') + '</span>' +
+      company1 + deptStr +
+      '</div>' +
+      '<div style="font-size:11px;color:' + (hasEmail ? 'var(--text-muted)' : 'var(--c-danger)') + ';">' + esc(e.Email || 'メール未登録') + '</div>' +
+      '</div>' +
+      '<code style="font-size:11px;color:var(--text-muted);white-space:nowrap;">' + esc(e.EmpID || '') + '</code>' +
+      '</label>';
+  }).join('');
+  updateMailSendSelectedCount();
+}
+function updateMailSendRowStyle(cb) {
+  var label = cb.closest('label');
+  if (label) label.classList.toggle('selected', cb.checked);
+}
+function toggleSelectAllMailTargets(cb) {
+  document.querySelectorAll('.mail-target-cb:not(:disabled)').forEach(function(x) {
+    x.checked = cb.checked;
+    updateMailSendRowStyle(x);
+  });
+  updateMailSendSelectedCount();
+}
+function clearMailTargets() {
+  document.querySelectorAll('.mail-target-cb').forEach(function(x) { x.checked = false; updateMailSendRowStyle(x); });
+  var selAll = document.getElementById('mail-send-select-all');
+  if (selAll) selAll.checked = false;
+  updateMailSendSelectedCount();
+}
+function updateMailSendSelectedCount() {
+  var count = document.querySelectorAll('.mail-target-cb:checked').length;
+  var el = document.getElementById('mail-send-selected-count');
+  if (el) el.textContent = '選択済み: ' + count + '名';
+}
+function getMailSendSelectedEmployees() {
+  var ids = Array.from(document.querySelectorAll('.mail-target-cb:checked')).map(function(cb){ return cb.value; });
+  return (employees || []).filter(function(e){ return ids.indexOf(e.id) !== -1; });
+}
+function onMailSendTemplateChange() {
+  var sel = document.getElementById('mail-send-template-select');
+  if (!sel || !sel.value) return;
+  var t = mailTemplates.find(function(x){ return x.id === sel.value; });
+  if (!t) return;
+  document.getElementById('mail-send-subject').value = t.subject || '';
+  document.getElementById('mail-send-body').value = t.body || '';
+}
+function renderMailPreview() {
+  var subject = document.getElementById('mail-send-subject').value.trim();
+  var body = document.getElementById('mail-send-body').value.trim();
+  var from = document.getElementById('mail-send-from').value.trim();
+  var targets = getMailSendSelectedEmployees();
+  // プレビュー対象社員セレクト
+  var previewSel = document.getElementById('mail-preview-target-select');
+  if (previewSel) {
+    previewSel.innerHTML = targets.map(function(e){ return '<option value="' + esc(e.id) + '">' + esc(e.NameKanji || '') + ' (' + esc(e.EmpID || '') + ')</option>'; }).join('');
+  }
+  // 表示更新
+  document.getElementById('mail-preview-target-count').textContent = targets.length;
+  document.getElementById('mail-preview-from').textContent = from || '（自分のアドレス）';
+  var previewEmpId = previewSel ? previewSel.value : '';
+  var previewEmp = targets.find(function(e){ return e.id === previewEmpId; }) || targets[0];
+  if (previewEmp) {
+    document.getElementById('mail-preview-subject').textContent = applyMailVariables(subject, previewEmp);
+    document.getElementById('mail-preview-body').textContent = applyMailVariables(body, previewEmp);
+  } else {
+    document.getElementById('mail-preview-subject').textContent = '（送信先が未選択です）';
+    document.getElementById('mail-preview-body').textContent = '「① 送信先」タブで送信先を選択してください';
+  }
+}
+async function executeSendMails() {
+  var subject = document.getElementById('mail-send-subject').value.trim();
+  var body = document.getElementById('mail-send-body').value.trim();
+  var from = document.getElementById('mail-send-from').value.trim();
+  var targets = getMailSendSelectedEmployees();
+  if (!targets.length) { showToast('送信先を1名以上選択してください', 'error'); switchMailSendTab('target'); return; }
+  if (!subject) { showToast('件名を入力してください', 'error'); switchMailSendTab('template'); return; }
+  if (!body) { showToast('本文を入力してください', 'error'); switchMailSendTab('template'); return; }
+  if (!confirm(targets.length + '名にメールを送信します。よろしいですか？')) return;
+  // 使用テンプレート
+  var tplSel = document.getElementById('mail-send-template-select');
+  var templateId = tplSel ? tplSel.value : '';
+  var template = templateId ? mailTemplates.find(function(x){ return x.id === templateId; }) : null;
+  var templateName = template ? template.name : '（カスタム）';
+  var btn = document.getElementById('mail-send-btn');
+  var origHtml = btn.innerHTML;
+  btn.disabled = true;
+  showLoading('メール送信中...', '0 / ' + targets.length);
+  var success = 0, failed = 0;
+  var sender = currentUser ? (currentUser.mail || currentUser.userPrincipalName || '') : '';
+  var newHistory = [];
+  for (var i = 0; i < targets.length; i++) {
+    var emp = targets[i];
+    if (!emp.Email) { failed++; continue; }
+    var appliedSubject = applyMailVariables(subject, emp);
+    var appliedBody = applyMailVariables(body, emp);
+    var bodyHtml = '<div style="font-family:\'Hiragino Kaku Gothic ProN\',sans-serif;">' +
+      escHtml(appliedBody).replace(/\n/g, '<br>') + '</div>';
+    var messageBody = {
+      subject: appliedSubject,
+      body: { contentType: 'HTML', content: bodyHtml },
+      toRecipients: [{ emailAddress: { address: emp.Email } }]
+    };
+    if (from) {
+      messageBody.from = { emailAddress: { address: from } };
+    }
+    var histEntry = {
+      id: 'hist_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+      ts: new Date().toISOString(),
+      templateId: templateId || null,
+      templateName: templateName,
+      recipientEmpId: emp.EmpID || '',
+      recipientEmail: emp.Email,
+      recipientName: emp.NameKanji || '',
+      subject: appliedSubject,
+      status: 'success',
+      sender: sender,
+      error: ''
+    };
+    try {
+      await graphPostNoContent('https://graph.microsoft.com/v1.0/me/sendMail', {
+        message: messageBody,
+        saveToSentItems: true
+      });
+      success++;
+    } catch(e) {
+      failed++;
+      histEntry.status = 'error';
+      histEntry.error = e.message || 'unknown';
+      console.warn('メール送信失敗(' + emp.Email + '):', e.message);
+    }
+    newHistory.push(histEntry);
+    updateProgressBar(i + 1, targets.length, 'メール送信中...');
+  }
+  hideLoading();
+  btn.disabled = false;
+  btn.innerHTML = origHtml;
+  // 使用回数を更新
+  if (template) {
+    template.usageCount = (template.usageCount || 0) + success;
+    try { await saveMailTemplatesToSP(); } catch(e) {}
+  }
+  // 履歴を保存
+  mailHistory = newHistory.concat(mailHistory).slice(0, 500);
+  try { await saveMailHistoryToSP(); } catch(e) {}
+  // 操作ログ
+  addOpLog('マスター更新', 'メール送信: ' + templateName + '（成功' + success + '名 / 失敗' + failed + '名）', sender);
+  if (failed > 0) {
+    showToast('送信完了: 成功 ' + success + ' 名 / 失敗 ' + failed + ' 名', 'warn');
+  } else {
+    showToast(success + ' 名にメールを送信しました', 'success');
+  }
+  closeModal('mail-send-modal');
+  updateMailKpis();
+}
+
+// ----- 送信履歴モーダル -----
+async function showMailHistoryModal() {
+  await loadMailHistory();
+  renderMailHistoryModal();
+  openModal('mail-history-modal');
+}
+function renderMailHistoryModal() {
+  var tbody = document.getElementById('mail-history-tbody');
+  if (!tbody) return;
+  var list = mailHistory.slice().sort(function(a, b) { return (b.ts || '').localeCompare(a.ts || ''); }).slice(0, 500);
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="padding:24px;text-align:center;color:var(--text-muted);">送信履歴がありません</td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(function(h) {
+    var dt = h.ts ? new Date(h.ts).toLocaleString('ja-JP') : '';
+    var statusBadge = h.status === 'success'
+      ? '<span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;background:var(--c-success-light);color:var(--c-success);">✅ 成功</span>'
+      : '<span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;background:var(--c-danger-light);color:var(--c-danger);" title="' + esc(h.error || '') + '">❌ 失敗</span>';
+    return '<tr>' +
+      '<td style="font-size:11px;font-family:monospace;">' + esc(dt) + '</td>' +
+      '<td style="font-size:12px;">' + esc(h.templateName || '') + '</td>' +
+      '<td style="font-size:12px;">' + esc(h.recipientName || '') + '<br><span style="font-size:10px;color:var(--text-muted);">' + esc(h.recipientEmail || '') + '</span></td>' +
+      '<td style="font-size:11px;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + esc(h.subject || '') + '">' + esc(h.subject || '') + '</td>' +
+      '<td>' + statusBadge + '</td>' +
+      '<td style="font-size:11px;">' + esc(h.sender || '') + '</td>' +
+      '</tr>';
+  }).join('');
+}
+function exportMailHistoryCsv() {
+  if (!mailHistory.length) { showToast('出力するデータがありません', 'error'); return; }
+  var headers = ['送信日時','テンプレート名','受信者社員ID','受信者氏名','受信者メール','件名','状態','送信者','エラー'];
+  var rows = mailHistory.map(function(h) {
+    return [
+      h.ts ? new Date(h.ts).toLocaleString('ja-JP') : '',
+      h.templateName || '',
+      h.recipientEmpId || '',
+      h.recipientName || '',
+      h.recipientEmail || '',
+      h.subject || '',
+      h.status || '',
+      h.sender || '',
+      h.error || ''
+    ];
+  });
+  var csv = '\uFEFF' + headers.join(',') + '\n' + rows.map(function(row) {
+    return row.map(function(cell) { return '"' + String(cell).replace(/"/g, '""') + '"'; }).join(',');
+  }).join('\n');
+  var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'メール送信履歴_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  showToast('CSV出力しました', 'success');
 }
 
 // ============================================================
@@ -7344,6 +8362,10 @@ function applyRoleUI() {
     }
     // v1.7.7 - 期限管理メニュー（管理者のみ）
     if (el.getAttribute('onclick') === 'showExpiryPage()') {
+      el.style.display = isAdmin ? '' : 'none';
+    }
+    // v2.2.0 - メールテンプレートメニュー（管理者のみ）
+    if (el.getAttribute('onclick') === 'showMailTemplatePage()') {
       el.style.display = isAdmin ? '' : 'none';
     }
   });
@@ -11331,7 +12353,7 @@ function showOrgChart() {
 
 // 全ページを一括非表示にするヘルパー
 function hideAllPages() {
-  ['employee-list-card','org-chart-page','alert-page','history-page','transfer-page','survey-page','dashboard-page','annual-report-page','workflow-page','mynumber-audit-page','archive-page','perm-review-page','backup-status-page','health-check-page','expiry-page'].forEach(id => {
+  ['employee-list-card','org-chart-page','alert-page','history-page','transfer-page','survey-page','dashboard-page','annual-report-page','workflow-page','mynumber-audit-page','archive-page','perm-review-page','backup-status-page','health-check-page','expiry-page','mail-template-page'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = 'none';
   });
@@ -11565,7 +12587,7 @@ async function testTeamsNotification() {
     message: 'これは人事情報管理ツールからのテスト通知です。\n\n設定が正しく完了しました。',
     severity: 'success',
     facts: [
-      { name: 'システム', value: '人事情報管理システム v2.1.0' },
+      { name: 'システム', value: '人事情報管理システム v2.2.0' },
       { name: '送信者', value: currentUser ? (currentUser.displayName || currentUser.mail || '') : '匿名' },
       { name: '送信日時', value: new Date().toLocaleString('ja-JP') }
     ]
@@ -13053,7 +14075,7 @@ function renderReportAppendixSection(data) {
 // ----- フッター -----
 function renderReportFooter() {
   return '<div class="report-footer">' +
-    '人事情報管理システム v2.1.0 / 本レポートは社員データを基に自動生成されました。' +
+    '人事情報管理システム v2.2.0 / 本レポートは社員データを基に自動生成されました。' +
     '<br>※ 機密情報を含むため、取扱いには十分ご注意ください。' +
     '</div>';
 }
