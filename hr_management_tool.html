@@ -510,7 +510,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   <nav class="sidebar">
     <div class="sidebar-logo">
       <h1>人事情報<br>管理システム</h1>
-      <p>HR Management v2.2.0</p>
+      <p>HR Management v2.3.0</p>
     </div>
     <div class="sidebar-nav">
       <div class="nav-section">メイン</div>
@@ -588,8 +588,12 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
         <span>期限管理</span>
         <span id="expiry-badge" style="display:none;background:var(--c-danger);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:auto;">!</span>
       </div>
+      <div class="nav-item" onclick="showMailSendPage()" id="nav-mail-send" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        <span>メール送信</span>
+      </div>
       <div class="nav-item" onclick="showMailTemplatePage()" id="nav-mail-template" style="display:none;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
         <span>メールテンプレート</span>
       </div>
       <div class="nav-section">マスター</div>
@@ -1309,6 +1313,64 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
         </div>
       </div>
 
+      <!-- v2.3.0 - メール送信ページ（新規） -->
+      <div id="mail-send-page" style="display:none;">
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-header">
+            <h3>📧 メール送信</h3>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <button class="btn btn-secondary btn-sm" onclick="showMailHistoryModal()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                送信履歴
+              </button>
+              <button class="btn btn-primary btn-sm" onclick="openMailSendModal([], null)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                新規メール送信
+              </button>
+            </div>
+          </div>
+          <div style="padding:12px 20px;background:var(--c-primary-light);border-bottom:1px solid var(--border);font-size:12px;color:#0C447C;line-height:1.6;">
+            📧 <strong>メール送信の起点となるページ</strong>です。テンプレート選択・直接入力の両方に対応。送信履歴の確認・削除も可能です。
+          </div>
+          <!-- KPIカード -->
+          <div style="padding:14px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;border-bottom:1px solid var(--border);">
+            <div style="padding:10px;background:var(--c-success-light);border-radius:var(--radius);text-align:center;">
+              <div style="font-size:10px;color:var(--c-success);font-weight:600;">📤 累積送信数</div>
+              <div id="mailsend-kpi-total" style="font-size:20px;font-weight:700;color:var(--c-success);margin-top:2px;">0</div>
+              <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">成功のみ</div>
+            </div>
+            <div style="padding:10px;background:var(--c-primary-light);border-radius:var(--radius);text-align:center;">
+              <div style="font-size:10px;color:var(--c-primary);font-weight:600;">📊 今月の送信</div>
+              <div id="mailsend-kpi-month" style="font-size:20px;font-weight:700;color:var(--c-primary);margin-top:2px;">0</div>
+              <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">通</div>
+            </div>
+            <div style="padding:10px;background:var(--c-warning-light);border-radius:var(--radius);text-align:center;">
+              <div style="font-size:10px;color:var(--c-warning);font-weight:600;">📆 今週の送信</div>
+              <div id="mailsend-kpi-week" style="font-size:20px;font-weight:700;color:var(--c-warning);margin-top:2px;">0</div>
+              <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">通</div>
+            </div>
+            <div style="padding:10px;background:var(--c-danger-light);border-radius:var(--radius);text-align:center;">
+              <div style="font-size:10px;color:var(--c-danger);font-weight:600;">❌ 送信失敗</div>
+              <div id="mailsend-kpi-failed" style="font-size:20px;font-weight:700;color:var(--c-danger);margin-top:2px;">0</div>
+              <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">全期間</div>
+            </div>
+          </div>
+          <!-- 最近の送信 -->
+          <div style="padding:14px 20px;border-top:1px solid var(--border);">
+            <h4 style="font-size:13px;margin-bottom:10px;">📊 最近の送信（直近10件）</h4>
+            <div class="table-container">
+              <table>
+                <thead><tr>
+                  <th>送信日時</th><th>テンプレート</th><th>受信者</th><th>件名</th><th>状態</th><th>送信者</th>
+                </tr></thead>
+                <tbody id="mailsend-recent-tbody">
+                  <tr><td colspan="6" style="padding:24px;text-align:center;color:var(--text-muted);">読み込み中...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
       <!-- v2.2.0 - メールテンプレート管理ページ -->
       <div id="mail-template-page" style="display:none;">
         <div class="card" style="margin-bottom:16px;">
@@ -1319,10 +1381,6 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
               <button class="btn btn-secondary btn-sm" onclick="loadPresetMailTemplates()">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                 プリセット読込
-              </button>
-              <button class="btn btn-secondary btn-sm" onclick="showMailHistoryModal()">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                送信履歴
               </button>
               <button class="btn btn-primary btn-sm" onclick="openMailTemplateEdit(null)">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -3789,26 +3847,78 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   </div>
 </div>
 
-<!-- v2.2.0 - メール送信履歴モーダル -->
+<!-- v2.3.0 - メール送信履歴モーダル（削除機能付き） -->
 <div class="modal-overlay" id="mail-history-modal">
-  <div class="modal" style="width:900px;">
+  <div class="modal" style="width:1000px;">
     <div class="modal-header">
       <h2>📊 メール送信履歴</h2>
       <button class="modal-close" onclick="closeModal('mail-history-modal')">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
-    <div class="modal-body" style="padding:16px 24px;">
-      <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">直近500件を表示（新しい順）</div>
-      <div class="table-container" style="max-height:520px;overflow-y:auto;">
+    <div class="modal-body" style="padding:0;">
+      <!-- フィルタバー -->
+      <div style="padding:12px 20px;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <select class="form-control" id="mail-history-status-filter" onchange="renderMailHistoryModal()" style="font-size:12px;width:130px;">
+          <option value="">全状態</option>
+          <option value="success">成功のみ</option>
+          <option value="error">失敗のみ</option>
+        </select>
+        <input type="text" class="form-control" id="mail-history-search" placeholder="受信者・件名で検索..." oninput="renderMailHistoryModal()" style="font-size:12px;width:200px;">
+        <span id="mail-history-count" style="font-size:11px;color:var(--text-muted);margin-left:auto;">全 0 件</span>
+      </div>
+      <!-- 一括操作バー（管理者のみ） -->
+      <div id="mail-history-bulk-bar" style="display:none;padding:10px 20px;background:var(--c-warning-light);border-bottom:1px solid var(--c-warning);align-items:center;gap:10px;flex-wrap:wrap;">
+        <span style="font-weight:600;color:var(--c-warning);font-size:13px;" id="mail-history-bulk-count">0件選択中</span>
+        <button class="btn btn-danger btn-sm" onclick="bulkDeleteMailHistory()" style="font-size:11px;padding:3px 10px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+          選択削除
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="clearMailHistorySelection()" style="font-size:11px;padding:3px 10px;">選択解除</button>
+      </div>
+      <!-- 一覧 -->
+      <div class="table-container" style="max-height:440px;overflow-y:auto;">
         <table>
-          <thead><tr>
-            <th>送信日時</th><th>テンプレート</th><th>受信者</th><th>件名</th><th>状態</th><th>送信者</th>
-          </tr></thead>
+          <thead>
+            <tr>
+              <th id="mail-history-check-header" style="width:36px;display:none;text-align:center;">
+                <input type="checkbox" id="mail-history-select-all" onchange="toggleAllMailHistorySelection(this)" title="全選択">
+              </th>
+              <th>送信日時</th><th>テンプレート</th><th>受信者</th><th>件名</th><th>状態</th><th>送信者</th>
+            </tr>
+          </thead>
           <tbody id="mail-history-tbody">
-            <tr><td colspan="6" style="padding:24px;text-align:center;color:var(--text-muted);">読み込み中...</td></tr>
+            <tr><td colspan="7" style="padding:24px;text-align:center;color:var(--text-muted);">読み込み中...</td></tr>
           </tbody>
         </table>
+      </div>
+      <!-- 管理者用: 一括削除アクション -->
+      <div id="mail-history-admin-actions" style="display:none;padding:14px 20px;border-top:1px solid var(--border);background:var(--c-gray-50);">
+        <div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:8px;">🗑 管理者操作：条件による一括削除</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-danger btn-sm" onclick="deleteMailHistoryByCondition('30days')" style="font-size:11px;padding:4px 10px;">
+            30日以上前を削除
+          </button>
+          <button class="btn btn-danger btn-sm" onclick="deleteMailHistoryByCondition('90days')" style="font-size:11px;padding:4px 10px;">
+            90日以上前を削除
+          </button>
+          <button class="btn btn-danger btn-sm" onclick="deleteMailHistoryByCondition('failed')" style="font-size:11px;padding:4px 10px;">
+            失敗のみ削除
+          </button>
+          <button class="btn btn-danger btn-sm" onclick="deleteMailHistoryByCondition('all')" style="font-size:11px;padding:4px 10px;background:#8B0000;color:#fff;border:none;">
+            全て削除
+          </button>
+          <div style="display:flex;align-items:center;gap:6px;margin-left:auto;">
+            <label style="font-size:11px;color:var(--text-muted);">保存期間:</label>
+            <select class="form-control" id="mail-history-retention-days" onchange="updateMailHistoryRetention()" style="font-size:11px;padding:2px 6px;width:110px;">
+              <option value="30">30日</option>
+              <option value="90" selected>90日</option>
+              <option value="180">180日</option>
+              <option value="365">365日</option>
+              <option value="0">無期限</option>
+            </select>
+          </div>
+        </div>
       </div>
     </div>
     <div class="modal-footer">
@@ -5698,6 +5808,8 @@ function collectForm() {
 var mailTemplates = [];         // { id, name, category, subject, body, createdBy, createdAt, usageCount }
 var mailHistory = [];           // { id, ts, templateId, templateName, recipientEmail, recipientName, subject, status, sender, error }
 var currentMailContext = { targets: [], template: null }; // 送信モーダル用
+// v2.3.0 - 履歴保存期間（デフォルト90日、0=無期限）
+var mailHistoryRetentionDays = 90;
 
 // プリセットテンプレート10種
 var MAIL_TEMPLATE_PRESETS = [
@@ -5793,12 +5905,90 @@ async function loadMailHistory() {
 }
 async function saveMailHistoryToSP() {
   try {
-    // 最新500件のみ保持
-    var toSave = mailHistory.slice(0, 500);
+    // v2.3.0 - 保存期間に基づき自動クリーンアップ
+    var toSave = mailHistory.slice();
+    if (mailHistoryRetentionDays > 0) {
+      var cutoff = Date.now() - mailHistoryRetentionDays * 86400000;
+      toSave = toSave.filter(function(h){
+        if (!h.ts) return true;
+        return new Date(h.ts).getTime() >= cutoff;
+      });
+      // メモリ側も更新
+      mailHistory = toSave;
+    }
+    // 上限（1000件）
+    toSave = toSave.slice(0, 1000);
     await saveMasterToSP('mailHistory', toSave);
   } catch(e) {
     console.warn('メール送信履歴保存エラー:', e.message);
   }
+}
+
+// ----- v2.3.0 - メール送信ページ表示 -----
+async function showMailSendPage() {
+  if (currentRole !== 'admin' && currentRole !== 'editor') {
+    showToast('メール送信は管理者または編集者のみアクセス可能です', 'error');
+    return;
+  }
+  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+  if (event && event.currentTarget) event.currentTarget.classList.add('active');
+  hideAllPages();
+  var p = document.getElementById('mail-send-page');
+  if (p) p.style.display = 'block';
+  var pt = document.getElementById('page-title');
+  if (pt) pt.textContent = 'メール送信';
+  var nb = document.querySelector('.topbar-right .btn-primary');
+  if (nb) nb.style.display = 'none';
+  await loadMailTemplates();
+  await loadMailHistory();
+  updateMailSendKpis();
+  renderMailSendRecent();
+}
+
+function updateMailSendKpis() {
+  var setEl = function(id, v){ var e = document.getElementById(id); if (e) e.textContent = v; };
+  var total = mailHistory.filter(function(h){ return h.status === 'success'; }).length;
+  setEl('mailsend-kpi-total', total);
+  var now = new Date();
+  var monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  var weekStart = new Date(now);
+  weekStart.setDate(now.getDate() - 7);
+  var monthCount = mailHistory.filter(function(h){
+    if (h.status !== 'success' || !h.ts) return false;
+    return new Date(h.ts) >= monthStart;
+  }).length;
+  var weekCount = mailHistory.filter(function(h){
+    if (h.status !== 'success' || !h.ts) return false;
+    return new Date(h.ts) >= weekStart;
+  }).length;
+  var failedCount = mailHistory.filter(function(h){ return h.status === 'error'; }).length;
+  setEl('mailsend-kpi-month', monthCount);
+  setEl('mailsend-kpi-week', weekCount);
+  setEl('mailsend-kpi-failed', failedCount);
+}
+
+function renderMailSendRecent() {
+  var tbody = document.getElementById('mailsend-recent-tbody');
+  if (!tbody) return;
+  var list = mailHistory.slice().sort(function(a, b) { return (b.ts || '').localeCompare(a.ts || ''); }).slice(0, 10);
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="padding:24px;text-align:center;color:var(--text-muted);">送信履歴がまだありません。「新規メール送信」から送信してください。</td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(function(h) {
+    var dt = h.ts ? new Date(h.ts).toLocaleString('ja-JP') : '';
+    var statusBadge = h.status === 'success'
+      ? '<span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;background:var(--c-success-light);color:var(--c-success);">✅ 成功</span>'
+      : '<span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;background:var(--c-danger-light);color:var(--c-danger);" title="' + esc(h.error || '') + '">❌ 失敗</span>';
+    return '<tr>' +
+      '<td style="font-size:11px;font-family:monospace;">' + esc(dt) + '</td>' +
+      '<td style="font-size:12px;">' + esc(h.templateName || '') + '</td>' +
+      '<td style="font-size:12px;">' + esc(h.recipientName || '') + '<br><span style="font-size:10px;color:var(--text-muted);">' + esc(h.recipientEmail || '') + '</span></td>' +
+      '<td style="font-size:11px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + esc(h.subject || '') + '">' + esc(h.subject || '') + '</td>' +
+      '<td>' + statusBadge + '</td>' +
+      '<td style="font-size:11px;">' + esc(h.sender || '') + '</td>' +
+      '</tr>';
+  }).join('');
 }
 
 // ----- ページ表示 -----
@@ -6319,26 +6509,81 @@ async function executeSendMails() {
   updateMailKpis();
 }
 
-// ----- 送信履歴モーダル -----
+// ----- v2.3.0 - 送信履歴モーダル（削除機能付き） -----
 async function showMailHistoryModal() {
+  if (currentRole !== 'admin' && currentRole !== 'editor') {
+    showToast('送信履歴の閲覧は管理者・編集者のみ可能です', 'error');
+    return;
+  }
   await loadMailHistory();
+  await loadMailHistoryRetentionConfig();
+  // v2.3.0 - 管理者のみ削除機能・保存期間設定を表示
+  var isAdmin = currentRole === 'admin';
+  var checkHdr = document.getElementById('mail-history-check-header');
+  var adminActions = document.getElementById('mail-history-admin-actions');
+  if (checkHdr) checkHdr.style.display = isAdmin ? '' : 'none';
+  if (adminActions) adminActions.style.display = isAdmin ? '' : 'none';
+  // 保存期間セレクト
+  var retSel = document.getElementById('mail-history-retention-days');
+  if (retSel) retSel.value = String(mailHistoryRetentionDays);
+  // 検索欄クリア
+  var searchEl = document.getElementById('mail-history-search');
+  if (searchEl) searchEl.value = '';
+  var statusEl = document.getElementById('mail-history-status-filter');
+  if (statusEl) statusEl.value = '';
   renderMailHistoryModal();
   openModal('mail-history-modal');
 }
+
+async function loadMailHistoryRetentionConfig() {
+  try {
+    var d = await loadMasterFromSP('mailHistoryRetention');
+    if (typeof d === 'number' && d >= 0) mailHistoryRetentionDays = d;
+  } catch(e) {}
+}
+async function saveMailHistoryRetentionConfig() {
+  try { await saveMasterToSP('mailHistoryRetention', mailHistoryRetentionDays); } catch(e) {}
+}
+function updateMailHistoryRetention() {
+  var sel = document.getElementById('mail-history-retention-days');
+  if (!sel) return;
+  var days = parseInt(sel.value, 10);
+  if (isNaN(days) || days < 0) days = 90;
+  mailHistoryRetentionDays = days;
+  saveMailHistoryRetentionConfig();
+  showToast('保存期間を「' + (days === 0 ? '無期限' : days + '日') + '」に変更しました', 'success');
+}
+
 function renderMailHistoryModal() {
   var tbody = document.getElementById('mail-history-tbody');
   if (!tbody) return;
-  var list = mailHistory.slice().sort(function(a, b) { return (b.ts || '').localeCompare(a.ts || ''); }).slice(0, 500);
+  var isAdmin = currentRole === 'admin';
+  var statusF = (document.getElementById('mail-history-status-filter') || {}).value || '';
+  var searchQ = ((document.getElementById('mail-history-search') || {}).value || '').toLowerCase();
+  var list = mailHistory.slice();
+  if (statusF) list = list.filter(function(h){ return h.status === statusF; });
+  if (searchQ) list = list.filter(function(h) {
+    var t = ((h.recipientName || '') + ' ' + (h.recipientEmail || '') + ' ' + (h.subject || '') + ' ' + (h.templateName || '')).toLowerCase();
+    return t.indexOf(searchQ) !== -1;
+  });
+  list.sort(function(a, b) { return (b.ts || '').localeCompare(a.ts || ''); });
+  var countEl = document.getElementById('mail-history-count');
+  if (countEl) countEl.textContent = '全 ' + list.length + ' 件 / 総 ' + mailHistory.length + ' 件';
+  var colSpan = isAdmin ? 7 : 6;
   if (!list.length) {
-    tbody.innerHTML = '<tr><td colspan="6" style="padding:24px;text-align:center;color:var(--text-muted);">送信履歴がありません</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="' + colSpan + '" style="padding:24px;text-align:center;color:var(--text-muted);">送信履歴がありません</td></tr>';
+    updateMailHistoryBulkBar();
     return;
   }
-  tbody.innerHTML = list.map(function(h) {
+  tbody.innerHTML = list.slice(0, 500).map(function(h) {
     var dt = h.ts ? new Date(h.ts).toLocaleString('ja-JP') : '';
     var statusBadge = h.status === 'success'
       ? '<span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;background:var(--c-success-light);color:var(--c-success);">✅ 成功</span>'
       : '<span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;background:var(--c-danger-light);color:var(--c-danger);" title="' + esc(h.error || '') + '">❌ 失敗</span>';
-    return '<tr>' +
+    var checkCell = isAdmin
+      ? '<td style="text-align:center;"><input type="checkbox" class="mail-history-select-cb" value="' + esc(h.id || '') + '" onchange="updateMailHistoryBulkBar()"></td>'
+      : '';
+    return '<tr>' + checkCell +
       '<td style="font-size:11px;font-family:monospace;">' + esc(dt) + '</td>' +
       '<td style="font-size:12px;">' + esc(h.templateName || '') + '</td>' +
       '<td style="font-size:12px;">' + esc(h.recipientName || '') + '<br><span style="font-size:10px;color:var(--text-muted);">' + esc(h.recipientEmail || '') + '</span></td>' +
@@ -6347,6 +6592,95 @@ function renderMailHistoryModal() {
       '<td style="font-size:11px;">' + esc(h.sender || '') + '</td>' +
       '</tr>';
   }).join('');
+  updateMailHistoryBulkBar();
+}
+
+// v2.3.0 - 送信履歴の一括操作
+function updateMailHistoryBulkBar() {
+  var bar = document.getElementById('mail-history-bulk-bar');
+  var count = document.querySelectorAll('.mail-history-select-cb:checked').length;
+  var countEl = document.getElementById('mail-history-bulk-count');
+  if (!bar) return;
+  if (count > 0) {
+    bar.style.display = 'flex';
+    if (countEl) countEl.textContent = count + '件選択中';
+  } else {
+    bar.style.display = 'none';
+    var selAll = document.getElementById('mail-history-select-all');
+    if (selAll) selAll.checked = false;
+  }
+}
+function toggleAllMailHistorySelection(cb) {
+  document.querySelectorAll('.mail-history-select-cb').forEach(function(x){ x.checked = cb.checked; });
+  updateMailHistoryBulkBar();
+}
+function clearMailHistorySelection() {
+  document.querySelectorAll('.mail-history-select-cb').forEach(function(x){ x.checked = false; });
+  var selAll = document.getElementById('mail-history-select-all');
+  if (selAll) selAll.checked = false;
+  updateMailHistoryBulkBar();
+}
+
+// v2.3.0 - 個別・選択削除
+async function bulkDeleteMailHistory() {
+  if (currentRole !== 'admin') { showToast('削除は管理者のみ可能です', 'error'); return; }
+  var ids = Array.from(document.querySelectorAll('.mail-history-select-cb:checked')).map(function(cb){ return cb.value; });
+  if (!ids.length) { showToast('削除対象を選択してください', 'error'); return; }
+  if (!confirm(ids.length + '件の送信履歴を削除します。\n※削除後は元に戻せません。実行しますか？')) return;
+  var idSet = new Set(ids);
+  var before = mailHistory.length;
+  mailHistory = mailHistory.filter(function(h){ return !idSet.has(h.id); });
+  var deleted = before - mailHistory.length;
+  try {
+    await saveMailHistoryToSP();
+    addOpLog('マスター更新', 'メール送信履歴 選択削除（' + deleted + '件）', currentUser ? (currentUser.mail || '') : '');
+    showToast(deleted + '件の履歴を削除しました', 'success');
+    renderMailHistoryModal();
+    updateMailSendKpis();
+    renderMailSendRecent();
+  } catch(e) {
+    showToast('削除失敗: ' + e.message, 'error');
+  }
+}
+
+// v2.3.0 - 条件による一括削除
+async function deleteMailHistoryByCondition(cond) {
+  if (currentRole !== 'admin') { showToast('削除は管理者のみ可能です', 'error'); return; }
+  var now = Date.now();
+  var filter, label;
+  if (cond === '30days') {
+    var cutoff = now - 30 * 86400000;
+    filter = function(h){ return h.ts && new Date(h.ts).getTime() >= cutoff; };
+    label = '30日以上前';
+  } else if (cond === '90days') {
+    var cutoff = now - 90 * 86400000;
+    filter = function(h){ return h.ts && new Date(h.ts).getTime() >= cutoff; };
+    label = '90日以上前';
+  } else if (cond === 'failed') {
+    filter = function(h){ return h.status !== 'error'; };
+    label = '送信失敗';
+  } else if (cond === 'all') {
+    filter = function(){ return false; };
+    label = '全て';
+  } else {
+    return;
+  }
+  var before = mailHistory.length;
+  var newList = mailHistory.filter(filter);
+  var toDelete = before - newList.length;
+  if (toDelete === 0) { showToast('削除対象がありません', 'info'); return; }
+  if (!confirm('「' + label + '」の履歴 ' + toDelete + '件を削除します。\n※削除後は元に戻せません。実行しますか？')) return;
+  mailHistory = newList;
+  try {
+    await saveMailHistoryToSP();
+    addOpLog('マスター更新', 'メール送信履歴 条件削除（' + label + ' / ' + toDelete + '件）', currentUser ? (currentUser.mail || '') : '');
+    showToast(toDelete + '件の履歴を削除しました', 'success');
+    renderMailHistoryModal();
+    updateMailSendKpis();
+    renderMailSendRecent();
+  } catch(e) {
+    showToast('削除失敗: ' + e.message, 'error');
+  }
 }
 function exportMailHistoryCsv() {
   if (!mailHistory.length) { showToast('出力するデータがありません', 'error'); return; }
@@ -8367,6 +8701,10 @@ function applyRoleUI() {
     // v2.2.0 - メールテンプレートメニュー（管理者のみ）
     if (el.getAttribute('onclick') === 'showMailTemplatePage()') {
       el.style.display = isAdmin ? '' : 'none';
+    }
+    // v2.3.0 - メール送信メニュー（管理者・編集者のみ）
+    if (el.getAttribute('onclick') === 'showMailSendPage()') {
+      el.style.display = (isAdmin || currentRole === 'editor') ? '' : 'none';
     }
   });
 
@@ -12353,7 +12691,7 @@ function showOrgChart() {
 
 // 全ページを一括非表示にするヘルパー
 function hideAllPages() {
-  ['employee-list-card','org-chart-page','alert-page','history-page','transfer-page','survey-page','dashboard-page','annual-report-page','workflow-page','mynumber-audit-page','archive-page','perm-review-page','backup-status-page','health-check-page','expiry-page','mail-template-page'].forEach(id => {
+  ['employee-list-card','org-chart-page','alert-page','history-page','transfer-page','survey-page','dashboard-page','annual-report-page','workflow-page','mynumber-audit-page','archive-page','perm-review-page','backup-status-page','health-check-page','expiry-page','mail-template-page','mail-send-page'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = 'none';
   });
@@ -12587,7 +12925,7 @@ async function testTeamsNotification() {
     message: 'これは人事情報管理ツールからのテスト通知です。\n\n設定が正しく完了しました。',
     severity: 'success',
     facts: [
-      { name: 'システム', value: '人事情報管理システム v2.2.0' },
+      { name: 'システム', value: '人事情報管理システム v2.3.0' },
       { name: '送信者', value: currentUser ? (currentUser.displayName || currentUser.mail || '') : '匿名' },
       { name: '送信日時', value: new Date().toLocaleString('ja-JP') }
     ]
@@ -14075,7 +14413,7 @@ function renderReportAppendixSection(data) {
 // ----- フッター -----
 function renderReportFooter() {
   return '<div class="report-footer">' +
-    '人事情報管理システム v2.2.0 / 本レポートは社員データを基に自動生成されました。' +
+    '人事情報管理システム v2.3.0 / 本レポートは社員データを基に自動生成されました。' +
     '<br>※ 機密情報を含むため、取扱いには十分ご注意ください。' +
     '</div>';
 }
