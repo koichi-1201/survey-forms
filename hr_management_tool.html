@@ -223,6 +223,49 @@
 .skeleton-row { display: flex; gap: 12px; padding: 12px; border-bottom: 1px solid var(--border); }
 .skeleton-cell { height: 16px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: skeleton-loading 1.4s ease-in-out infinite; border-radius: 4px; }
 @keyframes skeleton-loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+/* ===== v2.4.0 - F: CSVインポート差分プレビュー ===== */
+.csv-diff-tabs { display: flex; gap: 2px; padding: 0 16px; background: var(--c-gray-50); border-bottom: 1px solid var(--border); }
+.csv-diff-tab { padding: 8px 14px; font-size: 12px; font-weight: 500; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.csv-diff-tab.active { color: var(--c-primary); border-bottom-color: var(--c-primary); background: var(--surface); }
+.csv-diff-tab .badge-count { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; margin-left: 6px; }
+.csv-diff-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 14px; }
+.csv-diff-kpi { padding: 12px; border-radius: var(--radius); text-align: center; }
+.csv-diff-kpi-value { font-size: 22px; font-weight: 700; margin-top: 2px; }
+.csv-diff-kpi-label { font-size: 10px; font-weight: 600; }
+.csv-diff-kpi.new { background: var(--c-primary-light); color: var(--c-primary); }
+.csv-diff-kpi.update { background: var(--c-warning-light); color: var(--c-warning); }
+.csv-diff-kpi.same { background: var(--c-gray-50); color: var(--c-gray-600); }
+.csv-diff-kpi.error { background: var(--c-danger-light); color: var(--c-danger); }
+.csv-diff-row-new { background: rgba(24, 95, 165, 0.06); }
+.csv-diff-row-update { background: rgba(186, 117, 23, 0.06); }
+.csv-diff-row-same { opacity: 0.7; }
+.csv-diff-row-error { background: rgba(163, 45, 45, 0.08); }
+.csv-diff-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; letter-spacing: 0.03em; }
+.csv-diff-badge-new { background: var(--c-primary); color: #fff; }
+.csv-diff-badge-update { background: var(--c-warning); color: #fff; }
+.csv-diff-badge-same { background: var(--c-gray-100); color: var(--c-gray-600); }
+.csv-diff-badge-error { background: var(--c-danger); color: #fff; }
+.csv-diff-detail-btn { padding: 2px 8px; font-size: 10px; border-radius: 4px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; color: var(--text); }
+.csv-diff-detail-btn:hover { background: var(--c-primary-light); color: var(--c-primary); border-color: var(--c-primary); }
+.csv-diff-detail-panel { padding: 8px 14px; background: var(--c-gray-50); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); font-size: 11px; }
+.csv-diff-field-row { display: grid; grid-template-columns: 130px 1fr auto 1fr; gap: 8px; padding: 3px 0; border-bottom: 1px dashed var(--border); align-items: center; }
+.csv-diff-field-row:last-child { border-bottom: none; }
+.csv-diff-field-name { font-weight: 600; color: var(--text-muted); font-size: 11px; }
+.csv-diff-field-before { color: var(--c-danger); text-decoration: line-through; opacity: 0.75; font-size: 11px; }
+.csv-diff-field-after { color: var(--c-success); font-weight: 600; font-size: 11px; }
+.csv-diff-field-empty { color: var(--text-muted); font-style: italic; font-size: 11px; }
+.csv-diff-execute-options { padding: 14px 16px; background: var(--c-primary-light); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.csv-diff-execute-options label { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 6px 0; font-size: 12px; }
+.csv-diff-execute-options input[type="radio"] { width: 16px; height: 16px; cursor: pointer; }
+/* ===== v2.4.0 - G: ダッシュボードカスタマイズ ===== */
+.dashboard-customize-bar { padding: 10px 14px; margin: 8px 8px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.dash-toggle-btn { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 14px; font-size: 11px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; color: var(--text-muted); user-select: none; transition: all 0.15s; }
+.dash-toggle-btn.active { background: var(--c-primary-light); color: var(--c-primary); border-color: var(--c-primary-mid); font-weight: 600; }
+.dash-toggle-btn:hover { border-color: var(--c-primary); color: var(--c-primary); }
+.dashboard-card.hidden-card { display: none !important; }
+.dashboard-favorite-filter { display: flex; align-items: center; gap: 6px; padding: 4px 10px; background: var(--c-success-light); color: var(--c-success); border-radius: 14px; font-size: 11px; font-weight: 600; cursor: pointer; }
+.dashboard-favorite-filter:hover { background: var(--c-success); color: #fff; }
+/* ===== End v2.4.0 ===== */
 /* ===== v2.2.0 - メール送信テンプレート機能 ===== */
 .mail-template-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 10px; transition: box-shadow 0.15s; }
 .mail-template-card:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.06); }
@@ -510,7 +553,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   <nav class="sidebar">
     <div class="sidebar-logo">
       <h1>人事情報<br>管理システム</h1>
-      <p>HR Management v2.3.0</p>
+      <p>HR Management v2.4.0</p>
     </div>
     <div class="sidebar-nav">
       <div class="nav-section">メイン</div>
@@ -693,12 +736,27 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
           </select>
           <div class="dashboard-stat-grid" id="dash-summary" style="flex:1;margin:0;"></div>
         </div>
+        <!-- v2.4.0 - カスタマイズバー -->
+        <div class="dashboard-customize-bar" id="dashboard-customize-bar">
+          <span style="font-size:12px;font-weight:600;color:var(--text-muted);">📊 表示カード:</span>
+          <span class="dash-toggle-btn active" data-card="chart-headcount-trend" onclick="toggleDashCard('chart-headcount-trend')">📈 在籍数推移</span>
+          <span class="dash-toggle-btn active" data-card="chart-monthly-transition" onclick="toggleDashCard('chart-monthly-transition')">🔄 月別入退社</span>
+          <span class="dash-toggle-btn active" data-card="chart-dept-composition" onclick="toggleDashCard('chart-dept-composition')">🏢 部署構成</span>
+          <span class="dash-toggle-btn active" data-card="chart-age-composition" onclick="toggleDashCard('chart-age-composition')">👥 年齢構成</span>
+          <span class="dash-toggle-btn active" data-card="chart-tenure-composition" onclick="toggleDashCard('chart-tenure-composition')">⏱ 勤続年数</span>
+          <span style="margin-left:auto;display:flex;gap:8px;align-items:center;">
+            <button class="btn btn-secondary btn-sm" onclick="saveDashLayoutFavorite()" title="現在の会社フィルタ+カード表示を保存" style="font-size:11px;padding:3px 10px;">⭐ お気に入り保存</button>
+            <button class="btn btn-secondary btn-sm" onclick="resetDashLayout()" style="font-size:11px;padding:3px 10px;">🔄 リセット</button>
+          </span>
+        </div>
+        <!-- お気に入りリスト -->
+        <div id="dashboard-favorites-list" style="padding:0 8px 8px;display:flex;gap:6px;flex-wrap:wrap;"></div>
         <div class="dashboard-grid">
-          <div class="dashboard-card dashboard-card-wide"><h4>📈 在籍数推移（過去12ヶ月）</h4><div id="chart-headcount-trend" class="svg-chart"></div></div>
-          <div class="dashboard-card dashboard-card-wide"><h4>🔄 月別入退社数</h4><div id="chart-monthly-transition" class="svg-chart"></div></div>
-          <div class="dashboard-card"><h4>🏢 部署別構成</h4><div id="chart-dept-composition" class="svg-chart"></div></div>
-          <div class="dashboard-card"><h4>👥 年齢層構成</h4><div id="chart-age-composition" class="svg-chart"></div></div>
-          <div class="dashboard-card"><h4>⏱ 勤続年数構成</h4><div id="chart-tenure-composition" class="svg-chart"></div></div>
+          <div class="dashboard-card dashboard-card-wide" data-card-id="chart-headcount-trend"><h4>📈 在籍数推移（過去12ヶ月）</h4><div id="chart-headcount-trend" class="svg-chart"></div></div>
+          <div class="dashboard-card dashboard-card-wide" data-card-id="chart-monthly-transition"><h4>🔄 月別入退社数</h4><div id="chart-monthly-transition" class="svg-chart"></div></div>
+          <div class="dashboard-card" data-card-id="chart-dept-composition"><h4>🏢 部署別構成</h4><div id="chart-dept-composition" class="svg-chart"></div></div>
+          <div class="dashboard-card" data-card-id="chart-age-composition"><h4>👥 年齢層構成</h4><div id="chart-age-composition" class="svg-chart"></div></div>
+          <div class="dashboard-card" data-card-id="chart-tenure-composition"><h4>⏱ 勤続年数構成</h4><div id="chart-tenure-composition" class="svg-chart"></div></div>
         </div>
       </div>
       <!-- Stats -->
@@ -3394,32 +3452,84 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   </div>
 </div>
 
-<!-- CSV Import Modal -->
+<!-- v2.4.0 - CSV Import Modal（差分プレビュー版） -->
 <div class="modal-overlay" id="csv-modal">
-  <div class="modal" style="width:860px;">
+  <div class="modal" style="width:1000px;max-width:calc(100vw - 40px);">
     <div class="modal-header">
-      <h2>CSVインポート</h2>
+      <h2>📥 CSVインポート — 差分プレビュー</h2>
       <button class="modal-close" onclick="closeModal('csv-modal')">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
-    <div class="modal-body" style="padding:20px 24px;">
-      <div id="csv-summary" style="margin-bottom:16px;"></div>
-      <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">以下の内容でインポートします。内容を確認してから「登録実行」を押してください。</div>
-      <div style="overflow-x:auto;max-height:400px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius);">
-        <table style="width:100%;border-collapse:collapse;font-size:12px;" id="csv-preview-table">
-          <thead id="csv-preview-head"></thead>
+    <div class="modal-body" style="padding:0;">
+      <div id="csv-summary" style="padding:14px 20px;border-bottom:1px solid var(--border);"></div>
+      <!-- KPIサマリー -->
+      <div class="csv-diff-summary">
+        <div class="csv-diff-kpi new">
+          <div class="csv-diff-kpi-label">🆕 新規登録</div>
+          <div class="csv-diff-kpi-value" id="csv-kpi-new">0</div>
+          <div style="font-size:10px;margin-top:2px;">件</div>
+        </div>
+        <div class="csv-diff-kpi update">
+          <div class="csv-diff-kpi-label">🔄 更新</div>
+          <div class="csv-diff-kpi-value" id="csv-kpi-update">0</div>
+          <div style="font-size:10px;margin-top:2px;">件</div>
+        </div>
+        <div class="csv-diff-kpi same">
+          <div class="csv-diff-kpi-label">─ 変更なし</div>
+          <div class="csv-diff-kpi-value" id="csv-kpi-same">0</div>
+          <div style="font-size:10px;margin-top:2px;">件</div>
+        </div>
+        <div class="csv-diff-kpi error">
+          <div class="csv-diff-kpi-label">⚠ エラー</div>
+          <div class="csv-diff-kpi-value" id="csv-kpi-error">0</div>
+          <div style="font-size:10px;margin-top:2px;">件</div>
+        </div>
+      </div>
+      <!-- 実行モード選択 -->
+      <div class="csv-diff-execute-options">
+        <div style="font-size:12px;font-weight:600;color:var(--c-primary);margin-bottom:8px;">🎯 インポート実行モード</div>
+        <label>
+          <input type="radio" name="csv-import-mode" value="new-and-update" checked onchange="updateCsvExecuteLabel()">
+          <span><strong>新規＋更新</strong>（推奨・変更なしの行はスキップ）</span>
+        </label>
+        <label>
+          <input type="radio" name="csv-import-mode" value="new-only" onchange="updateCsvExecuteLabel()">
+          <span><strong>新規のみ</strong>（既存社員は上書きしない・安全）</span>
+        </label>
+        <label>
+          <input type="radio" name="csv-import-mode" value="update-only" onchange="updateCsvExecuteLabel()">
+          <span><strong>更新のみ</strong>（新規行はスキップ）</span>
+        </label>
+      </div>
+      <!-- カテゴリタブ -->
+      <div class="csv-diff-tabs">
+        <div class="csv-diff-tab active" data-tab="all" onclick="switchCsvDiffTab('all')">すべて<span class="badge-count csv-diff-badge-same" id="tab-count-all">0</span></div>
+        <div class="csv-diff-tab" data-tab="new" onclick="switchCsvDiffTab('new')">🆕 新規<span class="badge-count csv-diff-badge-new" id="tab-count-new">0</span></div>
+        <div class="csv-diff-tab" data-tab="update" onclick="switchCsvDiffTab('update')">🔄 更新<span class="badge-count csv-diff-badge-update" id="tab-count-update">0</span></div>
+        <div class="csv-diff-tab" data-tab="same" onclick="switchCsvDiffTab('same')">─ 変更なし<span class="badge-count csv-diff-badge-same" id="tab-count-same">0</span></div>
+        <div class="csv-diff-tab" data-tab="error" onclick="switchCsvDiffTab('error')">⚠ エラー<span class="badge-count csv-diff-badge-error" id="tab-count-error">0</span></div>
+      </div>
+      <!-- 一覧 -->
+      <div style="overflow-x:auto;max-height:440px;overflow-y:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:12px;" id="csv-diff-table">
+          <thead id="csv-preview-head" style="position:sticky;top:0;z-index:2;background:var(--surface);"></thead>
           <tbody id="csv-preview-body"></tbody>
         </table>
       </div>
-      <div id="csv-errors" style="margin-top:12px;"></div>
+      <div id="csv-errors" style="padding:14px 20px;"></div>
+      <!-- バックアップ確認 -->
+      <div id="csv-backup-notice" style="padding:10px 16px;background:var(--c-warning-light);border-top:1px solid var(--border);font-size:12px;color:var(--c-warning);display:none;">
+        💡 <strong>重要データの更新前に</strong>：CSVインポートは既存データを上書きします。念のため事前にCSV出力（バックアップ）することを推奨します。
+      </div>
     </div>
     <div class="modal-footer">
       <span id="csv-count-label" style="font-size:12px;color:var(--text-muted);margin-right:auto;"></span>
+      <button class="btn btn-secondary" onclick="exportCsv()" title="現状データをバックアップ" style="font-size:12px;">📥 事前バックアップ</button>
       <button class="btn btn-secondary" onclick="closeModal('csv-modal')">キャンセル</button>
       <button class="btn btn-primary" onclick="executeCsvImport()" id="csv-import-btn">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></svg>
-        登録実行
+        <span id="csv-import-btn-label">登録実行</span>
       </button>
     </div>
   </div>
@@ -4458,7 +4568,127 @@ function s5RenderCrossTab(xi,yi){if(!_s5CrossContext)return;var qs=_s5CrossConte
 var dashCompanyFilter='';
 function getDashFilteredEmployees(){if(!dashCompanyFilter)return employees||[];return (employees||[]).filter(function(e){return e.Company1===dashCompanyFilter||e.Company2===dashCompanyFilter||e.Company3===dashCompanyFilter;});}
 function onDashCompanyChange(){var s=document.getElementById('dash-company-filter');dashCompanyFilter=s?s.value:'';renderDashboard();}
-function showDashboard(){document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});if(event&&event.currentTarget)event.currentTarget.classList.add('active');hideAllPages();var p=document.getElementById('dashboard-page');if(p)p.style.display='block';document.getElementById('page-title').textContent='ダッシュボード';var nb=document.querySelector('.topbar-right .btn-primary');if(nb)nb.style.display='none';var s=document.getElementById('dash-company-filter');if(s){var cs=[].concat.apply([],(employees||[]).map(function(e){return [e.Company1,e.Company2,e.Company3];})).filter(Boolean);var us=Array.from(new Set(cs)).sort();var cur=s.value;s.innerHTML='<option value="">全会社</option>'+us.map(function(c){return '<option value="'+esc(c)+'" '+(cur===c?'selected':'')+'>'+esc(c)+'</option>';}).join('');}renderDashboard();}
+function showDashboard(){document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});if(event&&event.currentTarget)event.currentTarget.classList.add('active');hideAllPages();var p=document.getElementById('dashboard-page');if(p)p.style.display='block';document.getElementById('page-title').textContent='ダッシュボード';var nb=document.querySelector('.topbar-right .btn-primary');if(nb)nb.style.display='none';var s=document.getElementById('dash-company-filter');if(s){var cs=[].concat.apply([],(employees||[]).map(function(e){return [e.Company1,e.Company2,e.Company3];})).filter(Boolean);var us=Array.from(new Set(cs)).sort();var cur=s.value;s.innerHTML='<option value="">全会社</option>'+us.map(function(c){return '<option value="'+esc(c)+'" '+(cur===c?'selected':'')+'>'+esc(c)+'</option>';}).join('');}
+// v2.4.0 - ダッシュボード設定を復元
+loadDashLayoutFromSP();
+renderDashboard();
+renderDashFavoritesList();
+}
+
+// ============================================================
+// v2.4.0 - G. ダッシュボードカスタマイズ
+// ============================================================
+var dashHiddenCards = new Set();
+var dashFavorites = []; // [{ name, company, hiddenCards: [] }]
+
+function toggleDashCard(cardId) {
+  if (dashHiddenCards.has(cardId)) dashHiddenCards.delete(cardId);
+  else dashHiddenCards.add(cardId);
+  applyDashCardVisibility();
+  saveDashLayoutToSP();
+}
+
+function applyDashCardVisibility() {
+  document.querySelectorAll('.dashboard-card[data-card-id]').forEach(function(card) {
+    var cardId = card.getAttribute('data-card-id');
+    if (dashHiddenCards.has(cardId)) card.classList.add('hidden-card');
+    else card.classList.remove('hidden-card');
+  });
+  document.querySelectorAll('.dash-toggle-btn[data-card]').forEach(function(btn) {
+    var cardId = btn.getAttribute('data-card');
+    btn.classList.toggle('active', !dashHiddenCards.has(cardId));
+  });
+}
+
+function resetDashLayout() {
+  dashHiddenCards.clear();
+  var sel = document.getElementById('dash-company-filter');
+  if (sel) sel.value = '';
+  dashCompanyFilter = '';
+  applyDashCardVisibility();
+  renderDashboard();
+  saveDashLayoutToSP();
+  showToast('ダッシュボード設定をリセットしました', 'success');
+}
+
+async function loadDashLayoutFromSP() {
+  try {
+    var key = 'dashLayout_' + (currentUser ? (currentUser.mail || '').toLowerCase() : 'default');
+    var d = await loadMasterFromSP(key);
+    if (d && typeof d === 'object') {
+      dashHiddenCards = new Set(Array.isArray(d.hiddenCards) ? d.hiddenCards : []);
+      dashFavorites = Array.isArray(d.favorites) ? d.favorites : [];
+      applyDashCardVisibility();
+    }
+  } catch(e) { console.warn('ダッシュボード設定読み込みエラー:', e.message); }
+}
+
+async function saveDashLayoutToSP() {
+  try {
+    var key = 'dashLayout_' + (currentUser ? (currentUser.mail || '').toLowerCase() : 'default');
+    await saveMasterToSP(key, {
+      hiddenCards: Array.from(dashHiddenCards),
+      favorites: dashFavorites
+    });
+  } catch(e) { console.warn('ダッシュボード設定保存エラー:', e.message); }
+}
+
+async function saveDashLayoutFavorite() {
+  var name = prompt('お気に入り名を入力してください（例: 営業部専用ビュー）', '新しいビュー ' + (dashFavorites.length + 1));
+  if (!name || !name.trim()) return;
+  name = name.trim();
+  var fav = {
+    name: name,
+    company: dashCompanyFilter || '',
+    hiddenCards: Array.from(dashHiddenCards),
+    savedAt: new Date().toISOString()
+  };
+  // 同名のお気に入りを上書き
+  var idx = dashFavorites.findIndex(function(f){ return f.name === name; });
+  if (idx >= 0) dashFavorites[idx] = fav;
+  else dashFavorites.push(fav);
+  await saveDashLayoutToSP();
+  renderDashFavoritesList();
+  showToast('お気に入り「' + name + '」を保存しました', 'success');
+}
+
+function applyDashFavorite(idx) {
+  var fav = dashFavorites[idx];
+  if (!fav) return;
+  dashHiddenCards = new Set(fav.hiddenCards || []);
+  dashCompanyFilter = fav.company || '';
+  var sel = document.getElementById('dash-company-filter');
+  if (sel) sel.value = dashCompanyFilter;
+  applyDashCardVisibility();
+  renderDashboard();
+  showToast('「' + fav.name + '」を適用しました', 'success');
+}
+
+async function deleteDashFavorite(idx) {
+  var fav = dashFavorites[idx];
+  if (!fav) return;
+  if (!confirm('お気に入り「' + fav.name + '」を削除しますか？')) return;
+  dashFavorites.splice(idx, 1);
+  await saveDashLayoutToSP();
+  renderDashFavoritesList();
+  showToast('削除しました', 'success');
+}
+
+function renderDashFavoritesList() {
+  var container = document.getElementById('dashboard-favorites-list');
+  if (!container) return;
+  if (!dashFavorites.length) {
+    container.innerHTML = '';
+    return;
+  }
+  container.innerHTML = '<span style="font-size:11px;color:var(--text-muted);margin-right:4px;padding:4px 0;">⭐ お気に入り:</span>' +
+    dashFavorites.map(function(f, i) {
+      return '<span class="dashboard-favorite-filter" onclick="applyDashFavorite(' + i + ')">' +
+        esc(f.name) + (f.company ? ' (' + esc(f.company) + ')' : '') +
+        ' <span onclick="event.stopPropagation();deleteDashFavorite(' + i + ')" style="opacity:0.6;cursor:pointer;padding:0 4px;" title="削除">×</span>' +
+        '</span>';
+    }).join('');
+}
 function renderDashboard(){var list=getDashFilteredEmployees();renderDashSummary(list);renderHeadcountTrend(list);renderDeptComposition(list);renderMonthlyTransition(list);renderAgeComposition(list);renderTenureComposition(list);}
 function renderDashSummary(list){
   var act=list.filter(function(e){return e.Status==='在職';}).length;
@@ -12523,49 +12753,227 @@ function parseCsvLine(line) {
   return result;
 }
 
-// ===== CSV PREVIEW =====
+// ===== v2.4.0 - CSV差分プレビュー機能 =====
+var csvDiffAnalysis = null;
+var csvCurrentDiffTab = 'all';
+
+// CSV行を既存社員と比較して差分を解析
+function analyzeCsvDiff(rows) {
+  var result = { new: [], update: [], same: [], error: [] };
+  var DATE_KEYS = new Set(['Birthdate','JoinDate','RetireDate','Child1Birth','Child2Birth','Child3Birth','LeaveStartDate','LeaveEndDate']);
+  rows.forEach(function(row, idx) {
+    var missing = CSV_COLUMNS.filter(function(c){ return c.required && !row[c.key]; });
+    if (missing.length) {
+      result.error.push({ row: row, idx: idx, errors: missing.map(function(c){ return c.label + 'が未入力'; }) });
+      return;
+    }
+    var existing = (employees || []).find(function(e){ return e.EmpID === row.EmpID; });
+    if (!existing) {
+      result.new.push({ row: row, idx: idx, existing: null, changes: [] });
+    } else {
+      var changes = [];
+      CSV_COLUMNS.forEach(function(c) {
+        if (c.key === 'Mynumber') {
+          var oldMasked = existing.Mynumber ? '設定済' : '';
+          var newMasked = row.Mynumber ? '設定済' : '';
+          if (oldMasked !== newMasked) {
+            changes.push({ field: c.key, label: c.label, before: oldMasked, after: newMasked });
+          }
+          return;
+        }
+        var before = String(existing[c.key] || '').trim();
+        var after = String(row[c.key] || '').trim();
+        if (DATE_KEYS.has(c.key)) {
+          if (before) before = formatDateYMD(before);
+          if (after) after = formatDateYMD(after);
+        }
+        if (before !== after) {
+          changes.push({ field: c.key, label: c.label, before: before, after: after });
+        }
+      });
+      if (changes.length === 0) {
+        result.same.push({ row: row, idx: idx, existing: existing, changes: [] });
+      } else {
+        result.update.push({ row: row, idx: idx, existing: existing, changes: changes });
+      }
+    }
+  });
+  return result;
+}
+
+// ===== CSV PREVIEW（v2.4.0 差分プレビュー版） =====
 function showCsvPreview(headers, rows, errors, filename) {
-  // サマリー
-  document.getElementById('csv-summary').innerHTML = `
-    <div style="background:var(--c-primary-light);border:1px solid #B5D4F4;border-radius:var(--radius);padding:10px 14px;font-size:13px;">
-      <strong>${esc(filename)}</strong> を読み込みました。
-      データ行: <strong>${rows.length}件</strong>
-      ${errors.length ? `　<span style="color:var(--c-danger);">エラー: ${errors.length}件</span>` : '　<span style="color:var(--c-success);">エラーなし</span>'}
-    </div>`;
-
-  // プレビューテーブルヘッダー（表示列を絞る）
-  const previewKeys = ['EmpID','NameKanji','NameKana','Department','Position','EmploymentType','Status','JoinDate'];
-  const previewLabels = previewKeys.map(k => CSV_COLUMNS.find(c=>c.key===k)?.label || k);
-
-  document.getElementById('csv-preview-head').innerHTML =
-    '<tr>' + previewLabels.map(l => `<th style="padding:8px 10px;background:var(--c-gray-50);border-bottom:1px solid var(--border);font-size:11px;font-weight:600;color:var(--text-muted);white-space:nowrap;">${esc(l)}</th>`).join('') + '<th style="padding:8px 10px;background:var(--c-gray-50);border-bottom:1px solid var(--border);font-size:11px;">状態</th></tr>';
-
-  document.getElementById('csv-preview-body').innerHTML = rows.map((row, i) => {
-    const rowErrors = CSV_COLUMNS.filter(c => c.required && !row[c.key]);
-    const hasError = rowErrors.length > 0;
-    const cells = previewKeys.map(k => `<td style="padding:7px 10px;border-bottom:1px solid var(--border);font-size:12px;">${esc(row[k]||'')}</td>`).join('');
-    const status = hasError
-      ? `<td style="padding:7px 10px;border-bottom:1px solid var(--border);"><span class="badge" style="background:var(--c-danger-light);color:var(--c-danger);">エラー</span></td>`
-      : `<td style="padding:7px 10px;border-bottom:1px solid var(--border);"><span class="badge badge-active">OK</span></td>`;
-    return `<tr style="${hasError?'background:var(--c-danger-light);':''}">${cells}${status}</tr>`;
-  }).join('');
-
-  // エラー詳細
+  csvDiffAnalysis = analyzeCsvDiff(rows);
+  csvCurrentDiffTab = 'all';
+  
+  var newCount = csvDiffAnalysis.new.length;
+  var updateCount = csvDiffAnalysis.update.length;
+  var sameCount = csvDiffAnalysis.same.length;
+  var errorCount = csvDiffAnalysis.error.length;
+  
+  document.getElementById('csv-summary').innerHTML =
+    '<div style="background:var(--c-primary-light);border:1px solid #B5D4F4;border-radius:var(--radius);padding:10px 14px;font-size:13px;line-height:1.7;">' +
+    '📁 <strong>' + esc(filename) + '</strong> を読み込みました。<br>' +
+    'データ行: <strong>' + rows.length + '件</strong>' +
+    '　（🆕 新規 <strong>' + newCount + '</strong> / 🔄 更新 <strong>' + updateCount + '</strong> / ─ 変更なし ' + sameCount + ' / ⚠ エラー ' + errorCount + '）' +
+    '</div>';
+  
+  var setEl = function(id, v){ var e = document.getElementById(id); if (e) e.textContent = v; };
+  setEl('csv-kpi-new', newCount);
+  setEl('csv-kpi-update', updateCount);
+  setEl('csv-kpi-same', sameCount);
+  setEl('csv-kpi-error', errorCount);
+  setEl('tab-count-all', rows.length);
+  setEl('tab-count-new', newCount);
+  setEl('tab-count-update', updateCount);
+  setEl('tab-count-same', sameCount);
+  setEl('tab-count-error', errorCount);
+  
+  var notice = document.getElementById('csv-backup-notice');
+  if (notice) {
+    var showNotice = updateCount >= 10 || (rows.length > 0 && updateCount / rows.length >= 0.3);
+    notice.style.display = showNotice ? 'block' : 'none';
+  }
+  
   if (errors.length) {
     document.getElementById('csv-errors').innerHTML =
-      `<div style="background:var(--c-danger-light);border:1px solid #F7C1C1;border-radius:var(--radius);padding:10px 14px;">
-        <div style="font-size:12px;font-weight:600;color:var(--c-danger);margin-bottom:6px;">エラー詳細（エラー行はスキップされます）</div>
-        ${errors.map(e => `<div style="font-size:12px;color:var(--c-danger);">・${esc(e)}</div>`).join('')}
-      </div>`;
+      '<div style="background:var(--c-danger-light);border:1px solid #F7C1C1;border-radius:var(--radius);padding:10px 14px;">' +
+      '<div style="font-size:12px;font-weight:600;color:var(--c-danger);margin-bottom:6px;">⚠ 全体エラー</div>' +
+      errors.map(function(e){ return '<div style="font-size:12px;color:var(--c-danger);">・' + esc(e) + '</div>'; }).join('') +
+      '</div>';
   } else {
     document.getElementById('csv-errors').innerHTML = '';
   }
-
-  const validCount = rows.filter(r => !CSV_COLUMNS.filter(c=>c.required&&!r[c.key]).length).length;
-  document.getElementById('csv-count-label').textContent = `登録対象: ${validCount}件 / 全${rows.length}件`;
-
+  
+  renderCsvDiffList();
+  updateCsvExecuteLabel();
   openModal('csv-modal');
 }
+
+function switchCsvDiffTab(tab) {
+  csvCurrentDiffTab = tab;
+  document.querySelectorAll('.csv-diff-tab').forEach(function(t){
+    t.classList.toggle('active', t.getAttribute('data-tab') === tab);
+  });
+  renderCsvDiffList();
+}
+
+function renderCsvDiffList() {
+  if (!csvDiffAnalysis) return;
+  var previewKeys = ['EmpID','NameKanji','NameKana','Department','Position','EmploymentType','Status','JoinDate'];
+  var previewLabels = previewKeys.map(function(k){ return (CSV_COLUMNS.find(function(c){return c.key===k;}) || {}).label || k; });
+  
+  var headHtml = '<tr>' +
+    '<th style="padding:8px 10px;background:var(--c-gray-50);border-bottom:1px solid var(--border);font-size:11px;font-weight:600;color:var(--text-muted);width:70px;text-align:center;">状態</th>' +
+    previewLabels.map(function(l){ return '<th style="padding:8px 10px;background:var(--c-gray-50);border-bottom:1px solid var(--border);font-size:11px;font-weight:600;color:var(--text-muted);white-space:nowrap;">' + esc(l) + '</th>'; }).join('') +
+    '<th style="padding:8px 10px;background:var(--c-gray-50);border-bottom:1px solid var(--border);font-size:11px;width:80px;">詳細</th>' +
+    '</tr>';
+  document.getElementById('csv-preview-head').innerHTML = headHtml;
+  
+  var list = [];
+  if (csvCurrentDiffTab === 'all' || csvCurrentDiffTab === 'new') {
+    csvDiffAnalysis.new.forEach(function(item){ list.push({ type: 'new', item: item }); });
+  }
+  if (csvCurrentDiffTab === 'all' || csvCurrentDiffTab === 'update') {
+    csvDiffAnalysis.update.forEach(function(item){ list.push({ type: 'update', item: item }); });
+  }
+  if (csvCurrentDiffTab === 'all' || csvCurrentDiffTab === 'same') {
+    csvDiffAnalysis.same.forEach(function(item){ list.push({ type: 'same', item: item }); });
+  }
+  if (csvCurrentDiffTab === 'all' || csvCurrentDiffTab === 'error') {
+    csvDiffAnalysis.error.forEach(function(item){ list.push({ type: 'error', item: item }); });
+  }
+  
+  if (!list.length) {
+    document.getElementById('csv-preview-body').innerHTML = '<tr><td colspan="' + (previewKeys.length + 2) + '" style="padding:32px;text-align:center;color:var(--text-muted);">該当データがありません</td></tr>';
+    return;
+  }
+  
+  var badgeMap = {
+    'new':    { class: 'csv-diff-badge-new', label: '🆕 新規', rowClass: 'csv-diff-row-new' },
+    'update': { class: 'csv-diff-badge-update', label: '🔄 更新', rowClass: 'csv-diff-row-update' },
+    'same':   { class: 'csv-diff-badge-same', label: '─', rowClass: 'csv-diff-row-same' },
+    'error':  { class: 'csv-diff-badge-error', label: '⚠ エラー', rowClass: 'csv-diff-row-error' }
+  };
+  
+  var bodyHtml = '';
+  list.forEach(function(entry, i) {
+    var b = badgeMap[entry.type];
+    var row = entry.item.row;
+    var cells = previewKeys.map(function(k){ return '<td style="padding:7px 10px;border-bottom:1px solid var(--border);font-size:12px;">' + esc(row[k] || '') + '</td>'; }).join('');
+    var detailBtn = (entry.type === 'update' || entry.type === 'error')
+      ? '<button class="csv-diff-detail-btn" onclick="toggleCsvDiffDetail(' + i + ')">詳細 ▼</button>'
+      : '';
+    bodyHtml +=
+      '<tr class="' + b.rowClass + '" data-diff-row="' + i + '">' +
+      '<td style="padding:7px 10px;border-bottom:1px solid var(--border);text-align:center;"><span class="csv-diff-badge ' + b.class + '">' + b.label + '</span></td>' +
+      cells +
+      '<td style="padding:7px 10px;border-bottom:1px solid var(--border);text-align:center;">' + detailBtn + '</td>' +
+      '</tr>' +
+      '<tr id="csv-diff-detail-' + i + '" style="display:none;"><td colspan="' + (previewKeys.length + 2) + '" style="padding:0;">' +
+      renderCsvDiffDetailPanel(entry.type, entry.item) +
+      '</td></tr>';
+  });
+  document.getElementById('csv-preview-body').innerHTML = bodyHtml;
+}
+
+function renderCsvDiffDetailPanel(type, item) {
+  if (type === 'error') {
+    return '<div class="csv-diff-detail-panel" style="background:var(--c-danger-light);">' +
+      '<div style="font-size:12px;font-weight:600;color:var(--c-danger);margin-bottom:6px;">⚠ エラー詳細</div>' +
+      (item.errors || []).map(function(e){ return '<div style="font-size:11px;color:var(--c-danger);">・' + esc(e) + '</div>'; }).join('') +
+      '</div>';
+  }
+  if (type === 'update' && item.changes && item.changes.length) {
+    var html = '<div class="csv-diff-detail-panel">' +
+      '<div style="font-size:12px;font-weight:600;color:var(--c-warning);margin-bottom:6px;">🔄 変更内容（' + item.changes.length + '項目）</div>';
+    item.changes.forEach(function(c) {
+      var beforeStr = c.before ? esc(c.before) : '<span class="csv-diff-field-empty">（空）</span>';
+      var afterStr = c.after ? esc(c.after) : '<span class="csv-diff-field-empty">（空）</span>';
+      html += '<div class="csv-diff-field-row">' +
+        '<span class="csv-diff-field-name">' + esc(c.label) + '</span>' +
+        '<span class="csv-diff-field-before">' + beforeStr + '</span>' +
+        '<span style="color:var(--text-muted);">→</span>' +
+        '<span class="csv-diff-field-after">' + afterStr + '</span>' +
+        '</div>';
+    });
+    html += '</div>';
+    return html;
+  }
+  return '';
+}
+
+function toggleCsvDiffDetail(i) {
+  var panel = document.getElementById('csv-diff-detail-' + i);
+  if (!panel) return;
+  var btn = document.querySelector('[data-diff-row="' + i + '"] .csv-diff-detail-btn');
+  if (panel.style.display === 'none') {
+    panel.style.display = '';
+    if (btn) btn.textContent = '詳細 ▲';
+  } else {
+    panel.style.display = 'none';
+    if (btn) btn.textContent = '詳細 ▼';
+  }
+}
+
+function updateCsvExecuteLabel() {
+  if (!csvDiffAnalysis) return;
+  var mode = (document.querySelector('input[name="csv-import-mode"]:checked') || {}).value || 'new-and-update';
+  var newC = csvDiffAnalysis.new.length;
+  var updC = csvDiffAnalysis.update.length;
+  var target = 0;
+  var label = '';
+  if (mode === 'new-and-update') { target = newC + updC; label = '新規' + newC + '件 + 更新' + updC + '件を実行'; }
+  else if (mode === 'new-only') { target = newC; label = '新規' + newC + '件のみ実行'; }
+  else if (mode === 'update-only') { target = updC; label = '更新' + updC + '件のみ実行'; }
+  var btnLabel = document.getElementById('csv-import-btn-label');
+  if (btnLabel) btnLabel.textContent = label;
+  var cLabel = document.getElementById('csv-count-label');
+  if (cLabel) cLabel.textContent = '実行対象: ' + target + '件 / 全' + csvParsedData.length + '件';
+  var btn = document.getElementById('csv-import-btn');
+  if (btn) btn.disabled = target === 0;
+}
+
 
 // ===== CSV EXECUTE IMPORT =====
 
@@ -12621,48 +13029,93 @@ function buildSharePointFields(row) {
 async function executeCsvImport() {
   if (!accessToken) { showToast('ログインが必要です', 'error'); return; }
   if (!listId) { showToast('SharePoint Listが初期化されていません', 'error'); return; }
+  if (!csvDiffAnalysis) { showToast('差分解析が実行されていません', 'error'); return; }
 
-  // エラー行を除外
-  const validRows = csvParsedData.filter(row =>
-    !CSV_COLUMNS.filter(c => c.required && !row[c.key]).length
-  );
-  if (!validRows.length) { showToast('登録できるデータがありません', 'error'); return; }
+  // v2.4.0 - 実行モードに応じて対象を絞り込む
+  var mode = (document.querySelector('input[name="csv-import-mode"]:checked') || {}).value || 'new-and-update';
+  var targets = [];
+  var actionMap = {};
+
+  if (mode === 'new-and-update' || mode === 'new-only') {
+    csvDiffAnalysis.new.forEach(function(item) {
+      targets.push(item.row);
+      actionMap[item.row.EmpID] = { type: 'new', existing: null };
+    });
+  }
+  if (mode === 'new-and-update' || mode === 'update-only') {
+    csvDiffAnalysis.update.forEach(function(item) {
+      targets.push(item.row);
+      actionMap[item.row.EmpID] = { type: 'update', existing: item.existing, changes: item.changes };
+    });
+  }
+
+  if (!targets.length) { showToast('実行対象のデータがありません', 'error'); return; }
+
+  // 確認ダイアログ
+  var newC = targets.filter(function(r){ return actionMap[r.EmpID].type === 'new'; }).length;
+  var updC = targets.filter(function(r){ return actionMap[r.EmpID].type === 'update'; }).length;
+  var confirmMsg = '以下の内容でインポートを実行します。\n\n';
+  if (newC > 0) confirmMsg += '🆕 新規登録: ' + newC + '件\n';
+  if (updC > 0) confirmMsg += '🔄 更新: ' + updC + '件（既存データを上書きします）\n';
+  confirmMsg += '\n実行しますか？';
+  if (!confirm(confirmMsg)) return;
 
   const btn = document.getElementById('csv-import-btn');
   btn.disabled = true;
-  btn.textContent = '登録中...';
+  showLoading('CSVインポート中...', '0 / ' + targets.length);
 
-  let success = 0, failed = 0, lastError = '';
-  for (const row of validRows) {
+  let successNew = 0, successUpdate = 0, failed = 0, lastError = '';
+  for (var i = 0; i < targets.length; i++) {
+    var row = targets[i];
+    var action = actionMap[row.EmpID];
     try {
       const fields = buildSharePointFields(row);
-      // EmpID・NameKanjiは必須なので確認
       if (!fields.EmpID || !fields.NameKanji) { failed++; continue; }
-      await graphPost(
-        `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${listId}/items`,
-        { fields }
-      );
-      addHistory('CSVインポート', fields.EmpID, fields.NameKanji, 'CSVインポートで登録');
-      success++;
+
+      if (action.type === 'new') {
+        await graphPost(
+          'https://graph.microsoft.com/v1.0/sites/' + siteId + '/lists/' + listId + '/items',
+          { fields: fields }
+        );
+        addHistory('CSVインポート', fields.EmpID, fields.NameKanji, 'CSVインポートで新規登録');
+        successNew++;
+      } else {
+        // 更新
+        await graphPatch(
+          'https://graph.microsoft.com/v1.0/sites/' + siteId + '/lists/' + listId + '/items/' + action.existing.id + '/fields',
+          fields
+        );
+        var changesSummary = (action.changes || []).map(function(c){ return c.label + ': ' + (c.before || '(空)') + '→' + (c.after || '(空)'); }).join(' / ');
+        addHistory('CSVインポート', fields.EmpID, fields.NameKanji, 'CSVインポートで更新 - ' + (changesSummary.substring(0, 200)));
+        successUpdate++;
+      }
     } catch(e) {
       failed++;
       lastError = e.message;
-      console.error('CSV行登録エラー:', e.message, row);
+      console.error('CSV行処理エラー:', e.message, row);
     }
+    updateProgressBar(i + 1, targets.length, 'CSVインポート中...');
   }
 
+  hideLoading();
   btn.disabled = false;
-  btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></svg> 登録実行';
+  btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></svg> <span id="csv-import-btn-label">登録実行</span>';
 
   closeModal('csv-modal');
-  if (failed && !success) {
-    // 全件失敗の場合は詳細を表示
+  var successTotal = successNew + successUpdate;
+  if (failed && !successTotal) {
     let errDetail = '';
     try { errDetail = JSON.parse(lastError)?.error?.message || lastError; } catch { errDetail = lastError; }
-    showToast(`登録失敗: ${errDetail.substring(0,80)}`, 'error');
+    showToast('登録失敗: ' + errDetail.substring(0, 80), 'error');
   } else {
-    if (success > 0) addOpLog('CSVインポート', `${success}件をCSVインポートで登録`, '');
-    showToast(`${success}件を登録しました${failed ? `（${failed}件失敗）` : ''}`, failed ? 'error' : 'success');
+    if (successTotal > 0) {
+      addOpLog('CSVインポート', 'CSV差分インポート実行（新規' + successNew + '件 / 更新' + successUpdate + '件 / 失敗' + failed + '件）', currentUser ? (currentUser.mail || '') : '');
+    }
+    var msg = '';
+    if (successNew > 0) msg += '新規' + successNew + '件';
+    if (successUpdate > 0) msg += (msg ? '、' : '') + '更新' + successUpdate + '件';
+    msg = msg + 'を反映しました' + (failed ? '（' + failed + '件失敗）' : '');
+    showToast(msg, failed ? 'warn' : 'success');
   }
   await loadEmployees();
 }
@@ -12925,7 +13378,7 @@ async function testTeamsNotification() {
     message: 'これは人事情報管理ツールからのテスト通知です。\n\n設定が正しく完了しました。',
     severity: 'success',
     facts: [
-      { name: 'システム', value: '人事情報管理システム v2.3.0' },
+      { name: 'システム', value: '人事情報管理システム v2.4.0' },
       { name: '送信者', value: currentUser ? (currentUser.displayName || currentUser.mail || '') : '匿名' },
       { name: '送信日時', value: new Date().toLocaleString('ja-JP') }
     ]
@@ -14413,7 +14866,7 @@ function renderReportAppendixSection(data) {
 // ----- フッター -----
 function renderReportFooter() {
   return '<div class="report-footer">' +
-    '人事情報管理システム v2.3.0 / 本レポートは社員データを基に自動生成されました。' +
+    '人事情報管理システム v2.4.0 / 本レポートは社員データを基に自動生成されました。' +
     '<br>※ 機密情報を含むため、取扱いには十分ご注意ください。' +
     '</div>';
 }
