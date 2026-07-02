@@ -460,7 +460,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   <nav class="sidebar">
     <div class="sidebar-logo">
       <h1>人事情報<br>管理システム</h1>
-      <p>HR Management v1.9.0</p>
+      <p>HR Management v2.0.0</p>
     </div>
     <div class="sidebar-nav">
       <div class="nav-section">メイン</div>
@@ -890,15 +890,46 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
       </button>
     </div>
     <div class="modal-body" style="padding:20px 24px;">
-      <div class="form-grid">
+      <!-- v2.0.0 - モード切替 -->
+      <div style="background:var(--c-primary-light);border:1px solid #B5D4F4;border-radius:var(--radius);padding:10px 14px;font-size:12px;color:#0C447C;margin-bottom:14px;">
+        💡 <strong>2つの入力モード</strong><br>
+        🔍 <strong>検索モード</strong>：登録済社員から選択（推奨・在職者向け）<br>
+        ✏ <strong>手入力モード</strong>：退職済社員・過去データも直接入力可能
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:14px;">
+        <button type="button" class="btn btn-primary btn-sm" id="tf-mode-search" onclick="switchTransferMode('search')" style="flex:1;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          🔍 検索モード
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm" id="tf-mode-manual" onclick="switchTransferMode('manual')" style="flex:1;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          ✏ 手入力モード
+        </button>
+      </div>
+      <!-- 検索モード（デフォルト） -->
+      <div id="tf-search-section" class="form-grid" style="margin-bottom:10px;">
+        <div class="form-group form-full" style="position:relative;">
+          <label>社員検索 <span class="required">*</span></label>
+          <input class="form-control" type="text" id="tf-emp-search" placeholder="氏名・社員ID・部署で検索..." oninput="onTransferEmpSearch()" onfocus="onTransferEmpSearch()" autocomplete="off">
+          <div id="tf-emp-search-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 4px 12px rgba(0,0,0,0.1);max-height:280px;overflow-y:auto;z-index:100;margin-top:4px;"></div>
+          <p style="font-size:11px;color:var(--text-muted);margin-top:4px;">氏名・カナ・社員ID・部署などで検索できます</p>
+        </div>
+      </div>
+      <!-- 手入力モード -->
+      <div class="form-grid" id="tf-manual-section" style="display:none;">
         <div class="form-group">
           <label>社員ID <span class="required">*</span></label>
-          <input class="form-control" type="text" id="tf-emp-id" placeholder="例: EMP-001" oninput="onTransferEmpIdInput()">
+          <input class="form-control" type="text" id="tf-emp-id-manual" placeholder="例: EMP-001（退職者IDも可）" oninput="onTransferManualIdInput()">
         </div>
         <div class="form-group">
-          <label>氏名</label>
-          <input class="form-control" type="text" id="tf-emp-name" placeholder="自動入力" readonly style="background:var(--c-gray-50);">
+          <label>氏名 <span class="required">*</span></label>
+          <input class="form-control" type="text" id="tf-emp-name-manual" placeholder="例: 山田 太郎（手入力）">
         </div>
+      </div>
+      <!-- 既存フィールド（互換性維持のため非表示化） -->
+      <div class="form-grid" style="display:none;">
+        <input type="hidden" id="tf-emp-id">
+        <input type="hidden" id="tf-emp-name">
         <div class="form-group">
           <label>発令日 <span class="required">*</span></label>
           <input class="form-control" type="date" id="tf-date">
@@ -1841,8 +1872,14 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
           <div class="form-section-title">識別情報</div>
           <div class="form-grid">
             <div class="form-group">
-              <label>社員ID <span class="required">*</span></label>
-              <input class="form-control" type="text" id="f-emp-id" placeholder="例: EMP-001">
+              <label>社員ID <span class="required">*</span> <span id="f-emp-id-auto-note" style="font-size:10px;color:var(--text-muted);font-weight:400;"></span></label>
+              <div style="display:flex;gap:6px;">
+                <input class="form-control" type="text" id="f-emp-id" placeholder="例: EMP-001" style="flex:1;">
+                <button type="button" class="btn btn-secondary btn-sm" id="f-emp-id-auto-btn" onclick="autoGenerateEmpId()" title="既存最大値+1で自動採番" style="white-space:nowrap;font-size:11px;padding:4px 10px;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20v-4l-4 4M4 4v4l4-4M4 20l4-4h4M20 4l-4 4h-4"/></svg>
+                  自動採番
+                </button>
+              </div>
             </div>
             <div class="form-group">
               <label>性別</label>
@@ -5031,6 +5068,11 @@ function openNewEmployee() {
   renderCareerList();
   initDeptHierarchySelects();
   switchTab('tab-basic');
+  // v2.0.0 - 自動採番ボタンを新規登録時のみ表示
+  var autoBtn = document.getElementById('f-emp-id-auto-btn');
+  if (autoBtn) autoBtn.style.display = '';
+  var autoNote = document.getElementById('f-emp-id-auto-note');
+  if (autoNote) autoNote.textContent = '';
   openModal('employee-modal');
 }
 
@@ -5041,6 +5083,11 @@ function openEditEmployee(id) {
   const canEdit = currentRole === 'admin' || currentRole === 'editor';
   document.getElementById('modal-title').textContent = `${canEdit ? '社員情報編集' : '社員情報閲覧'} — ${e.NameKanji || e.EmpID}`;
   document.getElementById('delete-btn').style.display = currentRole === 'admin' ? 'inline-flex' : 'none';
+  // v2.0.0 - 編集時は自動採番ボタンを非表示
+  var autoBtn = document.getElementById('f-emp-id-auto-btn');
+  if (autoBtn) autoBtn.style.display = 'none';
+  var autoNote = document.getElementById('f-emp-id-auto-note');
+  if (autoNote) autoNote.textContent = '';
   document.getElementById('save-btn').style.display = canEdit ? 'inline-flex' : 'none';
   document.getElementById('print-btn').style.display = 'inline-flex';
   // まず全フィールドを有効化してからfillForm、その後権限に応じてdisabled設定
@@ -5139,6 +5186,260 @@ function collectForm() {
   return fields;
 }
 
+// ============================================================
+// v2.0.0 - 社員ID自動採番
+// ============================================================
+function autoGenerateEmpId() {
+  var input = document.getElementById('f-emp-id');
+  if (!input) return;
+  // 既存の全社員IDを解析
+  var ids = (employees || []).map(function(e) { return e.EmpID || ''; }).filter(Boolean);
+  if (!ids.length) {
+    // 初回登録の場合
+    var newId = 'EMP-001';
+    input.value = newId;
+    showAutoIdNote('初回登録：' + newId);
+    return;
+  }
+  // プレフィックスと数字部分を検出
+  var patterns = {}; // { "EMP-": [数字リスト], "": [...] }
+  ids.forEach(function(id) {
+    // "EMP-001", "EMP-0123", "SATO-999" などのパターンを検出
+    var m = id.match(/^(.+?)(\d+)$/);
+    if (m) {
+      var prefix = m[1];
+      var num = parseInt(m[2], 10);
+      var digits = m[2].length;
+      if (!patterns[prefix]) patterns[prefix] = { nums: [], digits: digits };
+      patterns[prefix].nums.push(num);
+      patterns[prefix].digits = Math.max(patterns[prefix].digits, digits);
+    } else if (/^\d+$/.test(id)) {
+      // 数字のみのID
+      if (!patterns['']) patterns[''] = { nums: [], digits: id.length };
+      patterns[''].nums.push(parseInt(id, 10));
+      patterns[''].digits = Math.max(patterns[''].digits, id.length);
+    }
+  });
+  // 最も多く使われているプレフィックスを採用
+  var bestPrefix = null;
+  var maxCount = 0;
+  Object.keys(patterns).forEach(function(p) {
+    if (patterns[p].nums.length > maxCount) {
+      maxCount = patterns[p].nums.length;
+      bestPrefix = p;
+    }
+  });
+  if (bestPrefix === null) {
+    input.value = 'EMP-001';
+    showAutoIdNote('形式が不明のため EMP-001 を採用');
+    return;
+  }
+  // 最大値 + 1
+  var maxNum = Math.max.apply(null, patterns[bestPrefix].nums);
+  var nextNum = maxNum + 1;
+  var digits = patterns[bestPrefix].digits;
+  var newId = bestPrefix + String(nextNum).padStart(digits, '0');
+  // 重複チェック（万が一）
+  if (ids.indexOf(newId) !== -1) {
+    // 発生しにくいがフォールバック
+    nextNum = maxNum + 2;
+    newId = bestPrefix + String(nextNum).padStart(digits, '0');
+  }
+  input.value = newId;
+  showAutoIdNote('既存最大値「' + bestPrefix + String(maxNum).padStart(digits, '0') + '」+ 1');
+  showToast('社員IDを自動採番しました：' + newId, 'success');
+}
+function showAutoIdNote(msg) {
+  var note = document.getElementById('f-emp-id-auto-note');
+  if (note) {
+    note.textContent = '（' + msg + '）';
+    setTimeout(function() { if (note) note.textContent = ''; }, 5000);
+  }
+}
+// ============================================================
+// v2.0.0 - 異動履歴：社員検索モード切替
+// ============================================================
+var transferInputMode = 'search'; // 'search' or 'manual'
+function switchTransferMode(mode) {
+  transferInputMode = mode;
+  var searchSec = document.getElementById('tf-search-section');
+  var manualSec = document.getElementById('tf-manual-section');
+  var searchBtn = document.getElementById('tf-mode-search');
+  var manualBtn = document.getElementById('tf-mode-manual');
+  if (mode === 'search') {
+    if (searchSec) searchSec.style.display = '';
+    if (manualSec) manualSec.style.display = 'none';
+    if (searchBtn) { searchBtn.classList.remove('btn-secondary'); searchBtn.classList.add('btn-primary'); }
+    if (manualBtn) { manualBtn.classList.remove('btn-primary'); manualBtn.classList.add('btn-secondary'); }
+    // 検索モードに戻す時、選択済みかつ検索欄が空なら選択もクリア
+    var idEl = document.getElementById('tf-emp-id');
+    var nameEl = document.getElementById('tf-emp-name');
+    if (idEl && !idEl.value) {
+      // Nothing extra
+    }
+  } else {
+    if (searchSec) searchSec.style.display = 'none';
+    if (manualSec) manualSec.style.display = 'grid';
+    if (searchBtn) { searchBtn.classList.remove('btn-primary'); searchBtn.classList.add('btn-secondary'); }
+    if (manualBtn) { manualBtn.classList.remove('btn-secondary'); manualBtn.classList.add('btn-primary'); }
+    // 現在検索モードで選択済みの値を手入力側に転記
+    var idEl = document.getElementById('tf-emp-id');
+    var nameEl = document.getElementById('tf-emp-name');
+    var manualId = document.getElementById('tf-emp-id-manual');
+    var manualName = document.getElementById('tf-emp-name-manual');
+    if (idEl && manualId && !manualId.value) manualId.value = idEl.value || '';
+    if (nameEl && manualName && !manualName.value) manualName.value = nameEl.value || '';
+  }
+  // 検索候補ドロップダウンを閉じる
+  var dd = document.getElementById('tf-emp-search-dropdown');
+  if (dd) dd.style.display = 'none';
+}
+function onTransferEmpSearch() {
+  var q = ((document.getElementById('tf-emp-search') || {}).value || '').toLowerCase().trim();
+  var dd = document.getElementById('tf-emp-search-dropdown');
+  if (!dd) return;
+  if (!q) {
+    // 空欄フォーカス時：最近の在職者を上位10件表示
+    var recent = (employees || []).filter(function(e){ return e.Status !== '退職'; }).slice(0, 10);
+    dd.innerHTML = recent.length
+      ? renderTransferSearchResults(recent, '在職者')
+      : '<div style="padding:12px;font-size:12px;color:var(--text-muted);text-align:center;">社員データがありません</div>';
+    dd.style.display = 'block';
+    return;
+  }
+  // 全社員（退職者含む）から検索
+  var results = (employees || []).filter(function(e) {
+    var target = ((e.EmpID || '') + ' ' + (e.NameKanji || '') + ' ' + (e.NameKana || '') + ' ' + (e.NameRoman || '') + ' ' + (e.Department || '') + ' ' + (e.Position || '') + ' ' + (e.Company1 || '')).toLowerCase();
+    return target.indexOf(q) !== -1;
+  }).slice(0, 20);
+  dd.innerHTML = results.length
+    ? renderTransferSearchResults(results, results.length + '件ヒット')
+    : '<div style="padding:16px;font-size:12px;color:var(--text-muted);text-align:center;">「' + esc(q) + '」に該当する社員が見つかりません<br><span style="color:var(--c-primary);cursor:pointer;text-decoration:underline;" onclick="switchTransferMode(\'manual\')">→ 手入力モードで登録する</span></div>';
+  dd.style.display = 'block';
+}
+function renderTransferSearchResults(list, headerLabel) {
+  var head = headerLabel ? '<div style="padding:6px 12px;background:var(--c-gray-50);font-size:10px;font-weight:600;color:var(--text-muted);letter-spacing:0.05em;">' + esc(headerLabel) + '</div>' : '';
+  return head + list.map(function(e) {
+    var statusBadge = e.Status === '退職'
+      ? '<span style="font-size:10px;background:var(--c-gray-50);color:var(--c-gray-600);padding:1px 6px;border-radius:10px;">退職</span>'
+      : e.Status === '休職'
+        ? '<span style="font-size:10px;background:var(--c-warning-light);color:var(--c-warning);padding:1px 6px;border-radius:10px;">休職</span>'
+        : '<span style="font-size:10px;background:var(--c-success-light);color:var(--c-success);padding:1px 6px;border-radius:10px;">在職</span>';
+    return '<div class="tf-search-item" style="padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--border);" ' +
+      'onmousedown="selectTransferEmployee(\'' + esc(e.EmpID || '') + '\')" ' +
+      'onmouseover="this.style.background=\'var(--c-primary-light)\';" ' +
+      'onmouseout="this.style.background=\'\';">' +
+      '<div style="display:flex;align-items:center;gap:6px;justify-content:space-between;">' +
+      '<div><strong style="font-size:13px;">' + esc(e.NameKanji || '') + '</strong> <code style="font-size:11px;color:var(--text-muted);">' + esc(e.EmpID || '') + '</code></div>' +
+      statusBadge +
+      '</div>' +
+      '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">' + esc([e.Company1, e.Department, e.Position].filter(Boolean).join(' / ')) + '</div>' +
+      '</div>';
+  }).join('');
+}
+function selectTransferEmployee(empId) {
+  var e = (employees || []).find(function(x){ return x.EmpID === empId; });
+  if (!e) return;
+  // 検索欄に表示
+  var searchEl = document.getElementById('tf-emp-search');
+  if (searchEl) searchEl.value = (e.NameKanji || '') + ' (' + (e.EmpID || '') + ')';
+  // 隠しフィールドに反映
+  document.getElementById('tf-emp-id').value = e.EmpID || '';
+  document.getElementById('tf-emp-name').value = e.NameKanji || '';
+  // 現在の所属を「変更前」に自動入力
+  document.getElementById('tf-from-company').value = e.Company1 || '';
+  document.getElementById('tf-from-dept').value = e.Department || '';
+  document.getElementById('tf-from-position').value = e.Position || '';
+  document.getElementById('tf-from-emptype').value = e.EmploymentType || '';
+  document.getElementById('tf-to-company').value = e.Company1 || '';
+  document.getElementById('tf-to-dept').value = e.Department || '';
+  document.getElementById('tf-to-position').value = e.Position || '';
+  document.getElementById('tf-to-emptype').value = e.EmploymentType || '';
+  // ドロップダウンを閉じる
+  var dd = document.getElementById('tf-emp-search-dropdown');
+  if (dd) dd.style.display = 'none';
+}
+function onTransferManualIdInput() {
+  var idEl = document.getElementById('tf-emp-id-manual');
+  var nameEl = document.getElementById('tf-emp-name-manual');
+  if (!idEl || !nameEl) return;
+  var empId = (idEl.value || '').trim();
+  // 既存社員IDに一致する場合は氏名を自動補完（オプション）
+  var e = (employees || []).find(function(x){ return x.EmpID === empId; });
+  if (e && !nameEl.value) {
+    nameEl.value = e.NameKanji || '';
+  }
+}
+// 外側クリックで検索ドロップダウンを閉じる
+document.addEventListener('mousedown', function(ev) {
+  var dd = document.getElementById('tf-emp-search-dropdown');
+  var searchEl = document.getElementById('tf-emp-search');
+  if (!dd || dd.style.display === 'none') return;
+  if (ev.target === searchEl) return;
+  if (dd.contains(ev.target)) return;
+  dd.style.display = 'none';
+});
+// ============================================================
+// v2.0.0 - バリデーション強化
+// ============================================================
+function validateEmployeeForm(fields) {
+  var errors = [];
+  // メールアドレス
+  if (fields.Email && fields.Email.trim()) {
+    var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(fields.Email.trim())) {
+      errors.push('メールアドレスの形式が正しくありません（例: user@example.com）');
+    }
+  }
+  // 電話番号（数字・ハイフン・カッコ・スペース・+のみ）
+  if (fields.Phone && fields.Phone.trim()) {
+    var phonePattern = /^[0-9\-\(\)\s\+]+$/;
+    if (!phonePattern.test(fields.Phone.trim())) {
+      errors.push('電話番号は数字・ハイフン・カッコのみで入力してください');
+    }
+  }
+  if (fields.EmergencyPhone && fields.EmergencyPhone.trim()) {
+    var phonePattern2 = /^[0-9\-\(\)\s\+]+$/;
+    if (!phonePattern2.test(fields.EmergencyPhone.trim())) {
+      errors.push('緊急連絡先電話番号は数字・ハイフン・カッコのみで入力してください');
+    }
+  }
+  // 郵便番号（NNN-NNNN形式または7桁の数字）
+  if (fields.ZipCode && fields.ZipCode.trim()) {
+    var zipPattern = /^\d{3}-?\d{4}$/;
+    if (!zipPattern.test(fields.ZipCode.trim())) {
+      errors.push('郵便番号は「123-4567」または「1234567」の形式で入力してください');
+    }
+  }
+  // 生年月日：未来日ブロック
+  if (fields.Birthdate) {
+    var bd = new Date(fields.Birthdate);
+    var today = new Date();
+    today.setHours(23, 59, 59, 999);
+    if (bd > today) {
+      errors.push('生年月日に未来の日付は指定できません');
+    }
+  }
+  // 入社日 vs 退職日：逆転チェック
+  if (fields.JoinDate && fields.RetireDate) {
+    var jd = new Date(fields.JoinDate);
+    var rd = new Date(fields.RetireDate);
+    if (rd < jd) {
+      errors.push('退職日は入社日より後の日付にしてください');
+    }
+  }
+  // マイナンバー：12桁の数字（マスク状態でない場合）
+  var mynEl = document.getElementById('f-mynumber');
+  if (mynEl && !mynEl.disabled && fields.Mynumber !== undefined) {
+    var myn = String(fields.Mynumber || '').trim();
+    if (myn && myn.indexOf('•') === -1) {
+      if (!/^\d{12}$/.test(myn)) {
+        errors.push('マイナンバーは12桁の数字で入力してください');
+      }
+    }
+  }
+  return errors;
+}
 async function saveEmployee() {
   if (!accessToken) { showToast('ログインが必要です', 'error'); return; }
   if (currentRole === 'viewer') { showToast('編集権限がありません（閲覧者）', 'error'); return; }
@@ -5146,6 +5447,20 @@ async function saveEmployee() {
   const fields = collectForm();
   if (!fields.EmpID) { showToast('社員IDは必須です', 'error'); return; }
   if (!fields.NameKanji) { showToast('氏名（漢字）は必須です', 'error'); return; }
+  // v2.0.0 - バリデーション強化
+  var validationErrors = validateEmployeeForm(fields);
+  if (validationErrors.length > 0) {
+    var msg = '入力内容に問題があります：\n\n・' + validationErrors.join('\n・');
+    if (!confirm(msg + '\n\nこのまま保存を続行しますか？（推奨：キャンセルして修正）')) return;
+  }
+  // 新規登録時、社員IDの重複チェック
+  if (!editingItemId) {
+    var dup = (employees || []).find(function(e) { return e.EmpID === fields.EmpID; });
+    if (dup) {
+      showToast('社員ID「' + fields.EmpID + '」は既に登録されています。別のIDを使用するか「自動採番」ボタンをご利用ください', 'error');
+      return;
+    }
+  }
   const recordTransfer = document.getElementById('f-record-transfer')?.checked;
   const transferDate = document.getElementById('f-transfer-date')?.value;
   if (recordTransfer && !transferDate) {
@@ -5581,6 +5896,16 @@ async function openEditTransfer(id) {
   document.getElementById('transfer-modal-title').textContent = '異動履歴 編集';
   document.getElementById('tf-emp-id').value = r.EmpID || '';
   document.getElementById('tf-emp-name').value = r.EmpName || '';
+  // v2.0.0 - 編集時は検索モードで社員名を表示
+  var searchEl = document.getElementById('tf-emp-search');
+  if (searchEl) searchEl.value = (r.EmpName || '') + ' (' + (r.EmpID || '') + ')';
+  var manualIdEl = document.getElementById('tf-emp-id-manual');
+  if (manualIdEl) manualIdEl.value = r.EmpID || '';
+  var manualNameEl = document.getElementById('tf-emp-name-manual');
+  if (manualNameEl) manualNameEl.value = r.EmpName || '';
+  // 現在社員一覧に該当があれば検索モード、なければ手入力モード
+  var exists = (employees || []).find(function(x){ return x.EmpID === r.EmpID; });
+  switchTransferMode(exists ? 'search' : 'manual');
   document.getElementById('tf-date').value = r.EffectiveDate ? r.EffectiveDate.substring(0, 10) : '';
   document.getElementById('tf-type').value = r.TransferType || '';
   document.getElementById('tf-from-company').value = r.FromCompany || '';
@@ -5684,6 +6009,14 @@ function openManualTransfer() {
   document.getElementById('transfer-modal-title').textContent = '異動履歴 手動登録';
   // v1.9.0 - 編集モードをクリア
   window._editingTransferId = null;
+  // v2.0.0 - 検索モードにリセット、検索欄・手入力欄をクリア
+  var searchEl = document.getElementById('tf-emp-search');
+  if (searchEl) searchEl.value = '';
+  var manualIdEl = document.getElementById('tf-emp-id-manual');
+  if (manualIdEl) manualIdEl.value = '';
+  var manualNameEl = document.getElementById('tf-emp-name-manual');
+  if (manualNameEl) manualNameEl.value = '';
+  switchTransferMode('search');
   openModal('transfer-modal');
 }
 
@@ -5707,14 +6040,26 @@ function onTransferEmpIdInput() {
 
 async function saveManualTransfer() {
   if (!transferListId) { showToast('異動履歴リストが初期化されていません', 'error'); return; }
-  const empId = document.getElementById('tf-emp-id').value.trim();
+  // v2.0.0 - モードに応じて社員ID・氏名を取得
+  var empId, empName;
+  if (transferInputMode === 'manual') {
+    empId = ((document.getElementById('tf-emp-id-manual') || {}).value || '').trim();
+    empName = ((document.getElementById('tf-emp-name-manual') || {}).value || '').trim();
+  } else {
+    empId = ((document.getElementById('tf-emp-id') || {}).value || '').trim();
+    empName = ((document.getElementById('tf-emp-name') || {}).value || '').trim();
+  }
   const date  = document.getElementById('tf-date').value;
   const type  = document.getElementById('tf-type').value;
-  if (!empId) { showToast('社員IDは必須です', 'error'); return; }
+  if (!empId) {
+    showToast(transferInputMode === 'manual' ? '社員IDは必須です' : '社員を検索して選択してください', 'error');
+    return;
+  }
+  if (!empName) { showToast('氏名は必須です', 'error'); return; }
   if (!date)  { showToast('発令日は必須です', 'error'); return; }
   if (!type)  { showToast('異動種別は必須です', 'error'); return; }
   const fields = {
-    EmpID: empId, EmpName: document.getElementById('tf-emp-name').value.trim(),
+    EmpID: empId, EmpName: empName,
     EffectiveDate: date, TransferType: type,
     FromCompany:  document.getElementById('tf-from-company').value.trim(),
     FromDept:     document.getElementById('tf-from-dept').value.trim(),
@@ -10515,7 +10860,7 @@ async function testTeamsNotification() {
     message: 'これは人事情報管理ツールからのテスト通知です。\n\n設定が正しく完了しました。',
     severity: 'success',
     facts: [
-      { name: 'システム', value: '人事情報管理システム v1.9.0' },
+      { name: 'システム', value: '人事情報管理システム v2.0.0' },
       { name: '送信者', value: currentUser ? (currentUser.displayName || currentUser.mail || '') : '匿名' },
       { name: '送信日時', value: new Date().toLocaleString('ja-JP') }
     ]
@@ -12003,7 +12348,7 @@ function renderReportAppendixSection(data) {
 // ----- フッター -----
 function renderReportFooter() {
   return '<div class="report-footer">' +
-    '人事情報管理システム v1.9.0 / 本レポートは社員データを基に自動生成されました。' +
+    '人事情報管理システム v2.0.0 / 本レポートは社員データを基に自動生成されました。' +
     '<br>※ 機密情報を含むため、取扱いには十分ご注意ください。' +
     '</div>';
 }
