@@ -460,7 +460,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   <nav class="sidebar">
     <div class="sidebar-logo">
       <h1>人事情報<br>管理システム</h1>
-      <p>HR Management v2.0.0</p>
+      <p>HR Management v2.0.1</p>
     </div>
     <div class="sidebar-nav">
       <div class="nav-section">メイン</div>
@@ -926,10 +926,11 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
           <input class="form-control" type="text" id="tf-emp-name-manual" placeholder="例: 山田 太郎（手入力）">
         </div>
       </div>
-      <!-- 既存フィールド（互換性維持のため非表示化） -->
-      <div class="form-grid" style="display:none;">
-        <input type="hidden" id="tf-emp-id">
-        <input type="hidden" id="tf-emp-name">
+      <!-- 隠しフィールド（社員IDと氏名を保持するのみ、非表示） -->
+      <input type="hidden" id="tf-emp-id">
+      <input type="hidden" id="tf-emp-name">
+      <!-- v2.0.1 - 発令日・異動種別（可視化を修正） -->
+      <div class="form-grid" style="margin-top:10px;">
         <div class="form-group">
           <label>発令日 <span class="required">*</span></label>
           <input class="form-control" type="date" id="tf-date">
@@ -2084,9 +2085,12 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
               <label>職種</label>
               <input class="form-control" type="text" id="f-job-type" placeholder="例: 営業職">
             </div>
-            <div class="form-group">
-              <label>上司 社員ID</label>
-              <input class="form-control" type="text" id="f-manager-id" placeholder="例: EMP-010">
+            <div class="form-group" style="position:relative;">
+              <label>上司</label>
+              <input class="form-control" type="text" id="f-manager-search" placeholder="氏名・社員ID・部署で検索..." autocomplete="off">
+              <div id="f-manager-search-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 4px 12px rgba(0,0,0,0.1);max-height:280px;overflow-y:auto;z-index:100;margin-top:4px;"></div>
+              <div id="f-manager-mini-card" style="display:none;margin-top:6px;"></div>
+              <input type="hidden" id="f-manager-id">
             </div>
           </div>
         </div>
@@ -3467,11 +3471,13 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
           <label>発令希望日 <span class="required">*</span></label>
           <input class="form-control" type="date" id="req-effective-date">
         </div>
-        <div class="form-group form-full">
+        <div class="form-group form-full" style="position:relative;">
           <label>対象社員 <span class="required">*</span></label>
-          <select class="form-control" id="req-emp-id" onchange="onRequestEmpChange()">
-            <option value="">社員を選択...</option>
-          </select>
+          <input class="form-control" type="text" id="req-emp-search" placeholder="氏名・社員ID・部署で検索..." autocomplete="off">
+          <div id="req-emp-search-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 4px 12px rgba(0,0,0,0.1);max-height:280px;overflow-y:auto;z-index:100;margin-top:4px;"></div>
+          <div id="req-emp-mini-card" style="display:none;margin-top:6px;"></div>
+          <input type="hidden" id="req-emp-id">
+          <input type="hidden" id="req-emp-name">
         </div>
       </div>
       <!-- 異動: 変更内容 -->
@@ -5073,6 +5079,20 @@ function openNewEmployee() {
   if (autoBtn) autoBtn.style.display = '';
   var autoNote = document.getElementById('f-emp-id-auto-note');
   if (autoNote) autoNote.textContent = '';
+  // v2.0.1 - 上司検索を初期化（新規登録）
+  var mgrSearch = document.getElementById('f-manager-search');
+  if (mgrSearch) mgrSearch.value = '';
+  var mgrCard = document.getElementById('f-manager-mini-card');
+  if (mgrCard) { mgrCard.innerHTML = ''; mgrCard.style.display = 'none'; }
+  var mgrIdHidden = document.getElementById('f-manager-id');
+  if (mgrIdHidden) mgrIdHidden.value = '';
+  initEmployeeSearch({
+    inputId: 'f-manager-search',
+    dropdownId: 'f-manager-search-dropdown',
+    hiddenIdField: 'f-manager-id',
+    miniCardId: 'f-manager-mini-card',
+    includeRetired: false
+  });
   openModal('employee-modal');
 }
 
@@ -5095,6 +5115,30 @@ function openEditEmployee(id) {
     el.disabled = false;
   });
   fillForm(e);
+  // v2.0.1 - 上司検索を初期化・既存値を復元
+  initEmployeeSearch({
+    inputId: 'f-manager-search',
+    dropdownId: 'f-manager-search-dropdown',
+    hiddenIdField: 'f-manager-id',
+    miniCardId: 'f-manager-mini-card',
+    includeRetired: false
+  });
+  var mgrIdVal = (e.ManagerID || '').trim();
+  var mgrSearchEl = document.getElementById('f-manager-search');
+  var mgrCardEl = document.getElementById('f-manager-mini-card');
+  if (mgrIdVal) {
+    var mgrEmp = (employees || []).find(function(x){ return x.EmpID === mgrIdVal; });
+    if (mgrEmp) {
+      if (mgrSearchEl) mgrSearchEl.value = (mgrEmp.NameKanji || '') + ' (' + (mgrEmp.EmpID || '') + ')';
+      renderEmployeeMiniCard('f-manager-mini-card', mgrEmp, 'f-manager-search');
+    } else {
+      // 該当社員が見つからない場合はIDのみ表示
+      if (mgrSearchEl) mgrSearchEl.value = mgrIdVal;
+    }
+  } else {
+    if (mgrSearchEl) mgrSearchEl.value = '';
+    if (mgrCardEl) { mgrCardEl.innerHTML = ''; mgrCardEl.style.display = 'none'; }
+  }
   switchTab('tab-basic');
   openModal('employee-modal');
   // 職歴を非同期で読み込む
@@ -5255,6 +5299,217 @@ function showAutoIdNote(msg) {
     note.textContent = '（' + msg + '）';
     setTimeout(function() { if (note) note.textContent = ''; }, 5000);
   }
+}
+// ============================================================
+// v2.0.1 - 汎用社員検索コンポーネント
+// ============================================================
+// 各検索インスタンスの状態管理
+var employeeSearchInstances = {};
+/**
+ * 汎用社員検索コンポーネント
+ * @param {Object} cfg 設定オブジェクト
+ *   inputId: 検索入力欄のID
+ *   dropdownId: ドロップダウンのID
+ *   hiddenIdField: 選択後の社員ID保存先ID
+ *   hiddenNameField: 選択後の氏名保存先ID
+ *   miniCardId: 選択済み社員のミニカード表示先ID (任意)
+ *   includeRetired: 退職者も含めるか (default: true)
+ *   onSelect: 選択後のコールバック (emp) => void
+ *   onClear: クリア後のコールバック () => void
+ */
+function initEmployeeSearch(cfg) {
+  var inputEl = document.getElementById(cfg.inputId);
+  var dropdownEl = document.getElementById(cfg.dropdownId);
+  if (!inputEl || !dropdownEl) return;
+  var instance = {
+    cfg: cfg,
+    focusedIdx: -1,
+    results: [],
+    selectedEmpId: null
+  };
+  employeeSearchInstances[cfg.inputId] = instance;
+  // input イベント
+  inputEl.oninput = function() { runEmployeeSearch(cfg.inputId); };
+  inputEl.onfocus = function() { runEmployeeSearch(cfg.inputId); };
+  // キーボード操作
+  inputEl.onkeydown = function(e) { handleEmployeeSearchKey(cfg.inputId, e); };
+  // 外側クリックで閉じる
+  document.addEventListener('mousedown', function(ev) {
+    if (dropdownEl.style.display === 'none') return;
+    if (ev.target === inputEl) return;
+    if (dropdownEl.contains(ev.target)) return;
+    dropdownEl.style.display = 'none';
+  });
+}
+function runEmployeeSearch(inputId) {
+  var instance = employeeSearchInstances[inputId];
+  if (!instance) return;
+  var cfg = instance.cfg;
+  var q = ((document.getElementById(inputId) || {}).value || '').toLowerCase().trim();
+  var dd = document.getElementById(cfg.dropdownId);
+  if (!dd) return;
+  var includeRetired = cfg.includeRetired !== false; // default: true
+  var pool = (employees || []).filter(function(e) {
+    if (!includeRetired && e.Status === '退職') return false;
+    return true;
+  });
+  var results;
+  if (!q) {
+    // 空欄フォーカス時：在職者上位10件
+    results = pool.filter(function(e){ return e.Status !== '退職'; }).slice(0, 10);
+  } else {
+    results = pool.filter(function(e) {
+      var target = ((e.EmpID || '') + ' ' + (e.NameKanji || '') + ' ' + (e.NameKana || '') + ' ' + (e.NameRoman || '') + ' ' + (e.Department || '') + ' ' + (e.Position || '') + ' ' + (e.Company1 || '')).toLowerCase();
+      return target.indexOf(q) !== -1;
+    }).slice(0, 20);
+  }
+  instance.results = results;
+  instance.focusedIdx = -1;
+  if (!results.length) {
+    dd.innerHTML = '<div style="padding:16px;font-size:12px;color:var(--text-muted);text-align:center;">' +
+      (q ? '「' + esc(q) + '」に該当する社員がいません' : '社員データがありません') + '</div>';
+    dd.style.display = 'block';
+    return;
+  }
+  var headerLabel = q ? (results.length + '件ヒット') : '在職者';
+  dd.innerHTML = renderEmployeeSearchDropdown(inputId, results, headerLabel);
+  dd.style.display = 'block';
+}
+function renderEmployeeSearchDropdown(inputId, list, headerLabel) {
+  var head = headerLabel ? '<div style="padding:6px 12px;background:var(--c-gray-50);font-size:10px;font-weight:600;color:var(--text-muted);letter-spacing:0.05em;">' + esc(headerLabel) + '<span style="float:right;font-weight:400;">↑↓で選択 / Enterで確定</span></div>' : '';
+  return head + list.map(function(e, idx) {
+    var statusBadge = e.Status === '退職'
+      ? '<span style="font-size:10px;background:var(--c-gray-50);color:var(--c-gray-600);padding:1px 6px;border-radius:10px;">退職</span>'
+      : e.Status === '休職'
+        ? '<span style="font-size:10px;background:var(--c-warning-light);color:var(--c-warning);padding:1px 6px;border-radius:10px;">休職</span>'
+        : '<span style="font-size:10px;background:var(--c-success-light);color:var(--c-success);padding:1px 6px;border-radius:10px;">在職</span>';
+    return '<div class="emp-search-item" data-idx="' + idx + '" style="padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--border);" ' +
+      'onmousedown="selectEmployeeFromSearch(\'' + esc(inputId) + '\',' + idx + ')" ' +
+      'onmouseover="focusEmployeeSearchItem(\'' + esc(inputId) + '\',' + idx + ')">' +
+      '<div style="display:flex;align-items:center;gap:6px;justify-content:space-between;">' +
+      '<div><strong style="font-size:13px;">' + esc(e.NameKanji || '') + '</strong> <code style="font-size:11px;color:var(--text-muted);">' + esc(e.EmpID || '') + '</code></div>' +
+      statusBadge +
+      '</div>' +
+      '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">' + esc([e.Company1, e.Department, e.Position].filter(Boolean).join(' / ')) + '</div>' +
+      '</div>';
+  }).join('');
+}
+function focusEmployeeSearchItem(inputId, idx) {
+  var instance = employeeSearchInstances[inputId];
+  if (!instance) return;
+  instance.focusedIdx = idx;
+  var dd = document.getElementById(instance.cfg.dropdownId);
+  if (!dd) return;
+  var items = dd.querySelectorAll('.emp-search-item');
+  items.forEach(function(el, i) {
+    el.style.background = (i === idx) ? 'var(--c-primary-light)' : '';
+  });
+}
+function handleEmployeeSearchKey(inputId, e) {
+  var instance = employeeSearchInstances[inputId];
+  if (!instance) return;
+  var dd = document.getElementById(instance.cfg.dropdownId);
+  if (!dd || dd.style.display === 'none') return;
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    instance.focusedIdx = Math.min((instance.results.length - 1), instance.focusedIdx + 1);
+    focusEmployeeSearchItem(inputId, instance.focusedIdx);
+    // スクロール
+    var items = dd.querySelectorAll('.emp-search-item');
+    if (items[instance.focusedIdx]) items[instance.focusedIdx].scrollIntoView({ block: 'nearest' });
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    instance.focusedIdx = Math.max(0, instance.focusedIdx - 1);
+    focusEmployeeSearchItem(inputId, instance.focusedIdx);
+    var items2 = dd.querySelectorAll('.emp-search-item');
+    if (items2[instance.focusedIdx]) items2[instance.focusedIdx].scrollIntoView({ block: 'nearest' });
+  } else if (e.key === 'Enter') {
+    if (instance.focusedIdx >= 0 && instance.results[instance.focusedIdx]) {
+      e.preventDefault();
+      selectEmployeeFromSearch(inputId, instance.focusedIdx);
+    }
+  } else if (e.key === 'Escape') {
+    dd.style.display = 'none';
+    instance.focusedIdx = -1;
+  }
+}
+function selectEmployeeFromSearch(inputId, idx) {
+  var instance = employeeSearchInstances[inputId];
+  if (!instance) return;
+  var e = instance.results[idx];
+  if (!e) return;
+  var cfg = instance.cfg;
+  var inputEl = document.getElementById(inputId);
+  var dd = document.getElementById(cfg.dropdownId);
+  if (inputEl) inputEl.value = (e.NameKanji || '') + ' (' + (e.EmpID || '') + ')';
+  if (cfg.hiddenIdField) {
+    var idEl = document.getElementById(cfg.hiddenIdField);
+    if (idEl) idEl.value = e.EmpID || '';
+  }
+  if (cfg.hiddenNameField) {
+    var nameEl = document.getElementById(cfg.hiddenNameField);
+    if (nameEl) nameEl.value = e.NameKanji || '';
+  }
+  instance.selectedEmpId = e.EmpID || '';
+  // ミニカード表示
+  if (cfg.miniCardId) {
+    renderEmployeeMiniCard(cfg.miniCardId, e, inputId);
+  }
+  if (dd) dd.style.display = 'none';
+  // クリアボタン表示
+  updateEmployeeSearchClearButton(inputId);
+  // コールバック
+  if (typeof cfg.onSelect === 'function') cfg.onSelect(e);
+}
+function renderEmployeeMiniCard(cardId, e, inputId) {
+  var card = document.getElementById(cardId);
+  if (!card) return;
+  var statusBadge = e.Status === '退職'
+    ? '<span style="font-size:10px;background:var(--c-gray-50);color:var(--c-gray-600);padding:2px 7px;border-radius:10px;">退職</span>'
+    : e.Status === '休職'
+      ? '<span style="font-size:10px;background:var(--c-warning-light);color:var(--c-warning);padding:2px 7px;border-radius:10px;">休職</span>'
+      : '<span style="font-size:10px;background:var(--c-success-light);color:var(--c-success);padding:2px 7px;border-radius:10px;">在職</span>';
+  card.innerHTML =
+    '<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--c-primary-light);border:1px solid var(--c-primary-mid);border-radius:var(--radius);">' +
+    '<div style="flex:1;">' +
+    '<div style="display:flex;align-items:center;gap:8px;">' +
+    '<strong style="font-size:14px;color:var(--c-primary);">' + esc(e.NameKanji || '') + '</strong>' +
+    '<code style="font-size:11px;background:#fff;padding:1px 6px;border-radius:4px;">' + esc(e.EmpID || '') + '</code>' +
+    statusBadge +
+    '</div>' +
+    '<div style="font-size:11px;color:var(--text-muted);margin-top:3px;">' + esc([e.Company1, e.Department, e.Position].filter(Boolean).join(' / ')) + '</div>' +
+    '</div>' +
+    (inputId ? '<button type="button" class="btn btn-secondary btn-sm" onclick="clearEmployeeSearch(\'' + esc(inputId) + '\')" style="font-size:11px;padding:3px 8px;" title="選択解除">✕ 解除</button>' : '') +
+    '</div>';
+  card.style.display = 'block';
+}
+function clearEmployeeSearch(inputId) {
+  var instance = employeeSearchInstances[inputId];
+  if (!instance) return;
+  var cfg = instance.cfg;
+  var inputEl = document.getElementById(inputId);
+  if (inputEl) inputEl.value = '';
+  if (cfg.hiddenIdField) {
+    var idEl = document.getElementById(cfg.hiddenIdField);
+    if (idEl) idEl.value = '';
+  }
+  if (cfg.hiddenNameField) {
+    var nameEl = document.getElementById(cfg.hiddenNameField);
+    if (nameEl) nameEl.value = '';
+  }
+  if (cfg.miniCardId) {
+    var card = document.getElementById(cfg.miniCardId);
+    if (card) { card.innerHTML = ''; card.style.display = 'none'; }
+  }
+  instance.selectedEmpId = null;
+  updateEmployeeSearchClearButton(inputId);
+  if (typeof cfg.onClear === 'function') cfg.onClear();
+  if (inputEl) inputEl.focus();
+}
+function updateEmployeeSearchClearButton(inputId) {
+  var instance = employeeSearchInstances[inputId];
+  if (!instance) return;
+  // クリアボタンは miniCard 内にあるため、この関数は将来的な拡張用（現状ミニカード内で表現）
 }
 // ============================================================
 // v2.0.0 - 異動履歴：社員検索モード切替
@@ -10860,7 +11115,7 @@ async function testTeamsNotification() {
     message: 'これは人事情報管理ツールからのテスト通知です。\n\n設定が正しく完了しました。',
     severity: 'success',
     facts: [
-      { name: 'システム', value: '人事情報管理システム v2.0.0' },
+      { name: 'システム', value: '人事情報管理システム v2.0.1' },
       { name: '送信者', value: currentUser ? (currentUser.displayName || currentUser.mail || '') : '匿名' },
       { name: '送信日時', value: new Date().toLocaleString('ja-JP') }
     ]
@@ -12348,7 +12603,7 @@ function renderReportAppendixSection(data) {
 // ----- フッター -----
 function renderReportFooter() {
   return '<div class="report-footer">' +
-    '人事情報管理システム v2.0.0 / 本レポートは社員データを基に自動生成されました。' +
+    '人事情報管理システム v2.0.1 / 本レポートは社員データを基に自動生成されました。' +
     '<br>※ 機密情報を含むため、取扱いには十分ご注意ください。' +
     '</div>';
 }
@@ -12630,6 +12885,12 @@ function openNewRequest() {
   document.getElementById('req-type').value = '';
   document.getElementById('req-effective-date').value = '';
   document.getElementById('req-emp-id').value = '';
+  var reqEmpNameEl = document.getElementById('req-emp-name');
+  if (reqEmpNameEl) reqEmpNameEl.value = '';
+  var reqEmpSearchEl = document.getElementById('req-emp-search');
+  if (reqEmpSearchEl) reqEmpSearchEl.value = '';
+  var reqMiniCard = document.getElementById('req-emp-mini-card');
+  if (reqMiniCard) { reqMiniCard.innerHTML = ''; reqMiniCard.style.display = 'none'; }
   document.getElementById('req-reason').value = '';
   document.getElementById('req-approver').value = '';
   document.getElementById('req-to-dept').value = '';
@@ -12642,18 +12903,25 @@ function openNewRequest() {
   document.getElementById('req-section-retire').style.display = 'none';
   document.getElementById('request-modal-title').textContent = '新規申請';
   populateRequestSelects();
+  // v2.0.1 - 汎用社員検索を申請対象社員に適用
+  initEmployeeSearch({
+    inputId: 'req-emp-search',
+    dropdownId: 'req-emp-search-dropdown',
+    hiddenIdField: 'req-emp-id',
+    hiddenNameField: 'req-emp-name',
+    miniCardId: 'req-emp-mini-card',
+    includeRetired: false,
+    onSelect: function(e) { onRequestEmpChange(); },
+    onClear: function() {
+      var fromEl = document.getElementById('req-from-display');
+      if (fromEl) fromEl.innerHTML = '社員を選択してください';
+    }
+  });
   document.getElementById('request-create-modal').classList.add('open');
 }
 
 function populateRequestSelects() {
-  // 社員プルダウン
-  var empSel = document.getElementById('req-emp-id');
-  var actives = (employees || []).filter(function(e){return e.Status !== '退職';}).sort(function(a,b){
-    return (a.NameKanji||'').localeCompare(b.NameKanji||'', 'ja');
-  });
-  empSel.innerHTML = '<option value="">社員を選択...</option>' + actives.map(function(e){
-    return '<option value="' + esc(e.EmpID || '') + '">' + esc(e.NameKanji || '') + ' (' + esc(e.EmpID || '') + ') / ' + esc(e.Department || '') + '</option>';
-  }).join('');
+  // v2.0.1 - 社員選択は検索式に変更されたためセレクト生成は不要
   // 会社プルダウン
   var cs = (typeof companyMasterList !== 'undefined') ? companyMasterList.map(function(c){return c.name;}) : [];
   if (!cs.length) cs = Array.from(new Set((employees||[]).map(function(e){return e.Company1;}).filter(Boolean)));
@@ -12680,13 +12948,15 @@ function onRequestTypeChange() {
 }
 
 function onRequestEmpChange() {
-  var empId = document.getElementById('req-emp-id').value;
+  var empId = ((document.getElementById('req-emp-id') || {}).value || '').trim();
   var e = (employees || []).find(function(x){return x.EmpID === empId;});
+  var fromEl = document.getElementById('req-from-display');
+  if (!fromEl) return;
   if (!e) {
-    document.getElementById('req-from-display').innerHTML = '社員を選択してください';
+    fromEl.innerHTML = '社員を選択してください';
     return;
   }
-  document.getElementById('req-from-display').innerHTML =
+  fromEl.innerHTML =
     '<div><strong>所属会社</strong>: ' + esc(e.Company1 || '-') + '</div>' +
     '<div><strong>部署</strong>: ' + esc(e.Department || '-') + '</div>' +
     '<div><strong>役職</strong>: ' + esc(e.Position || '-') + '</div>' +
@@ -12886,6 +13156,16 @@ function editRequest(itemId) {
     document.getElementById('req-type').value = r.RequestType || '';
     document.getElementById('req-effective-date').value = r.EffectiveDate || '';
     document.getElementById('req-emp-id').value = r.EmpID || '';
+    var reqEmpNameEl2 = document.getElementById('req-emp-name');
+    if (reqEmpNameEl2) reqEmpNameEl2.value = r.EmpName || '';
+    // v2.0.1 - 検索欄に表示（該当社員が存在すればミニカードも表示）
+    var reqEmpSearchEl2 = document.getElementById('req-emp-search');
+    if (reqEmpSearchEl2) reqEmpSearchEl2.value = (r.EmpName || '') + ' (' + (r.EmpID || '') + ')';
+    var reqMatched = (employees || []).find(function(x){ return x.EmpID === r.EmpID; });
+    if (reqMatched) {
+      var miniCard2 = document.getElementById('req-emp-mini-card');
+      if (miniCard2) renderEmployeeMiniCard('req-emp-mini-card', reqMatched, 'req-emp-search');
+    }
     document.getElementById('req-reason').value = r.Reason || '';
     document.getElementById('req-approver').value = r.Approver || '';
     var payload = {};
